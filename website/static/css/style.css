@@ -1,0 +1,86 @@
+label{
+    display:inline-block;
+    width:200px;
+    margin-right:30px;
+    margin-top: 20px;
+    text-align:center;
+    }
+    
+input{
+    margin:10px 10px;
+    }
+    
+AddBlend{
+    border:none;
+    width:500px;
+    margin:0px auto;
+    }
+
+#Batch{
+    width: auto;
+    margin-top: 0px;
+}
+
+.Add{
+    display:inline-block;
+    width:180px;
+    margin:10px 245px;
+    text-align:center;
+}
+
+.form-group{
+    display:flex;
+    width:300px;
+    margin: auto; 
+    text-align:center;  
+}
+
+
+h3{
+    padding-top: 30px;
+}
+
+#signupbutton{
+    display:flex;
+    width:300px;
+    margin: auto; 
+    text-align:center;  
+}
+
+#Loginbutton{
+    display:flex;
+    width:300px;
+    margin: auto; 
+    text-align:center;  
+}
+
+#weightTotal{
+    font-size: large;
+}
+
+
+#createBlend{
+    display: none;
+    visibility : hidden 
+}
+
+.createBatch{
+    display: none;
+    visibility : hidden 
+}
+
+#search{
+    display: block;
+    visibility : visible 
+}
+
+.traceBlend{
+    display: none;
+    visibility : hidden 
+}
+
+.menus{
+    display: none;
+    visibility : hidden 
+}
+

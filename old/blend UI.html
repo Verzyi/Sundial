@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet"
+        href="css/bootstrap.min.css" >
+
+        <link rel="stylesheet"
+        href="css/style.css" >
+
+        <script>
+            src= "js/script.js" 
+        </script>
+
+        <h1>Blend System</h1>
+        <h1></h1>
+    </head>
+    <body>
+        <form action = "">
+            
+        <script src="js/script.js"></script>
+        <link rel="stylesheet" href="./css/style.css" >   
+            <div class "btn-group">
+                <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked="" onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Search">Search</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(creatBlend)">
+                <label class="btn btn-outline-primary" for="New">Create New</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="Add" autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(addBlend)">
+                <label class="btn btn-outline-primary" for="Add">Add to blend</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(trace)">
+                <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="History">History</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Report">Report</label>
+                
+                <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
+            </div>
+
+            <div id="addBlend" class ="addBlend">
+                <label for="Blendnumber">Blend Number</label>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0"><br>
+
+                <label for="Add">Add to blend </label>
+                <input type="number" id="secondNum" name="secondNum" placeholder="0">
+
+                <input type="radio" class="btn-check" name="options" id="Blend" autocomplete="off" checked="unchecked">
+                <label class="btn btn-secondary" for="Blend">Blend</label>
+
+                <input type="radio" class="btn-check" name="options" id="Batch" autocomplete="off" checked="unchecked">
+                <label class="btn btn-secondary" for="Batch">Batch</label><br>
+
+                <label for="weight">Weight </label>
+                <input type="number" id="weight" name="weight" placeholder="0"><br>
+
+                <label for="total">Total Weight</label>
+                <input type="number" id="weight" name="weight" placeholder="0"><br>
+                <button class = "Add">Add</button><br>
+                <br><br><br>
+            </div> 
+            <div id="creatBlend" class = createBlend>
+                <label id="blendNum">Blend Number</label><br>
+                <label for ="material">Material</label>
+                <select name="material" id="material">
+                    <option>SS17-4</option> 
+                    <option>AlSi10mg</option> 
+                    <option>SS316</option> 
+                    <option>CoCr</option> 
+                    <option>C18150</option> 
+                    <option>IN625</option> 
+                    <option>IN718</option> 
+                    <option>Test</option> 
+                </select>
+                <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" checked="unchecked">
+                <button id = "create" class = "create">Create Blend</button><br><br>
+            </div>
+
+            
+
+            <div id="search" class = "menus">
+                <label  for="BlendNum"> Blend Number </label><br>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                <button class = "Search" onclick="test()">Search</button> <br>
+            </div>
+
+
+            <div id="trace" class = "traceBlend">
+                <label  for="BlendNum"> Blend Number </label><br>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                <button class = "Search">Search</button> <br>
+            </div>            
+
+            <table style="width:100%">
+                <tr>
+                <th>ID</th>
+                <th>Weight</th>
+                <th>Last ID</th>
+                <th>Last Weight</th>
+                </tr>
+                <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                </tr>
+            </table>
+            
+            <br><br><br>
+            
+
+        </form>
+    </body>
+</html>

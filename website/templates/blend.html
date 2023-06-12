@@ -1,0 +1,111 @@
+{% extends "base.html" %} {% block title %} Blend {% endblock %}
+{% block content %}
+    <head>
+        <h1>Blend System</h1>
+        <h1></h1>
+    </head>
+    <body>
+        <div class="container-fluid">
+        <script src="{{ url_for('static',filename="js/script.js")}}" ></script>
+            <div class "btn-group">
+                <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Search">Search</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off"  onclick="hideMe(),showMe(createBlend)">
+                <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="batch" autocomplete="off"  onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="batch">Create Batch</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off"  onclick="hideMe(),showMe(trace)">
+                <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off"  onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="History">History</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off"  onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Report">Report</label>
+                
+                <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off"  onclick="hideMe(),showMe(search)">
+                <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
+            </div>
+
+        <div class="container-fluid">
+            <form id="createBlendForm" method = "POST">  
+            <div id="createBlend" class ="createBlend">
+
+                <input type="radio" class="btn-check" name="options" id="Blend" autocomplete="off" checked onclick="">
+                <label class="btn btn-outline-primary" for="Blend">Blend</label>
+
+                <input type="radio" class="btn-check" name="options" id="Batch" autocomplete="off" >
+                <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
+
+                <label for="Blendnumber">{{numType}} Number</label>
+                <input type="number" id="BlendNumer" name="BlendNumer" placeholder="0"><br>
+
+                <label for="weight">Weight </label>
+                <input type="number" id="weight" name="weight" placeholder="0"><br>
+
+                <button class = "Add">Add</button><br>
+
+                <label for="total">Total Weight</label>
+                <label for="total" id="weightTotal">testing</label><br>
+                <br>
+                <label for ="material">Material</label>
+                <select name="material" id="material">
+                    <option>SS17-4</option> 
+                    <option>AlSi10mg</option> 
+                    <option>SS316</option> 
+                    <option>CoCr</option> 
+                    <option>C18150</option> 
+                    <option>IN625</option> 
+                    <option>IN718</option> 
+                    <option>Test</option> 
+                </select>
+                <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" disabled>
+                <button id = "create" class = "create">Create Blend</button><br><br>
+            </div>
+            </form>
+            
+            <form method = "POST">  
+            <div id="search" class = "menus">
+                <label  for="BlendNum"> Blend Number </label><br>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0" onclick="showMe(search)">
+                <button type="submit" class = "Search" onclick="showMe(search)">Search</button> <br>
+            </div>
+
+            <form method = "POST"> 
+            <div id="trace" class = "traceBlend">
+                <label  for="BlendNum"> Blend Number </label><br>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                <button type="submit" class = "Search">Search</button> <br>
+            </div>  
+            </form>          
+
+            <table style= "width:100%; margin-left:20px;">
+                <th>
+                <tr style=" font-size: 20px;">
+
+                <th>ID:</th>
+                <th>Weight: </th>
+                <th>Last ID: </th>
+                <th>Last Weight:</th>
+                <th>Virgin ID:</th>
+                </th>
+                {% for blend in blendNumber %}
+                <tr>
+                    <td>{{blend.PowderBlendID}}</td>
+                    <td>{{blend.AddedWeight}}</td>
+                    <td>{{blend.OldPowderBlendID}}</td>
+                    <td>{{blend.AddedWeight}}</td>
+                    <td>{{blend.PowderInventoryBatchID}}</td>
+                </tr>
+                {% endfor %}
+            </table>
+            
+            <br><br><br>
+            
+
+        </form>
+    </body>
+{% endblock %}
