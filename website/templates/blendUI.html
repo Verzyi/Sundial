@@ -49,77 +49,103 @@
                 <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off" checked="unchecked" onclick="hideMe(),showMe(search)">
                 <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
             </div>
+            <div>
+            <div class="container-fluid">
+                <form id="createBlendForm" method="POST"> 
+                    <div id="addBlend" class ="addBlend">
+                        <label for="Blendnumber">Blend Number</label>
+                        <input type="number" id="BlendNum" name="BlendNum" placeholder="0"><br>
 
-            <div id="addBlend" class ="addBlend">
-                <label for="Blendnumber">Blend Number</label>
-                <input type="number" id="BlendNum" name="BlendNum" placeholder="0"><br>
+                        <label for="Add">Add to blend </label>
+                        <input type="number" id="secondNum" name="secondNum" placeholder="0">
 
-                <label for="Add">Add to blend </label>
-                <input type="number" id="secondNum" name="secondNum" placeholder="0">
+                        <input type="radio" class="btn-check" name="options" id="Blend" autocomplete="off" checked="unchecked">
+                        <label class="btn btn-secondary" for="Blend">Blend</label>
 
-                <input type="radio" class="btn-check" name="options" id="Blend" autocomplete="off" checked="unchecked">
-                <label class="btn btn-secondary" for="Blend">Blend</label>
+                        <input type="radio" class="btn-check" name="options" id="Batch" autocomplete="off" checked="unchecked">
+                        <label class="btn btn-secondary" for="Batch">Batch</label><br>
 
-                <input type="radio" class="btn-check" name="options" id="Batch" autocomplete="off" checked="unchecked">
-                <label class="btn btn-secondary" for="Batch">Batch</label><br>
+                        <label for="weight">Weight </label>
+                        <input type="number" id="weight" name="weight" placeholder="0"><br>
 
-                <label for="weight">Weight </label>
-                <input type="number" id="weight" name="weight" placeholder="0"><br>
-
-                <label for="total">Total Weight</label>
-                <input type="number" id="weight" name="weight" placeholder="0"><br>
-                <button class = "Add">Add</button><br>
-                <br><br><br>
+                        <label for="total">Total Weight</label>
+                        <input type="number" id="weight" name="weight" placeholder="0"><br>
+                        <button class = "Add">Add</button><br>
+                        <br><br><br>
             </div> 
-            <div id="creatBlend" class = createBlend>
-                <label id="blendNum">Blend Number</label><br>
-                <label for ="material">Material</label>
-                <select name="material" id="material">
-                    <option>SS17-4</option> 
-                    <option>AlSi10mg</option> 
-                    <option>SS316</option> 
-                    <option>CoCr</option> 
-                    <option>C18150</option> 
-                    <option>IN625</option> 
-                    <option>IN718</option> 
-                    <option>Test</option> 
-                </select>
-                <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" checked="unchecked">
-                <button id = "create" class = "create">Create Blend</button><br><br>
+            <div class="container-fluid">
+                <form id="createBlendForm" method="POST">  
+                    <div id="createBlend" class="createBlend">
+                        <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="Blend">Blend</label>
+                        
+                        <input type="radio" class="btn-check" name="option" id="Batch" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
+
+                        <label for="BlendNumber">Number</label>
+                        <input type="number" id="BlendNumber" name="BlendNumber" placeholder="0"><br>
+
+                        <label for="weight">Weight</label>
+                        <input type="number" id="weight" name="weight" placeholder="0"><br>
+
+                        <button class="Add">Add</button><br>
+
+                        <label for="total">Total Weight</label>
+                        <label for="total" id="weightTotal">testing</label><br><br>
+
+                        <label for="material">Material</label>
+                        <select name="material" id="material">
+                            <option>SS17-4</option> 
+                            <option>AlSi10mg</option> 
+                            <option>SS316</option> 
+                            <option>CoCr</option> 
+                            <option>C18150</option> 
+                            <option>IN625</option> 
+                            <option>IN718</option> 
+                            <option>Test</option> 
+                        </select>
+
+                        <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" disabled>
+                        <button id="create" class="create">Create Blend</button><br><br>
+                    </div>
+                </form>
+
+                <form id="searchBlendForm" method="POST">  
+                    <div id="search" class="menus">
+                        <label for="BlendNum">Blend Number</label><br>
+                        <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                        <button type="submit" class="Search">Search</button> <br>
+                    </div>
+                </form>
+
+                <form id="traceBlendForm" method="POST"> 
+                    <div id="trace" class="traceBlend">
+                        <label for="BlendNum">Blend Number</label><br>
+                        <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                        <button type="submit" class="Search">Search</button> <br>
+                    </div>
+                </form>          
+
+                <table style="width: 100%; margin-left: 20px;">
+                    <tr style="font-size: 20px;">
+                        <th>ID:</th>
+                        <th>Weight:</th>
+                        <th>Last ID:</th>
+                        <th>Last Weight:</th>
+                        <th>Virgin ID:</th>
+                    </tr>
+                    {% for blend in blendNumber %}
+                        <tr>
+                            <td>{{ blend.PowderBlendID }}</td>
+                            <td>{{ blend.AddedWeight }}</td>
+                            <td>{{ blend.OldPowderBlendID }}</td>
+                            <td>{{ blend.AddedWeight }}</td>
+                            <td>{{ blend.PowderInventoryBatchID }}</td>
+                        </tr>
+                    {% endfor %}
+                </table>
             </div>
-
-            
-
-            <div id="search" class = "menus">
-                <label  for="BlendNum"> Blend Number </label><br>
-                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
-                <button class = "Search" onclick="test()">Search</button> <br>
-            </div>
-
-
-            <div id="trace" class = "traceBlend">
-                <label  for="BlendNum"> Blend Number </label><br>
-                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
-                <button class = "Search">Search</button> <br>
-            </div>            
-
-            <table style="width:100%">
-                <tr> 
-                <th>ID</th>
-                <th>Weight</th>
-                <th>Last ID</th>
-                <th>Last Weight</th>
-                </tr>
-                <tr>
-                <td></td>
-                <td></td>
-                <td></td>
-                </tr>
-            </table>
-            
             <br><br><br>
-            
-
-        </form>
+        </div>
     </body>
-</html>
+{% endblock %}

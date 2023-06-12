@@ -61,7 +61,7 @@ def blend():
 					
 			else:
 				print("working on other")
-		elif request.form.get('BlendNum') is not None or request.form.get(weight) is not None:
+		elif request.form.get('BlendNum') is not None or request.form.get('weight') is not None:
 			if  len(request.form.get('BlendNum')) != 0: 
 				blendNumber = request.form.get('BlendNum')
 				if int(request.form.get('BlendNum')) > 1:
