@@ -61,6 +61,15 @@ def blend():
 					
 			else:
 				print("working on other")
+		elif request.form.get('BlendNum') is not None or request.form.get(weight) is not None:
+			if  len(request.form.get('BlendNum')) != 0: 
+				blendNumber = request.form.get('BlendNum')
+				if int(request.form.get('BlendNum')) > 1:
+					search = PowderBlends.query.filter_by(PowderBlendID= blendNumber).all()
+
+					if search:
+						flash("found blend number", category='success')
+
 
 
 	return render_template("blend.html", user = current_user)
