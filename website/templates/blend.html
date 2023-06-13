@@ -1,55 +1,52 @@
-{% extends "base.html" %} {% block title %} Blend {% endblock %}
+{% extends "base.html" %}
+{% block title %} Blend {% endblock %}
 {% block content %}
-    <head>
-        <h1>Blend System</h1>
-        <h1></h1>
-    </head>
-    <body>
+    <h1>Blend System</h1>
+    <div class="container-fluid">
+        <div class="btn-group">
+            <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked onclick="hideMe(),showMe(search)">
+            <label class="btn btn-outline-primary" for="Search">Search</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" onclick="hideMe(),showMe(createBlend)">
+            <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="batch" autocomplete="off"  onclick="hideMe(),showMe(search)">
+            <label class="btn btn-outline-primary" for="batch">Create Batch</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off"  onclick="hideMe(),showMe(trace)">
+            <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off"  onclick="hideMe(),showMe(search)">
+            <label class="btn btn-outline-primary" for="History">History</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off"  onclick="hideMe(),showMe(search)">
+            <label class="btn btn-outline-primary" for="Report">Report</label>
+            
+            <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off"  onclick="hideMe(),showMe(search)">
+            <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
+
+        </div>
+
         <div class="container-fluid">
-        <script src="{{ url_for('static',filename="js/script.js")}}" ></script>
-            <div class "btn-group">
-                <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked onclick="hideMe(),showMe(search)">
-                <label class="btn btn-outline-primary" for="Search">Search</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off"  onclick="hideMe(),showMe(createBlend)">
-                <label class="btn btn-outline-primary" for="New">Create Blend</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="batch" autocomplete="off"  onclick="hideMe(),showMe(search)">
-                <label class="btn btn-outline-primary" for="batch">Create Batch</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off"  onclick="hideMe(),showMe(trace)">
-                <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off"  onclick="hideMe(),showMe(search)">
-                <label class="btn btn-outline-primary" for="History">History</label>
-
-                <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off"  onclick="hideMe(),showMe(search)">
-                <label class="btn btn-outline-primary" for="Report">Report</label>
-                
-                <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off"  onclick="hideMe(),showMe(search)">
-                <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
-            </div>
-
-          <div class="container-fluid">
-            <form id="createBlendForm" method="POST">
+            <form id="createBlendForm" method="POST" action="{{ url_for('views.blend') }}">
                 <div id="createBlend" class="createBlend">
                     <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="Blend">Blend</label>
-            
+
                     <input type="radio" class="btn-check" name="option" id="Batch" autocomplete="off">
                     <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
-            
+
                     <label for="BlendNumber">Number</label>
                     <input type="number" id="BlendNumber" name="BlendNumber" placeholder="0"><br>
-            
+
                     <label for="weight">Weight</label>
                     <input type="number" id="weight" name="weight" placeholder="0"><br>
-            
+
                     <button type="submit" class="Add">Add</button><br>
-            
+
                     <label for="total">Total Weight</label>
                     <label for="total" id="weightTotal">testing</label><br><br>
-            
+
                     <label for="material">Material</label>
                     <select name="material" id="material">
                         <option>SS17-4</option>
@@ -61,7 +58,7 @@
                         <option>IN718</option>
                         <option>Test</option>
                     </select>
-            
+
                     <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" disabled>
                     <button id="create" class="create">Create Blend</button><br><br>
                 </div>
@@ -91,17 +88,28 @@
                     <th>Last Weight:</th>
                     <th>Virgin ID:</th>
                 </tr>
-                {% for blend in blendNumber %}
+                {% if blendNumber %}
+                    {% for blend in blendNumber %}
+                        <tr>
+                            <td>{{ blend.PowderBlendID }}</td>
+                            <td>{{ blend.AddedWeight }}</td>
+                            <td>{{ blend.OldPowderBlendID }}</td>
+                            <td>{{ blend.AddedWeight }}</td>
+                            <td>{{ blend.PowderInventoryBatchID }}</td>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+                {% for i in range(numbers|length) %}
                     <tr>
-                        <td>{{ blend.PowderBlendID }}</td>
-                        <td>{{ blend.AddedWeight }}</td>
-                        <td>{{ blend.OldPowderBlendID }}</td>
-                        <td>{{ blend.AddedWeight }}</td>
-                        <td>{{ blend.PowderInventoryBatchID }}</td>
+                        <td>{{ numbers[i] }}</td>
+                        <td>{{ weights[i] }}</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
+                        <td>N/A</td>
                     </tr>
                 {% endfor %}
             </table>
+            
         </div>
-        <br><br><br>
-    </body>
+    </div>
 {% endblock %}
