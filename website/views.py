@@ -30,40 +30,39 @@ def home():
 @login_required
 def blend():
 	if request.method == 'POST':
-		if request.form.get('BlendNumber') is not None:
+		if request.form.get('BlendNum') is not None:
 			print('test')
 			flash("found blend number ", category='success')
 
-			# if  len(request.form.get('BlendNum')) != 0: 
-			# 	blendNumber = request.form.get('BlendNum')
-			# 	if int(request.form.get('BlendNum')) > 1:
+			if  len(request.form.get('BlendNum')) != 0: 
+				blendNumber = request.form.get('BlendNum')
+				if int(request.form.get('BlendNum')) > 1:
 
 					
 
-			# 		#7362 good one to test
-			# 		search = PowderBlends.query.filter_by(PowderBlendID= blendNumber).all()
+					#7362 good one to test
+					search = PowderBlends.query.filter_by(PowderBlendID= blendNumber).all()
 
 
-			# 		if search:
-			# 			flash("found blend number ", category='success')
+					if search:
+						flash("found blend number ", category='success')
 						
 					
-			# 			weight= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.AddedWeight).all()
-			# 			oldBlendNumber= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.OldPowderBlendID).all()
-			# 			lastWeight= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.AddedWeight).all()
+						weight= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.AddedWeight).all()
+						oldBlendNumber= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.OldPowderBlendID).all()
+						lastWeight= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.AddedWeight).all()
 
-			# 			return render_template("blend.html", user = current_user, blendNumber = search)
-			# 			# return render_template("blend.html", user = current_user, blendNumber = search.PowderBlendID, weight = weight, oldBlendNumber = oldBlendNumber, lastWeight = lastWeight)
+						return render_template("blend.html", user = current_user, blendNumber = search)
+						# return render_template("blend.html", user = current_user, blendNumber = search.PowderBlendID, weight = weight, oldBlendNumber = oldBlendNumber, lastWeight = lastWeight)
 
-			# 		else:
-			# 			flash("no blend found "+str(blendNumber), category='error')
+					else:
+						flash("no blend found "+str(blendNumber), category='error')
 						
-			# 	else:
-			# 		flash("Blend number Must be postive "+str(blendNumber), category='error')
+				else:
+					flash("Blend number Must be postive "+str(blendNumber), category='error')
 					
-			# else:
-			# 	print("working on other")
-
+			else:
+				print("working on other")
 
 		elif request.form.get('BlendNumber') is not None and request.form.get('weight') is not None:
 			flash("found blend number", category='success')
