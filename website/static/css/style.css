@@ -61,17 +61,17 @@ h3{
 
 #createBlend{
     display: none;
-    visibility : hidden 
+    visibility : hidden
 }
 
 .createBatch{
     display: none;
-    visibility : hidden 
+    visibility : hidden
 }
 
 #search{
-    display: block;
-    visibility : visible 
+    display: none;
+    visibility : hidden 
 }
 
 .traceBlend{
