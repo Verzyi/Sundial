@@ -1,32 +1,10 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <link rel="stylesheet"
-        href="css/bootstrap.min.css" >
-
-        <link rel="stylesheet"
-        href="css/style.css" >
-
-        <link rel="stylesheet"
-        href="{{ url_for('static',filename="css/bootstrap.min.css")}}">
-
-        <link rel="stylesheet"
-        href="{{ url_for('static',filename="css/style.css")}}">
-
-
-        <script
-            src="{{ url_for('static',filename="js/script.js")}}" >
-        </script>
-
+{% extends "base.html" %} {% block title %} Home {% endblock %}
         <h1>Blend System</h1>
         <h1></h1>
     </head>
-    <body>
-        <form action = "">
-            
+    <body>           
         <script src="{{ url_for('static',filename="js/script.js")}}" ></script>
         <link rel="stylesheet" href="css/style.css" >   
-
             <div class "btn-group">
                 <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked="" onclick="hideMe(),showMe(search)">
                 <label class="btn btn-outline-primary" for="Search">Search</label>
@@ -51,29 +29,6 @@
             </div>
             <div>
             <div class="container-fluid">
-                <form id="createBlendForm" method="POST"> 
-                    <div id="addBlend" class ="addBlend">
-                        <label for="Blendnumber">Blend Number</label>
-                        <input type="number" id="BlendNum" name="BlendNum" placeholder="0"><br>
-
-                        <label for="Add">Add to blend </label>
-                        <input type="number" id="secondNum" name="secondNum" placeholder="0">
-
-                        <input type="radio" class="btn-check" name="options" id="Blend" autocomplete="off" checked="unchecked">
-                        <label class="btn btn-secondary" for="Blend">Blend</label>
-
-                        <input type="radio" class="btn-check" name="options" id="Batch" autocomplete="off" checked="unchecked">
-                        <label class="btn btn-secondary" for="Batch">Batch</label><br>
-
-                        <label for="weight">Weight </label>
-                        <input type="number" id="weight" name="weight" placeholder="0"><br>
-
-                        <label for="total">Total Weight</label>
-                        <input type="number" id="weight" name="weight" placeholder="0"><br>
-                        <button class = "Add">Add</button><br>
-                        <br><br><br>
-            </div> 
-            <div class="container-fluid">
                 <form id="createBlendForm" method="POST">  
                     <div id="createBlend" class="createBlend">
                         <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
@@ -88,7 +43,7 @@
                         <label for="weight">Weight</label>
                         <input type="number" id="weight" name="weight" placeholder="0"><br>
 
-                        <button class="Add">Add</button><br>
+                        <button type="submit" class="Add">Add</button><br>
 
                         <label for="total">Total Weight</label>
                         <label for="total" id="weightTotal">testing</label><br><br>
