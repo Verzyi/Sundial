@@ -28,25 +28,29 @@
         </div>
 
         <div class="container-fluid">
-            <form id="createBlendForm" method="POST" action="{{ url_for('views.blend') }}">
+            <form id="createBlendForm" method="POST">
                 <div id="createBlend" class="createBlend">
                     <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
                     <label class="btn btn-outline-primary" for="Blend">Blend</label>
-
+            
                     <input type="radio" class="btn-check" name="option" id="Batch" autocomplete="off">
                     <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
-
-                    <label for="BlendNumber">Number</label>
-                    <input type="number" id="BlendNumber" name="BlendNumber" placeholder="0"><br>
-
-                    <label for="weight">Weight</label>
-                    <input type="number" id="weight" name="weight" placeholder="0"><br>
-
-                    <button type="submit" class="Add">Add</button><br>
-
+            
+                    <div id="blendFields">
+                        <div class="blendField">
+                            <label for="BlendNumber">Number</label>
+                            <input type="number" class="blendNumber" name="BlendNumber[]" placeholder="0"><br>
+            
+                            <label for="weight">Weight</label>
+                            <input type="number" class="weight" name="weight[]" placeholder="0">
+                        </div>
+                    </div>
+            
+                    <button type="button" class="Add" onclick="addBlendField()">Add</button><br>
+            
                     <label for="total">Total Weight</label>
-                    <label for="total" id="weightTotal">testing</label><br><br>
-
+                    <label for="total" id="weightTotal">0</label><br><br>
+            
                     <label for="material">Material</label>
                     <select name="material" id="material">
                         <option>SS17-4</option>
@@ -58,12 +62,12 @@
                         <option>IN718</option>
                         <option>Test</option>
                     </select>
-
-                    <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off" disabled>
-                    <button id="create" class="create">Create Blend</button><br><br>
+            
+                    <input type="radio" class="btn-check" name="btnradio" id="create" autocomplete="off">
+                    <button id="createButton" class="create" onclick="submitBlendForm()">Create Blend</button><br><br>
                 </div>
             </form>
-
+            
             <form id="searchBlendForm" method="POST">
                 <div id="search" class="menus">
                     <label for="BlendNum">Blend Number</label><br>
