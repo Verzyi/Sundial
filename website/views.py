@@ -97,14 +97,20 @@ def create_blend():
             weight = request.form.get('weight')
             if blendNumber is not None and weight is not None:
                 if len(blendNumber) != 0 and len(weight) != 0:
-                    if int(weight) > 1:
+                    if float(weight) > 1:
                         search = PowderBlends.query.filter_by(PowderBlendID=blendNumber).first()
+                        blendWeight= PowderBlends.query.filter_by(PowderBlendID= blendNumber).with_entities(PowderBlends.AddedWeight).first()
                         if blendNumber in numbers:
                             flash("Build number is already added")
                         elif search:
-                            flash("Blend entry added", category='success')
-                            numbers.append(blendNumber)
-                            weights.append(weight)
+                            if float(blendWeight.AddedWeight) < float(weight):
+                                flash("Blend can not be more than it was "+str(blendWeight.AddedWeight)+"Kg's",category='error')
+                            else:
+                                flash("Blend entry added", category='success')
+                                numbers.append(blendNumber)
+                                weights.append(weight)
+                        else:
+                            flash("Blend Number does not exist" ,category='error')
 
 
 
