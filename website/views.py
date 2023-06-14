@@ -99,20 +99,25 @@ def create_blend():
                 if len(blendNumber) != 0 and len(weight) != 0:
                     if int(weight) > 1:
                         search = PowderBlends.query.filter_by(PowderBlendID=blendNumber).first()
-
-                        if search:
+                        if blendNumber in numbers:
+                            flash("Build number is already added")
+                        elif search:
                             flash("Blend entry added", category='success')
                             numbers.append(blendNumber)
                             weights.append(weight)
 
+
+
         if 'create' in request.form:
-            if numbers is not None:
+            if numbers :
                 flash("Blend created", category='success')
                 # Additional logic for creating the blend goes here
+                for x in numbers:
+                    print(x)
                 # Reset the table of numbers and weights
                 numbers.clear()
                 weights.clear()
-                
+
 
     return render_template("createBlend.html", user=current_user, numbers=numbers, weights=weights)
 

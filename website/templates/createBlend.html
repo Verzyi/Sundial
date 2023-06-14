@@ -10,78 +10,74 @@
             <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked onclick="window.location.href = '/createBlend'">
             <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="batch" autocomplete="off"  onclick="">
-            <label class="btn btn-outline-primary" for="batch">Create Batch</label>
+            <input type="radio" class="btn-check" name="btnradio" id="Batch" autocomplete="off" onclick="window.location.href = '/createBatch'">
+            <label class="btn btn-outline-primary" for="Batch">Create Batch</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off"  onclick="">
-            <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
+            <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="window.location.href = '/traceBlend'">
+            <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off"  onclick="">
+            <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off" onclick="window.location.href = '/history'">
             <label class="btn btn-outline-primary" for="History">History</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off"  onclick="">
+            <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off" onclick="window.location.href = '/report'">
             <label class="btn btn-outline-primary" for="Report">Report</label>
-            
-            <input type="radio" class="btn-check" name="btnradio" id="Inventory " autocomplete="off"  onclick="">
-            <label class="btn btn-outline-primary" for="Inventory ">Inventory </label><br><br>
+
+            <input type="radio" class="btn-check" name="btnradio" id="Inventory" autocomplete="off" onclick="window.location.href = '/inventory'">
+            <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
         </div>
-        <div class="container-fluid">
-            <form id="createBlendForm" method="POST">
-                <div id="createBlend" class="createBlend">
-                    <!-- Blend and Batch radio buttons -->
-                    <!-- ... -->
-            
-                    <div id="blendFields">
-                        <div class="blendField">
-                            <!-- Blend Number and Weight inputs -->
-                            <label for="BlendNumber">Number</label>
-                            <input type="number" class="blendNumber" name="BlendNumber[]" placeholder="0"><br>
-        
-                            <label for="weight">Weight</label>
-                            <input type="number" class="weight" name="weight[]" placeholder="0">
-                        </div>
+    </div>
+
+    <div class="container-fluid">
+        <form id="createBlendForm" method="POST" action="{{ url_for('views.create_blend') }}">
+            <div id="createBlend" class="createBlend">
+                <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="Blend">Blend</label>
+
+                <input type="radio" class="btn-check" name="option" id="Batch" autocomplete="off">
+                <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
+
+                <div id="blendFields">
+                    <div class="blendField">
+                        <label for="BlendNumber">Number</label>
+                        <input type="number" class="blendNumber" name="BlendNumber" id="BlendNumber" placeholder="0"><br>
+
+                        <label for="weight">Weight</label>
+                        <input type="number" class="weight" name="weight" id="weight" placeholder="0">
                     </div>
-        
-                    <button type="button" class="Add" onclick="">Add</button><br>
-        
-                    <label for="total">Total Weight</label>
-                    <label for="total" id="weightTotal">0</label><br><br>
-        
-                    <label for="material">Material</label>
-                    <select name="material" id="material">
-                        <option>SS17-4</option>
-                        <option>AlSi10mg</option>
-                        <option>SS316</option>
-                        <option>CoCr</option>
-                        <option>C18150</option>
-                        <option>IN625</option>
-                        <option>IN718</option>
-                        <option>Test</option>
-                    </select>
-        
-                    <input type="submit" class="create" value="Create Blend"><br><br>
                 </div>
-            </form>
 
-            <table style="width: 100%; margin-left: 20px;">
-                <tr style="font-size: 20px;">
-                    <th>ID:</th>
-                    <th>Weight:</th>
-                    <th>Last ID:</th>
-                    <th>Last Weight:</th>
-                    <th>Virgin ID:</th>
-                </tr>
+                <button type="submit" name="add" class="Add">Add</button><br>
 
-                {% for i in range(numbers|length) %}
-                    <tr>
-                        <td>{{ numbers[i] }}</td>
-                        <td>{{ weights[i] }}</td>
-                        <td>N/A</td>
-                        <td>N/A</td>
-                        <td>N/A</td>
-                    </tr>
-                {% endfor %}
-            </table>
-        </div>
+
+                <label for="total">Total Weight</label>
+                <label for="total" id="weightTotal">{{totalWeight}}</label><br><br>
+
+                <label for="material">Material</label>
+                <select name="material" id="material">
+                    <option>SS17-4</option>
+                    <option>AlSi10mg</option>
+                    <option>SS316</option>
+                    <option>CoCr</option>
+                    <option>C18150</option>
+                    <option>IN625</option>
+                    <option>IN718</option>
+                    <option>Test</option>
+                </select>
+
+                <button type="submit" id="createButton" class="create" name="create">Create Blend</button><br><br>
+            </div>
+        </form>
+        <table id="blendTable" style="width: 100%; margin-left: 20px;">
+            <tr style="font-size: 20px;">
+                <th>ID:</th>
+                <th>Weight:</th>
+            </tr>
+            {% for i in range(numbers|length) %}
+            <tr>
+                <td>{{ numbers[i] }}</td>
+                <td>{{ weights[i] }}</td>
+            </tr>
+            {% endfor %}
+        </table>
     </div>
 {% endblock %}
