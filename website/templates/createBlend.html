@@ -10,8 +10,8 @@
             <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked onclick="window.location.href = '/createBlend'">
             <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="Batch" autocomplete="off" onclick="window.location.href = '/createBatch'">
-            <label class="btn btn-outline-primary" for="Batch">Create Batch</label>
+            <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="window.location.href = '/createBatch'">
+            <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
 
             <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="window.location.href = '/traceBlend'">
             <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
@@ -30,11 +30,12 @@
     <div class="container-fluid">
         <form id="createBlendForm" method="POST" action="{{ url_for('views.create_blend') }}">
             <div id="createBlend" class="createBlend">
-                <input type="radio" class="btn-check" name="option" id="Blend" autocomplete="off" checked>
+                <input type="radio" class="btn-check" name="option" id="Blend" value="Blend" autocomplete="off" checked>
                 <label class="btn btn-outline-primary" for="Blend">Blend</label>
-
-                <input type="radio" class="btn-check" name="option" id="Batch" autocomplete="off">
-                <label class="btn btn-outline-primary" for="Batch">Batch</label><br>
+            
+                <input type="radio" class="btn-check" name="option" id="Batch" value="Batch" autocomplete="off">
+                <label class="btn btn-outline-primary" for="Batch">Batch</label>
+                <br>
 
                 <div id="blendFields">
                     <div class="blendField">
