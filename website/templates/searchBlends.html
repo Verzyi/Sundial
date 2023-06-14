@@ -1,0 +1,61 @@
+{% extends "blend.html" %}
+{% block title %} Blend {% endblock %}
+{% block content %}
+    <h1>Blend System - Search</h1>
+    <div class="container-fluid">
+        <div class="btn-group">
+            <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" checked onclick="window.location.href = '/searchBlends'">
+            <label class="btn btn-outline-primary" for="Search">Search</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" onclick="window.location.href = '/createBlend'">
+            <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="batch" autocomplete="off"  onclick="">
+            <label class="btn btn-outline-primary" for="batch">Create Batch</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off"  onclick="">
+            <label class="btn btn-outline-primary" for="Trace">Trace blend</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off"  onclick="">
+            <label class="btn btn-outline-primary" for="History">History</label>
+
+            <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off"  onclick="">
+            <label class="btn btn-outline-primary" for="Report">Report</label>
+            
+            <input type="radio" class="btn-check" name="btnradio" id="Inventory" autocomplete="off"  onclick="">
+            <label class="btn btn-outline-primary" for="Inventory">Inventory</label><br><br>
+        </div>
+
+        <form id="searchBlendForm" method="POST">
+            <div id="search" class="menus">
+                <label for="BlendNum">Blend Number</label><br>
+                <input type="number" id="BlendNum" name="BlendNum" placeholder="0">
+                <button type="submit" class="Search">Search</button> <br>
+            </div>
+        </form>
+        
+        <!-- Display the blend results here -->
+        <table style="width: 100%; margin-left: 20px;">
+            <!-- Table headers -->
+            <tr style="font-size: 20px;">
+                <th>ID:</th>
+                <th>Weight:</th>
+                <th>Last ID:</th>
+                <th>Last Weight:</th>
+                <th>Virgin ID:</th>
+            </tr>
+            <!-- Loop through the blendNumber results -->
+            {% if blendNumber %}
+                {% for blend in blendNumber %}
+                    <tr>
+                        <td>{{ blend.PowderBlendID }}</td>
+                        <td>{{ blend.AddedWeight }}</td>
+                        <td>{{ blend.OldPowderBlendID }}</td>
+                        <td>{{ blend.AddedWeight }}</td>
+                        <td>{{ blend.PowderInventoryBatchID }}</td>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </table>
+    </div>
+{% endblock %}
