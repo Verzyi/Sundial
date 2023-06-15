@@ -1,82 +1,98 @@
 {% extends "base.html" %}
 {% block title %} Create Blend {% endblock %}
 {% block content %}
-    <h1>Create Blend Form</h1>
-    <div class="container-fluid">
-        <div class="btn-group">
-            <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" onclick="window.location.href = '/searchBlends'">
-            <label class="btn btn-outline-primary" for="Search">Search</label>
+    <h1 class="text-center">Create Blend Form</h1>
+    <div class="container">
+        <div class="d-flex justify-content-center mt-3">
+            <div class="btn-group">
+                <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" onclick="window.location.href = '/searchBlends'">
+                <label class="btn btn-outline-primary" for="Search">Search</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked onclick="window.location.href = '/createBlend'">
-            <label class="btn btn-outline-primary" for="New">Create Blend</label>
+                <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked onclick="window.location.href = '/createBlend'">
+                <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="window.location.href = '/createBatch'">
-            <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
+                <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="">
+                <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="window.location.href = '/traceBlend'">
-            <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
+                <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="">
+                <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off" onclick="window.location.href = '/history'">
-            <label class="btn btn-outline-primary" for="History">History</label>
+                <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off" onclick="">
+                <label class="btn btn-outline-primary" for="History">History</label>
 
-            <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off" onclick="window.location.href = '/report'">
-            <label class="btn btn-outline-primary" for="Report">Report</label>
-
-            <input type="radio" class="btn-check" name="btnradio" id="Inventory" autocomplete="off" onclick="window.location.href = '/inventory'">
-            <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+                <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off" onclick="">
+                <label class="btn btn-outline-primary" for="Report">Report</label>
+                
+                <input type="radio" class="btn-check" name="btnradio" id="Inventory" autocomplete="off" onclick="">
+                <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+            </div>
         </div>
-    </div>
 
     <div class="container-fluid">
-        <form id="createBlendForm" method="POST" action="{{ url_for('views.create_blend') }}">
+        <form id="createBlendForm" method="POST" action="{{ url_for('views.create_blend') }} " class="mt-4">
             <div id="createBlend" class="createBlend">
-                <input type="radio" class="btn-check" name="option" id="Blend" value="Blend" autocomplete="off" checked>
-                <label class="btn btn-outline-primary" for="Blend">Blend</label>
-            
-                <input type="radio" class="btn-check" name="option" id="Batch" value="Batch" autocomplete="off">
-                <label class="btn btn-outline-primary" for="Batch">Batch</label>
-                <br>
+                <div class="form-group">
+                    <div class="mb-3"> 
+                        <input type="radio" class="btn-check" name="option" id="Blend" value="Blend" autocomplete="off" checked>
+                        <label class="btn btn-outline-primary" for="Blend">Blend</label>
 
-                <div id="blendFields">
-                    <div class="blendField">
-                        <label for="BlendNumber">Number</label>
-                        <input type="number" class="blendNumber" name="BlendNumber" id="BlendNumber" placeholder="0"><br>
-
-                        <label for="weight">Weight</label>
-                        <input type="number" step=0.01 class="weight" name="weight" id="weight" placeholder="0">
+                        <input type="radio" class="btn-check" name="option" id="Batch" value="Batch" autocomplete="off">
+                        <label class="btn btn-outline-primary" for="Batch">Batch</label>
                     </div>
                 </div>
 
-                <button type="submit" name="add" class="Add">Add</button><br>
+                <div id="blendFields" class="mb-3">
+                    <label for="number" class="form-label">ID</label>
+                    <input type="number" class="form-control" name="BlendNumber" id="BlendNumber" placeholder="0">
 
+                    <label for="weight" class="form-label">Weight</label>
+                    <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
+                </div>
+                <div class="d-grid">
+                    <button type="submit" id="addButton" name="add" class="btn btn-primary">Add</button>
+                </div>
+                <div class="form-group">
+                    <label for="total" id="weightTotal">Total Weight: {{ totalWeight }}</label>
+                </div>
 
-                <label for="total">Total Weight</label>
-                <label for="total" id="weightTotal">{{totalWeight}}</label><br><br>
-
-                <label for="material">Material</label>
-                <select name="material" id="material">
-                    <option>SS17-4</option>
-                    <option>AlSi10mg</option>
-                    <option>SS316</option>
-                    <option>CoCr</option>
-                    <option>C18150</option>
-                    <option>IN625</option>
-                    <option>IN718</option>
-                    <option>Test</option>
-                </select>
-
-                <button type="submit" id="createButton" class="create" name="create">Create Blend</button><br><br>
+                <!-- <div class="form-group">
+                    <label for="material">Material</label>
+                    <select name="material" id="material">
+                        <option>SS17-4</option>
+                        <option>AlSi10mg</option>
+                        <option>SS316</option>
+                        <option>CoCr</option>
+                        <option>C18150</option>
+                        <option>IN625</option>
+                        <option>IN718</option>
+                        <option>Test</option>
+                    </select>
+                </div> -->
+                <div class="d-grid">
+                    <button type="submit" id="createButton"class="btn btn-primary" name="create">Create Blend</button>
+                </div>
             </div>
         </form>
-        <table id="blendTable" style="width: 100%; margin-left: 20px;">
-            <tr style="font-size: 20px;">
-                <th>ID:</th>
-                <th>Weight:</th>
+        <table id="blendTable"  class ="table table-hover">
+            <thead>
+                <tr style="font-size: 20px;">
+                    <th scope="col">ID:</th>
+                    <th scope="col">Weight:</th>
+                    <th scope="col">Material</th>
+                </tr>
+            </thead>
+            {% for i in range(blends|length) %}
+            <tr class="table-active">
+                <td>Blend {{ blends[i] }}</td>
+                <td>{{ blendWeights[i] }}</td>
+                <td>{{ material[i] }}</td>
             </tr>
-            {% for i in range(numbers|length) %}
-            <tr>
-                <td>{{ numbers[i] }}</td>
-                <td>{{ weights[i] }}</td>
+            {% endfor %}
+            {% for i in range(batchs|length) %}
+            <tr class="table-active">
+                <td>Batch {{ batchs[i] }}</td>
+                <td>{{ batchWeights[i] }}</td>
+                <td>{{ material[i] }}</td>
             </tr>
             {% endfor %}
         </table>
