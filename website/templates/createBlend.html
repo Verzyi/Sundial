@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %} Create Blend {% endblock %}
 {% block content %}
-    <h1 class="text-center">Create Blend Form</h1>
+    <h1 class="text-center">Blend System - Create Blend</h1>
     <div class="container">
         <div class="d-flex justify-content-center mt-3">
             <div class="btn-group">
@@ -11,7 +11,7 @@
                 <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" checked onclick="window.location.href = '/createBlend'">
                 <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="">
+                <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="window.location.href = '/createBatch'">
                 <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
 
                 <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="">
@@ -71,30 +71,44 @@
                 <div class="d-grid">
                     <button type="submit" id="createButton"class="btn btn-primary" name="create">Create Blend</button>
                 </div>
+                <div class="table-responsive mt-4">
+                    <table class="table table-hover">
+                        <!-- Table headers -->
+                        <thead>
+                            <tr style="font-size: 20px;">
+                                <th scope="col">ID:</th>
+                                <th scope="col">Weight:</th>
+                                <th scope="col">Material:</th>
+                                <th scope="col">Action:</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(blends|length) %}
+                            <tr class="table-active">
+                                <td>Blend {{ blends[i] }}</td>
+                                <td>{{ blendWeights[i] }}</td>
+                                <td>{{ material[i] }}</td>
+                                <td>
+                                    <button type="submit" class="btn btn-danger" formaction="{{ url_for('views.remove_blend', blendIndex=i) }}">Remove</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% for i in range(batchs|length) %}
+                            <tr class="table-active">
+                                <td>Batch {{ batchs[i] }}</td>
+                                <td>{{ batchWeights[i] }}</td>
+                                <td>{{ material[i] }}</td>
+                                <td>
+                                    <button type="submit" class="btn btn-danger" formaction="{{ url_for('views.remove_blend', blendIndex=i + blends|length) }}">Remove</button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="mt-4">
+                    <button type="submit" class="btn btn-primary" name="create">Create Blend</button>
+                </div>
+            </form>
             </div>
-        </form>
-        <table id="blendTable"  class ="table table-hover">
-            <thead>
-                <tr style="font-size: 20px;">
-                    <th scope="col">ID:</th>
-                    <th scope="col">Weight:</th>
-                    <th scope="col">Material</th>
-                </tr>
-            </thead>
-            {% for i in range(blends|length) %}
-            <tr class="table-active">
-                <td>Blend {{ blends[i] }}</td>
-                <td>{{ blendWeights[i] }}</td>
-                <td>{{ material[i] }}</td>
-            </tr>
-            {% endfor %}
-            {% for i in range(batchs|length) %}
-            <tr class="table-active">
-                <td>Batch {{ batchs[i] }}</td>
-                <td>{{ batchWeights[i] }}</td>
-                <td>{{ material[i] }}</td>
-            </tr>
-            {% endfor %}
-        </table>
-    </div>
 {% endblock %}
