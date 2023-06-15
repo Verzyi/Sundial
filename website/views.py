@@ -7,12 +7,6 @@ from sqlalchemy import func
 
 views = Blueprint('views', __name__)
 
-numbers = []
-weights = []
-batchs = []
-batchWeights = []
-
-
 @views.route('/')
 @login_required
 def home():
@@ -92,9 +86,21 @@ def searchBlends():
     return render_template("searchBlends.html", user=current_user)
 
 
+numbers = []
+weights = []
+batchs = []
+batchWeights = []
+material=[]
+
+
 @views.route('/createBlend', methods=['GET', 'POST'])
 @login_required
 def create_blend():
+
+    blendOrBatch = 'Blend'
+
+
+
     if request.method == 'POST':
         blendNumber = request.form.get('BlendNumber')  # Move the assignment here
 
@@ -121,21 +127,25 @@ def create_blend():
                                     flash("Blend entry added", category='success')
                                     numbers.append(blendNumber)
                                     weights.append(weight)
+                                    #get material
+                                    material.append('SS17-4')
                             else:
                                 flash("Blend number does not exist", category='error')
 
                         elif radioOption == 'Batch':
                             search = PowderBlends.query.filter_by(PowderInventoryBatchID=blendNumber).first()
-                            blendWeight = PowderBlends.query(func.sum(PowderBlends)).filter_by(PowderBlendID=blendNumber).scalar()
+                            blendWeight = db.session.query(func.sum(PowderBlends.AddedWeight)).filter_by(PowderBlendID=blendNumber).scalar()
                             if blendNumber in numbers:
                                 flash("batch number is already added", category='error')
                             elif search:
-                                if float(blendWeight.AddedWeight) < float(weight):
-                                    flash("Blend cannot exceed the available weight (" + str(blendWeight.AddedWeight) + " Kg)", category='error')
+                                if float(blendWeight) < float(weight):
+                                    flash("Blend cannot exceed the available weight (" + str(blendWeight) + " Kg)", category='error')
                                 else:
                                     flash("Blend entry added", category='success')
                                     batchs.append(blendNumber)
                                     batchWeights.append(weight)
+                                    #get material
+                                    material.append('SS17-4') 
 
                             else:
                                 flash("Batch number does not exist", category='error')
@@ -151,6 +161,7 @@ def create_blend():
 
             if numbers and blendMaterial == selectedMaterial:  #this will need to be change when its acutally looking at the database to blendMaterial.Material
                 flash("Blend created", category='success')
+
                 
                 # Get the last PowderBlendID from the database
                 last_blend = PowderBlends.query.order_by(PowderBlends.PowderBlendID.desc()).first()
@@ -179,11 +190,13 @@ def create_blend():
                     PowderInventoryBatchID=batchs[x])  # Set this value accordingly  
 
                 # Add the new_blend object to the database session
-                db.session.add(new_blend)
-                last_blend_id += 1
-                last_id +=1
+                # ***********************************
+                # db.session.add(new_blend)
+                # last_blend_id += 1
+                # last_id +=1
 
-                db.session.commit()                
+                # db.session.commit()      
+                # ************************************* uncomment when you want to push to database          
 
                 # Reset the table of numbers and weights
                 numbers.clear()
@@ -192,7 +205,7 @@ def create_blend():
             else:
                 flash("Selected material does not match with the blend's material")
 
-    return render_template("createBlend.html", user=current_user, numbers=numbers+batchs, weights=weights+batchWeights)
+    return render_template("createBlend.html", user=current_user, blends=numbers, blendWeights=weights,  batchs=batchs, batchWeights=batchWeights, material = material ,totalWeight = sum([float(blendWeight)for blendWeight in weights] +[float(batchWeight)for batchWeight in batchWeights]) , type = blendOrBatch )
 
 
 

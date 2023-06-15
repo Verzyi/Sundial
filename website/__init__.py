@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine
 import os
 from flask_login import LoginManager
 
@@ -33,9 +33,7 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
     	return Users.query.get(int(id))
-
-
-
+    
     return app
 
 def create_database(app):
