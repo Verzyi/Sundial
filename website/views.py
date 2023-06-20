@@ -1,9 +1,11 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from .models import PowderBlends
 from . import db
 from flask_login import login_user, login_required, current_user
 from datetime import datetime
 from sqlalchemy import func
+import socket
+from datetime import datetime
 
 views = Blueprint('views', __name__)
 
@@ -59,70 +61,113 @@ def builds():
     return render_template("home.html", user=current_user)
 
 
+def print_sticker(printer_ip, blend_number, material, date, weight):
+    # Create a TCP/IP socket
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+    # Connect to the printer
+    printer_address = (printer_ip, 9100)
+    sock.connect(printer_address)
+
+    # Send EPL commands to print the sticker
+    commands = [
+    "^XA",
+    "^LL253",
+    "^PW812",
+    "^FO30,30",
+    "^GB752,233,1,B,0",
+    f"^FO40,90",  # Adjusted X and Y values for Blend ID text
+    f"^A0N,26,19",  # Increased font size for Blend ID text
+    f"^FDBlend ID: {blend_number}^FS",
+    f"^FO40,120",  # Adjusted X and Y values for Material text
+    f"^A0N,26,19",  # Increased font size for Material text
+    f"^FDMaterial: {material}^FS",
+    f"^FO40,150",  # Adjusted X and Y values for Weight text
+    f"^A0N,26,19",  # Increased font size for Weight text
+    f"^FDWeight: {weight}^FS",
+    f"^FO40,180",  # Adjusted X and Y values for Date text
+    f"^A0N,26,19",  # Increased font size for Date text
+    f"^FDDate: {date}^FS",
+    f"^FO260,90",  # Adjusted X and Y values for barcode (moved 0.8" to the left)
+    f"^BY1.25,2.5,60",  # Adjusted barcode width, height, and darkness
+    f"^B3N,N,100,Y,N",
+    f"^FD{blend_number}^FS",
+    # Copying elements starting at 2.1" from the left edge
+    f"^FO460,90",
+    f"^A0N,26,19",
+    f"^FDBlend ID: {blend_number}^FS",
+    f"^FO460,120",
+    f"^A0N,26,19",
+    f"^FDMaterial: {material}^FS",
+    f"^FO460,150",
+    f"^A0N,26,19",
+    f"^FDWeight: {weight}^FS",
+    f"^FO460,180",
+    f"^A0N,26,19",
+    f"^FDDate: {date}^FS",
+    f"^FO680,90",
+    f"^BY1.25,2.5,60",
+    f"^B3N,N,100,Y,N",
+    f"^FD{blend_number}^FS",
+    "^XZ"
+    ]
 
 
-@views.route('/searchBlends' , methods=['GET', 'POST'])
+
+    command_string = "\n".join(commands)
+    sock.sendall(command_string.encode())
+
+    # Close the socket
+    sock.close()
+
+
+@views.route('/searchBlends', methods=['GET', 'POST'])
 @login_required
 def searchBlends():
-    search = None   
+    search = None
+
     if request.method == 'POST':
         if 'search' in request.form:
             if request.form.get('BlendNum') is not None:
                 if len(request.form.get('BlendNum')) != 0:
                     blendNumber = request.form.get('BlendNum')
+                    session['last_blend_number'] = blendNumber  # Store the blend number in session
 
                     if int(request.form.get('BlendNum')) > 1:
                         search = PowderBlends.query.filter_by(PowderBlendID=blendNumber).all()
 
                         if search:
                             flash("Found blend number: " + str(blendNumber), category='success')
-    
                         else:
                             flash("No blend found: " + str(blendNumber), category='error')
-                        
                     else:
                         flash("Blend number must be positive: " + str(blendNumber), category='error')
-                    
-        
-        elif 'print' in request.form:
-           
-            blendID = search.PowderBlendID
-            weight = search.AddedWeight
-            # Print the sticker
-            print_sticker(blendID, weight)
-            flash("Blend printed: " + str(blendNumber), category='success')
-            
+
+        elif 'Print' in request.form:
+            printerName = request.form.get("printer")
+            if printerName == 'Shop printer':
+                printer_ip = '10.101.102.21'
+            elif printerName == 'Programmers printer':
+                printer_ip = '10.101.102.65'
+
+                blend_number = session.get('last_blend_number')  # Retrieve the blend number from session
+
+                if blend_number:
+                    weight = db.session.query(func.sum(PowderBlends.AddedWeight)).filter(PowderBlends.PowderBlendID == blend_number).scalar()
+                    date = PowderBlends.query.filter_by(PowderBlendID=blend_number).first()
+                    date = date.DateAdded.strftime("%Y/%m/%d")
+                    material = "SS17-4"  # Placeholder until I have a materials table
+                    # Print the sticker
+                    # print_sticker(printer_ip, blend_number, material, date, weight)
+                    flash("Blend printed: " + str(blend_number), category='success')
+                else:
+                    flash("Blend number not found in session", category='error')
+            else:
+                flash("Error: Blend not printed", category='error')
+
+    return render_template("searchBlends.html", user=current_user, blendNumber=search)
 
 
-    return render_template("searchBlends.html", user=current_user,blendNumber=search)
-
-def print_sticker(blendID, weight):
-    printer_ip = "10.101.102.65"
-    label_width = "1.25"
-
-    # Connect to the printer and send the print command
-    # You may need to use a library or SDK specific to your printer model
-    # Consult the printer's documentation for the correct implementation
-
-    # Example code using the requests library
-    import requests
-
-    url = f"http://{printer_ip}/print"
-    content = f"Blend ID: {blendID}\nWeight: {weight}"
-    params = {
-        "content": content,
-        "labelWidth": label_width
-    }
-
-    response = requests.get(url, params=params)
-
-    # Handle the response as per your requirement
-    # For example, check the response status code
-
-    if response.status_code == 200:
-        print("Sticker printed successfully")
-    else:
-        print("Failed to print sticker")
 
 
 numbers = []
@@ -266,6 +311,27 @@ def remove_batch(batchIndex):
 @login_required
 def create_batch():
     return render_template("createBatch.html",user=current_user)
+
+
+
+
+
+@views.route('/BlendHistory', methods=['GET', 'POST'])
+@login_required
+def blend_history():
+    search = None
+    query = PowderBlends.query.order_by(PowderBlends.DateAdded.desc())
+    
+    if request.method == 'POST':
+        search = request.form.get('search')
+        if search:
+            query = query.filter(PowderBlends.PowderBlendID.contains(search))
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 100  # Number of rows to display per page
+    blends = query.paginate(page=page, per_page=per_page)
+    
+    return render_template('blend_history.html',user=current_user, blends=blends, search=search)
 
 
 
