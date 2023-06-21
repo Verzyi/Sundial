@@ -1,5 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from .models import PowderBlends
+from .models import Builds
 from . import db
 from flask_login import login_user, login_required, current_user
 from datetime import datetime
@@ -55,13 +56,8 @@ def blend():
 
 
 
-@views.route('/builds')
-@login_required
-def builds():
-    return render_template("home.html", user=current_user)
 
-
-def print_sticker(printer_ip, blend_number, material, date, weight):
+def print_sticker(printer_ip, blend_number, material, date, weight,qty):
     # Create a TCP/IP socket
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -109,6 +105,7 @@ def print_sticker(printer_ip, blend_number, material, date, weight):
     f"^BY1.25,2.5,60",
     f"^B3N,N,100,Y,N",
     f"^FD{blend_number}^FS",
+    f"^PQ{qty}",
     "^XZ"
     ]
 
@@ -157,9 +154,10 @@ def searchBlends():
                     date = PowderBlends.query.filter_by(PowderBlendID=blend_number).first()
                     date = date.DateAdded.strftime("%Y/%m/%d")
                     material = "SS17-4"  # Placeholder until I have a materials table
+                    qty = request.form.get("qty")
                     # Print the sticker
-                    # print_sticker(printer_ip, blend_number, material, date, weight)
-                    flash("Blend printed: " + str(blend_number), category='success')
+                    print_sticker(printer_ip, blend_number, material, date, weight,qty)
+                    flash("Blend printed: " + str(qty), category='success')
                 else:
                     flash("Blend number not found in session", category='error')
             else:
@@ -332,6 +330,39 @@ def blend_history():
     blends = query.paginate(page=page, per_page=per_page)
     
     return render_template('blend_history.html',user=current_user, blends=blends, search=search)
+
+
+# builds application
+@views.route('/builds', methods=['GET', 'POST'])
+@login_required
+def builds():
+
+    # current_blend = {
+    #     'blend_id': '12345',
+    #     'created_on': '2023-06-13',
+    #     'created_by': 'John Doe'
+    #     }
+    # Handle GET request
+    if request.method == 'GET':
+        builds = Builds.query.all()
+        return render_template('builds.html', user=current_user, builds=builds, current_build=None)
+
+    # Handle POST request
+    if request.method == 'POST':
+        # Retrieve form data
+        build_id = request.form.get('build_id')
+        created_by = request.form.get('created_by')
+        # Retrieve other form data
+
+        # Create a new Build object and save it to the database
+        new_build = Builds(build_id=build_id, created_by=created_by)
+        db.session.add(new_build)
+        db.session.commit()
+
+    
+
+        # Redirect to the builds page or display a success message
+    return render_template('builds.html', user=current_user, current_build=None)
 
 
 

@@ -15,7 +15,6 @@ input {
     margin-top: 0;
 }
 
-
 .Add {
     display: flex;
     justify-content: center;
@@ -34,23 +33,40 @@ table {
     width: 100%;
     border-radius: 20px;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
-  }
+}
 
-  .container {
+.container {
     margin-left: auto;
     margin-right: auto;
-  }
-  
-  th, td {
+}
+
+th, td {
     border: 1px solid black;
     padding: 8px;
     text-align: left;
-  }
-  
-  th {
-    background-color: black;
-  }
+}
 
+th {
+    background-color: black;
+}
+
+.form-label2 {
+    text-align: left;
+    display: flex;
+    align-items: center;
+    width: auto
+}
+.form-label2 label {
+    margin-right: 10px;
+    display: inline;
+    white-space: nowrap;
+    width: auto;
+}
+input[type="text"],
+select {
+    font-size: 12px;
+    width: 100%;
+}
 
 .form-group {
     display: flex;
@@ -80,25 +96,76 @@ h3 {
     visibility: visible;
 }
 
-
 .blendField {
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-  }
-  
-  .radioLabel {
+}
+
+.radioLabel {
     margin-right: 10px;
-  }
-  
-  .inputContainer {
+}
+
+.inputContainer {
     display: flex;
     align-items: center;
-  }
-  
-  .weightLabel {
-    margin-right: 10px;
-  }
-  
+}
 
+.weightLabel {
+    margin-right: 10px;
+}
+
+/* New CSS for Current Build Info and Action Buttons */
+
+.build-section {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    width: 100%;
+    text-align: center;
+}
+
+.button-container {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+}
+
+.table-wrapper {
+    max-height: 300px;
+    overflow-y: auto;
+}
+.col-md-4 {
+    padding-right: 10px;
+}
+
+.col-md-8 {
+    padding-left: 10px;
+}
+
+.collapsing-sidebar {
+    transition: margin-left 0.3s ease-in-out;
+}
+
+.collapsed-sidebar {
+    margin-left: 0px; /* Adjust the value based on your sidebar width */
+}
+
+.build-section {
+    border: 1px solid #ccc;
+    padding: 20px;
+    margin-bottom: 20px;
+    
+}
+
+.build-info{
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 20px;
   
+}
+#searchTableCollapse{
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin: 20px;
+}

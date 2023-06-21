@@ -1,0 +1,283 @@
+{% extends "blend.html" %}
+{% block title %}Builds{% endblock %}
+
+{% block content %}
+<br>
+<div class="row">
+    <div class="col-md-auto d-flex align-items-center justify-content-center">
+        <!-- Current Build Info -->
+        <div class="build-info">
+            <!-- Display the current build info here -->
+            <h4>Current Build Info</h4>
+            <p>Build Number: N/A</p>
+            <p>Created By: N/A</p>
+            <p>Date Created: N/A</p>
+        </div>
+    </div>
+    <div class="col-md-auto d-flex align-items-center justify-content-center">
+        <div class="btn-group" role="group">
+            <button class="btn btn-primary me-2" type="button">New Build</button>
+            <button class="btn btn-primary me-2" type="button">Edit</button>
+            <button class="btn btn-primary me-2" type="button">Copy</button>
+            <button class="btn btn-primary me-2" type="button">Data Viewer</button>
+            <button class="btn btn-primary me-2" type="button">Traveler</button>
+            <button class="btn btn-primary me-2" type="button">Generate Serials</button>
+            <button class="btn btn-primary me-2" type="button">Attachments</button>
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-4">
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#searchTableCollapse" aria-expanded="true" aria-controls="searchTableCollapse"></button>
+            <div class="mb-3 form-label2" id="searchTableCollapse">
+                <label for="buildIdInput" class="form-label" >Search Build ID:</label>
+                <input type="text" class="form-control" id="buildIdInput">
+            </div>
+            <div class="table-wrapper" id="searchTableCollapse">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr class="table-active">
+                            <th>Build ID</th>
+                            <th>Build Name</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Display all build IDs and build names from the database -->
+                        {% for build in builds %}
+                        <tr>
+                            <td>{{ build.build_id }}</td>
+                            <td>{{ build.build_name }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="col-md-8">
+            <form>
+                <div class="build-section">
+                    <h5 class="text-center mb-4">Build Setup</h5>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3 form-label2">
+                                <label for="solidJobsBuildIDInput" class="form-label">Solid Jobs Build ID:</label>
+                                <input type="text" class="form-control" id="solidJobsBuildIDInput">
+                                </div>
+                                <div class="mb-3 form-label2 text-center">
+                                    <label for="buildNameInput" class="form-label2">Build Name:</label>
+                                    <input type="text" class="form-control text-center" id="buildNameInput">
+                                </div>
+                                <div class="mb-3 form-label2 text-center">
+                                    <label for="machineInput" class="form-label2">Machine:</label>
+                                    <select class="form-select text-center" id="machineInput">
+                                        <option value="">Select Machine</option>
+                                        <!-- Add machine options dynamically -->
+                                        {% for machine in machines %}
+                                        <option value="{{ machine }}">{{ machine }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3 form-label2 text-center">
+                                    <label for="materialInput" class="form-label2">Material:</label>
+                                    <select class="form-select text-center" id="materialInput">
+                                        <option value="">Select Material</option>
+                                        <!-- Add material options dynamically -->
+                                        {% for material in materials %}
+                                        <option value="{{ material }}">{{ material }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="scaleXInput" class="form-label2">Scale X:</label>
+                                <input type="text" class="form-control" id="scaleXInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="scaleYInput" class="form-label2">Scale Y:</label>
+                                <input type="text" class="form-control" id="scaleYInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="offsetInput" class="form-label2">Offset:</label>
+                                <input type="text" class="form-control" id="offsetInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="layerInput" class="form-label2">Layer:</label>
+                                <input type="text" class="form-control" id="layerInput">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="mb-3 form-label2" >
+                                <label for="platformTemperatureInput" class="form-label2">Platform Temperature:</label>
+                                <input type="text" class="form-control" id="platformTemperatureInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="potentialBuildHeightInput" class="form-label2">Potential Build Height:</label>
+                                <input type="text" class="form-control" id="potentialBuildHeightInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="MinChargeAmountInput" class="form-label2">Min Charge Amount:</label>
+                                <input type="text" class="form-control" id="MinChargeAmountInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="MaxChangeAmountInput" class="form-label2">Max Change Amount:</label>
+                                <input type="text" class="form-control" id="MaxChangeAmountInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="DosingBoostAmountInput" class="form-label2">Dosing Boost Amount:</label>
+                                <input type="text" class="form-control" id="DosingBoostAmountInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="RecoaterSpeedInput" class="form-label2">Recoater Speed:</label>
+                                <input type="text" class="form-control" id="RecoaterSpeedInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label for="ParameterRevInput" class="form-label2">Parameter Rev:</label>
+                                <input type="file" class="form-control" id="ParameterRevInput">
+                            </div>
+                            <div class="mb-3 form-label2" >
+                                <label class="form-label2">Recoater Type:</label>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recoaterType" id="bladeRadio" value="blade">
+                                    <label class="form-check-label" for="bladeRadio">
+                                        Blade
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recoaterType" id="siliconeRadio" value="silicone">
+                                    <label class="form-check-label2" for="siliconeRadio">
+                                        Silicone (Clear)
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="recoaterType" id="nbrRadio" value="nbr">
+                                    <label class="form-check-label2" for="nbrRadio">
+                                        NBR (Black)
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            
+            <div class="container">
+                <form>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="build-section">
+                                <h5 class="text-center mb-4">Build Start</h5>
+                                <div class="mb-3 form-label2" >
+                                    <label for="blendIDInput" class="form-label2">Blend ID:</label>
+                                    <input type="text" class="form-control" id="blendIDInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="plateSerialInput" class="form-label2">Plate Serial:</label>
+                                    <input type="text" class="form-control" id="plateSerialInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="platformWeightInput" class="form-label2">Platform Weight:</label>
+                                    <input type="text" class="form-control" id="platformWeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="plateThicknessInput" class="form-label2">Plate Thickness:</label>
+                                    <input type="text" class="form-control" id="plateThicknessInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="heightInput" class="form-label2">Height:</label>
+                                    <input type="text" class="form-control" id="heightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="feedPowderHeightInput" class="form-label2">Feed Powder Height:</label>
+                                    <input type="text" class="form-control" id="feedPowderHeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="F9FilterSerialInput" class="form-label2">F9 Filter Serial:</label>
+                                    <input type="text" class="form-control" id="F9FilterSerialInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="H13FilterSerialInput" class="form-label2">H13 Filter Serial:</label>
+                                    <input type="text" class="form-control" id="H13FilterSerialInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="InertTimeInput" class="form-label2">Inert Time:</label>
+                                    <select class="form-select" id="InertTimeInput">
+                                        <option value="">Select Inert Time</option>
+                                        <!-- Add inert time options dynamically -->
+                                        {% for inertTime in inertTimes %}
+                                        <option value="{{ inertTime }}">{{ inertTime }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="buildStartInput" class="form-label2">Build Start:</label>
+                                    <input type="text" class="form-control" id="buildStartInput">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="build-section">
+                                <h5 class="text-center mb-4">Build Finish</h5>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="materialAddedInput">
+                                    <label class="form-check-label2" for="materialAddedInput">Material Added</label>
+                                </div>
+                                <div class="mb-3 form-check">
+                                    <input type="checkbox" class="form-check-input" id="completedWithoutStoppageInput">
+                                    <label class="form-check-label2" for="completedWithoutStoppageInput">Completed Without Stoppage</label>
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="buildFinishInput" class="form-label2">Build Finish:</label>
+                                    <input type="text" class="form-control" id="buildFinishInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="buildTimeInput" class="form-label2">Build Time:</label>
+                                    <input type="text" class="form-control" id="buildTimeInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="finishHeightInput" class="form-label2">Finish Height:</label>
+                                    <input type="text" class="form-control" id="finishHeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="finalLaserHoursInput" class="form-label2">Final Laser Hours:</label>
+                                    <input type="text" class="form-control" id="finalLaserHoursInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="finishPlatformWeightInput" class="form-label2">Finish Platform Weight:</label>
+                                    <input type="text" class="form-control" id="finishPlatformWeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="EndPartPistonHeightInput" class="form-label2">End Part Piston Height:</label>
+                                    <input type="text" class="form-control" id="EndPartPistonHeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="endFeedPowderHeightInput" class="form-label2">End Feed Powder Height:</label>
+                                    <input type="text" class="form-control" id="endFeedPowderHeightInput">
+                                </div>
+                                <div class="mb-3 form-label2" >
+                                    <label for="BreakoutInput" class="form-label2">Breakout:</label>
+                                    <select class="form-select" id="BreakoutInput">
+                                        <option value="">Select Breakout</option>
+                                        <!-- Add breakout options dynamically -->
+                                        {% for breakout in breakouts %}
+                                        <option value="{{ breakout }}">{{ breakout }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+           
+
+<script>
+    // Add event listener to toggle the collapsed class on the sidebar when the collapse button is clicked
+    document.getElementById("searchTableCollapse").addEventListener("show.bs.collapse", function () {
+        document.querySelector(".collapsing-sidebar").classList.remove("collapsed-sidebar");
+    });
+
+    document.getElementById("searchTableCollapse").addEventListener("hide.bs.collapse", function () {
+        document.querySelector(".collapsing-sidebar").classList.add("collapsed-sidebar");
+    });
+</script>
+{% endblock %}
