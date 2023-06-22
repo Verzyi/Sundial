@@ -61,9 +61,10 @@
                     <tr style="font-size: 20px;">
                         <th scope="col">ID</th>
                         <th scope="col">Weight</th>
+                        <th scope="col">Material</th>
                         <th scope="col">Last ID</th>
                         <th scope="col">Last Weight</th>
-                        <th scope="col">Virgin ID</th>
+                        <th scope="col">Date Created</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -71,11 +72,12 @@
                     {% if blendNumber %}
                         {% for blend in blendNumber %}
                             <tr class="table-active">
-                                <td name="blendID" id="blendID">{{ blend.PowderBlendID }}</td>
+                                <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
+                                <td>{{ blend.BlendWeight }}</td>
+                                <td>{{ blend.MaterialID }}</td>
                                 <td>{{ blend.AddedWeight }}</td>
-                                <td>{{ blend.OldPowderBlendID }}</td>
                                 <td>{{ blend.AddedWeight }}</td>
-                                <td>{{ blend.PowderInventoryBatchID }}</td>
+                                <td>{{ blend.BlendDate }}</td>
                             </tr>
                         {% endfor %}
                     {% endif %}

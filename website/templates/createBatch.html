@@ -34,8 +34,8 @@
                 <label for="poNumber" class="form-label">PO Number</label>
                 <input type="number" class="form-control" name="poNumber" id="poNumber" placeholder="0">
 
-                <label for="vLotNumber" class="form-label">Virgin Lot Number</label>
-                <input type="number" class="form-control" name="vLotNumber" id="vLotNumber" placeholder="0">
+                <label for="vLotNumber" class="form-label">Virgin Lot</label>
+                <input type="text" class="form-control" name="vLot" id="vLot" placeholder="0">
 
                 <label for="weight" class="form-label">Weight</label>
                 <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
@@ -44,14 +44,9 @@
                     <div class="form-group">
                     <label for="material" class="form-label mt-4" >Material</label>
                     <select name="material" class="form-select" id="material" style="text-align: center;">
-                        <option>SS17-4</option>
-                        <option>AlSi10mg</option>
-                        <option>SS316</option>
-                        <option>CoCr</option>
-                        <option>C18150</option>
-                        <option>IN625</option>
-                        <option>IN718</option>
-                        <option>Test</option>
+                        {% for product in Products %}
+                        <option>{{ product }} - ({{ material_name[product] }})</option>
+                      {% endfor %}
                     </select>
                 </div>
                 <div class="d-grid">

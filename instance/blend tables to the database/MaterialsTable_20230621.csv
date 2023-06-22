@@ -1,0 +1,50 @@
+﻿MaterialName,SupplierProduct,MaterialID,ProductID
+Aluminum AlSi10Mg,Other (AlSi10Mg),110,110
+Aluminum AlSi10Mg,Carpenter LPW-ALSI10MG-ASJC,110,111
+Aluminum AlSi10Mg,Valimet AM103C,110,112
+Aluminum 6061,Elementum 3D A6061-RAM2,120,121
+Aluminum 7050,Elementum 3D A7050-RAM2,130,131
+Nickel Alloy 625,Other (NA625),210,210
+Nickel Alloy 625,Praxair NI-328-2,210,211
+Nickel Alloy 625,Praxair NI-328-2,210,211
+Nickel Alloy 625,ATI A625,210,212
+Nickel Alloy 625,ATI A625,210,212
+Nickel Alloy 625,LPW LPW-625-AACR,210,213
+Nickel Alloy 625,Carpenter PowderRange 625F,210,214
+Nickel Alloy 718,Velo DNI (NA718),220,220
+Nickel Alloy 718,Other (NA718),220,220
+Nickel Alloy 718,ATI (NA718),220,221
+Nickel Alloy 718,Carpenter (NA718),220,222
+Nickel Alloy 718,Praxair NI-1302,220,223
+Nickel Alloy 718,Praxair NI-1302-L74,220,224
+Nickel Alloy 718,Praxair TruForm 718-N63,220,225
+Nickel Alloy 718,Praxair TruForm 718 API / NI-1302,220,226
+Nickel Alloy 718,Oerlikon MetcoAdd 718C,220,227
+Nickel Alloy 718,P&W HMI 718-4,220,228
+Nickel Alloy K500,Praxair CU-149-4,230,231
+Nickel Alloy HX,Praxair NI-111-12,240,241
+Nickel Alloy HX,Praxair TruForm HX-12,240,242
+Nickel Alloy 939,Carpenter Micro-Melt PSM Mod 939,250,251
+Stainless Steel 17-4,LPW (SS17-4),310,311
+Stainless Steel 17-4,Praxair TruForm 174-2,310,312
+Stainless Steel 17-4,Oerlikon MetcoAdd 17-4PH-A,310,313
+Stainless Steel 316L,Carpenter PowderRange 316LF,320,321
+Stainless Steel 316L,Oerlikon MetcoAdd 316L-A,320,322
+Invar 36,Praxair FE-353,330,331
+Kovar,Praxair FE-386,340,341
+Steel 4140,Praxair FE-379,350,351
+Ferrium C64,QuesTek Ferrium C64,360,361
+Ferrium C64,Carpenter Ferrium C64,360,362
+Ferrium C64,Praxair Ferrium C64,360,363
+Invar 49,Carpenter Invar 49,370,371
+Super Duplex 25104,Sandvik SAF25104,380,381
+Titanium Ti64 G5,Other (Ti64),410,410
+Titanium Ti64 G5,Praxair TruForm 6-4 / TI-105-1,410,411
+Titanium Ti64 G23,Oerlikon MetcoAdd Ti64 ELI,420,421
+Cobalt CoCrMo,Other (CoCrMo),510,510
+Cobalt CoCrMo,ATI (CoCrMo),510,511
+Cobalt CoCrMo,LPW (CoCrMo),510,512
+Cobalt CoCrMo,Praxair CO-538-1,510,513
+Cobalt CoCrMo,Praxair CO-538-1,513,513
+Copper C18150,Praxair CU-169,610,611
+Copper GRCop-84,ATI GRCop 84,620,621

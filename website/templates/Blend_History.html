@@ -43,20 +43,20 @@
                     <thead>
                         <tr>
                             <th>Blend ID</th>
-                            <th>Old Blend ID</th>
+                            <th>Blend Material</th>
                             <th>Total Weight</th>
                             <th>Date Added</th>
-                            <th>Powder Inventory Batch ID</th>
+                            <th>Created By</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {% for blend in blends.items %}
+                        {% for blend, material_name in blends.items %}
                         <tr class="table-active">
-                            <td>{{ blend.PowderBlendID }}</td>
-                            <td>{{ blend.OldPowderBlendID }}</td>
-                            <td>{{ blend.AddedWeight }}</td>
-                            <td>{% if blend.DateAdded %}{{ blend.DateAdded.strftime("%Y-%m-%d") }}{% endif %}</td>
-                            <td>{{ blend.PowderInventoryBatchID }}</td>
+                            <td>{{ blend.BlendID }}</td>
+                            <td>{{ material_name }}</td>
+                            <td>{{ blend.BlendWeight }}</td>
+                            <td>{{ blend.BlendDate }}</td>
+                            <td>{{ blend.BlendCreatedBy }}</td>
                         </tr>
                         {% endfor %}
                     </tbody>

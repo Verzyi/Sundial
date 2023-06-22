@@ -2,40 +2,37 @@
 {% block title %}Builds{% endblock %}
 
 {% block content %}
-<br>
-<div class="row">
-    <div class="col-md-auto d-flex align-items-center justify-content-center">
+<div id="build-container">
+    <div id="build-info">
         <!-- Current Build Info -->
-        <div class="build-info">
-            <!-- Display the current build info here -->
-            <h4>Current Build Info</h4>
-            <p>Build Number: N/A</p>
-            <p>Created By: N/A</p>
-            <p>Date Created: N/A</p>
-        </div>
+        <h4>Current Build Info</h4>
+        <p>Build Number: N/A</p>
+        <p>Created By: N/A</p>
+        <p>Date Created: N/A</p>
     </div>
-    <div class="col-md-auto d-flex align-items-center justify-content-center">
-        <div class="btn-group" role="group">
-            <button class="btn btn-primary me-2" type="button">New Build</button>
-            <button class="btn btn-primary me-2" type="button">Edit</button>
-            <button class="btn btn-primary me-2" type="button">Copy</button>
-            <button class="btn btn-primary me-2" type="button">Data Viewer</button>
-            <button class="btn btn-primary me-2" type="button">Traveler</button>
-            <button class="btn btn-primary me-2" type="button">Generate Serials</button>
-            <button class="btn btn-primary me-2" type="button">Attachments</button>
+    <div id="button-container">
+        <div id="btn-group" role="group">
+            <button class="btn btn-primary" type="button">New build</button>
+            <button class="btn btn-primary" type="button">Edit</button>
+            <button class="btn btn-primary" type="button">Copy</button>
+            <button class="btn btn-primary" type="button">Data Viewer</button>
+            <button class="btn btn-primary" type="button">Traveler</button>
+            <button class="btn btn-primary" type="button">Generate Serials</button>
+            <button class="btn btn-primary" type="button">Attachments</button>
         </div>
     </div>
 </div>
 
-<div class="container">
+
+<div class="containers">
     <div class="row">
         <div class="col-md-4">
-            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#searchTableCollapse" aria-expanded="true" aria-controls="searchTableCollapse"></button>
-            <div class="mb-3 form-label2" id="searchTableCollapse">
-                <label for="buildIdInput" class="form-label" >Search Build ID:</label>
+            <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#searchTableCollapse" aria-expanded="true" aria-controls="searchTableCollapse">Search build ID</button>
+            <div class="mb-3 form-label2 collapse" id="searchTableCollapse">
+                <label for="buildIdInput" class="form-label">Search Build ID:</label>
                 <input type="text" class="form-control" id="buildIdInput">
             </div>
-            <div class="table-wrapper" id="searchTableCollapse">
+            <div class="table-wrapper collapse" id="searchTableCollapse">
                 <table class="table table-bordered">
                     <thead>
                         <tr class="table-active">
@@ -45,12 +42,6 @@
                     </thead>
                     <tbody>
                         <!-- Display all build IDs and build names from the database -->
-                        {% for build in builds %}
-                        <tr>
-                            <td>{{ build.build_id }}</td>
-                            <td>{{ build.build_name }}</td>
-                        </tr>
-                        {% endfor %}
                     </tbody>
                 </table>
             </div>
@@ -64,7 +55,7 @@
                             <div class="mb-3 form-label2">
                                 <label for="solidJobsBuildIDInput" class="form-label">Solid Jobs Build ID:</label>
                                 <input type="text" class="form-control" id="solidJobsBuildIDInput">
-                                </div>
+                            </div>
                                 <div class="mb-3 form-label2 text-center">
                                     <label for="buildNameInput" class="form-label2">Build Name:</label>
                                     <input type="text" class="form-control text-center" id="buildNameInput">
@@ -160,114 +151,7 @@
                     </div>
                 </div>
             </form>
-            
-            <div class="container">
-                <form>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="build-section">
-                                <h5 class="text-center mb-4">Build Start</h5>
-                                <div class="mb-3 form-label2" >
-                                    <label for="blendIDInput" class="form-label2">Blend ID:</label>
-                                    <input type="text" class="form-control" id="blendIDInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="plateSerialInput" class="form-label2">Plate Serial:</label>
-                                    <input type="text" class="form-control" id="plateSerialInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="platformWeightInput" class="form-label2">Platform Weight:</label>
-                                    <input type="text" class="form-control" id="platformWeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="plateThicknessInput" class="form-label2">Plate Thickness:</label>
-                                    <input type="text" class="form-control" id="plateThicknessInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="heightInput" class="form-label2">Height:</label>
-                                    <input type="text" class="form-control" id="heightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="feedPowderHeightInput" class="form-label2">Feed Powder Height:</label>
-                                    <input type="text" class="form-control" id="feedPowderHeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="F9FilterSerialInput" class="form-label2">F9 Filter Serial:</label>
-                                    <input type="text" class="form-control" id="F9FilterSerialInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="H13FilterSerialInput" class="form-label2">H13 Filter Serial:</label>
-                                    <input type="text" class="form-control" id="H13FilterSerialInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="InertTimeInput" class="form-label2">Inert Time:</label>
-                                    <select class="form-select" id="InertTimeInput">
-                                        <option value="">Select Inert Time</option>
-                                        <!-- Add inert time options dynamically -->
-                                        {% for inertTime in inertTimes %}
-                                        <option value="{{ inertTime }}">{{ inertTime }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="buildStartInput" class="form-label2">Build Start:</label>
-                                    <input type="text" class="form-control" id="buildStartInput">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="build-section">
-                                <h5 class="text-center mb-4">Build Finish</h5>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="materialAddedInput">
-                                    <label class="form-check-label2" for="materialAddedInput">Material Added</label>
-                                </div>
-                                <div class="mb-3 form-check">
-                                    <input type="checkbox" class="form-check-input" id="completedWithoutStoppageInput">
-                                    <label class="form-check-label2" for="completedWithoutStoppageInput">Completed Without Stoppage</label>
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="buildFinishInput" class="form-label2">Build Finish:</label>
-                                    <input type="text" class="form-control" id="buildFinishInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="buildTimeInput" class="form-label2">Build Time:</label>
-                                    <input type="text" class="form-control" id="buildTimeInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="finishHeightInput" class="form-label2">Finish Height:</label>
-                                    <input type="text" class="form-control" id="finishHeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="finalLaserHoursInput" class="form-label2">Final Laser Hours:</label>
-                                    <input type="text" class="form-control" id="finalLaserHoursInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="finishPlatformWeightInput" class="form-label2">Finish Platform Weight:</label>
-                                    <input type="text" class="form-control" id="finishPlatformWeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="EndPartPistonHeightInput" class="form-label2">End Part Piston Height:</label>
-                                    <input type="text" class="form-control" id="EndPartPistonHeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="endFeedPowderHeightInput" class="form-label2">End Feed Powder Height:</label>
-                                    <input type="text" class="form-control" id="endFeedPowderHeightInput">
-                                </div>
-                                <div class="mb-3 form-label2" >
-                                    <label for="BreakoutInput" class="form-label2">Breakout:</label>
-                                    <select class="form-select" id="BreakoutInput">
-                                        <option value="">Select Breakout</option>
-                                        <!-- Add breakout options dynamically -->
-                                        {% for breakout in breakouts %}
-                                        <option value="{{ breakout }}">{{ breakout }}</option>
-                                        {% endfor %}
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </form>
+    
            
 
 <script>

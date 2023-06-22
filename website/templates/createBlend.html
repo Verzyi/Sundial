@@ -87,7 +87,7 @@
                             <tr class="table-active">
                                 <td>Blend {{ blends[i] }}</td>
                                 <td>{{ blendWeights[i] }}</td>
-                                <td>{{ material[i] }}</td>
+                                <td>{{ materials[i] }}</td>
                                 <td>
                                     <button type="submit" class="btn btn-danger" formaction="{{ url_for('views.remove_blend', blendIndex=i) }}">Remove</button>
                                 </td>
@@ -97,7 +97,7 @@
                             <tr class="table-active">
                                 <td>Batch {{ batchs[i] }}</td>
                                 <td>{{ batchWeights[i] }}</td>
-                                <td>{{ material[i] }}</td>
+                                <td>{{ materials[i] }}</td>
                                 <td>
                                     <button type="submit" class="btn btn-danger" formaction="{{ url_for('views.remove_blend', blendIndex=i + blends|length) }}">Remove</button>
                                 </td>

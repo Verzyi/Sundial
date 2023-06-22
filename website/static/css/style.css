@@ -56,17 +56,17 @@ th {
     align-items: center;
     width: auto
 }
-.form-label2 label {
+.form-label2  {
     margin-right: 10px;
     display: inline;
     white-space: nowrap;
     width: auto;
 }
-input[type="text"],
+/* input[type="text"],
 select {
     font-size: 12px;
     width: 100%;
-}
+} */
 
 .form-group {
     display: flex;
@@ -169,3 +169,46 @@ h3 {
     padding: 10px;
     margin: 20px;
 }
+
+
+
+
+#build-container {
+    display: flex;
+    align-items: center;
+    margin-top: 20px;
+    margin-left: 20px;
+  }
+  
+  #build-info {
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-right: 20px;
+  }
+  
+  #button-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    flex-grow: 1;
+  }
+  
+  #btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
+  
+  .btn {
+    margin: 5px;
+  }
+  
+  @media (min-width: 768px) {
+    #button-container {
+      flex-direction: row;
+      justify-content: center;
+    }
+  }
+  
