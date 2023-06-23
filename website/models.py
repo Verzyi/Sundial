@@ -14,24 +14,23 @@ class Users(db.Model, UserMixin):
     last_name = db.Column(db.String(50))
 
 class PowderBlendParts(db.Model):
-    PowderBlendPartID = db.Column(db.Integer, primary_key=True, nullable=False) 
-    PowderBlendID = db.Column(db.Integer)
-    OldPowderBlendID = db.Column(db.Integer)
+    PartID = db.Column(db.Integer, primary_key=True, nullable=False) 
+    BlendID = db.Column(db.Integer)
+    PartBlendID = db.Column(db.Integer)
+    PartBatchID = db.Column(db.Integer)
     AddedWeight = db.Column(db.Float)
-    DateAdded = db.Column(db.DateTime(timezone=True),default=func.now())
-    PowderInventoryBatchID = db.Column(db.Integer)
+
 
 class InventoryVirginBatch(db.Model):
-    VirginID = db.Column(db.Integer, primary_key=True, nullable=False) 
-    BatchID = db.Column(db.Integer)
+    BatchID = db.Column(db.Integer, primary_key=True, nullable=False) 
     BatchCreatedBy = db.Column(db.Integer)
     BatchTimeStamp = db.Column(db.String)
     BatchFacilityID = db.Column(db.Integer)
+    ProductID = db.Column(db.Integer)
     VirginPO = db.Column(db.Integer)
     VirginLot = db.Column(db.String)
-    SupplierProduct = db.Column(db.String)
     VirginQty = db.Column(db.Float)
-    ProductID = db.Column(db.Integer)
+    
 
 class MaterialsTable(db.Model):
     MaterialName = db.Column(db.String(50), primary_key=True, unique=True)
@@ -45,7 +44,17 @@ class PowderBlends(db.Model):
     BlendDate = db.Column(db.String)
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)
-    BlendWeight = db.Column(db.Float)
+    TotalWeight = db.Column(db.Float)
+
+
+class PowderBlendCalc(db.Model):
+    BlendID = db.Column(db.Integer, primary_key=True)	
+    PartBlendID	= db.Column(db.Integer)
+    PartBatchID	= db.Column(db.Integer)
+    PartWeight	= db.Column(db.Float)
+    PartFraction = db.Column(db.Float)	
+    SieveCount = db.Column(db.Integer)
+
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)
@@ -63,8 +72,8 @@ class BuildsTable(db.Model):
     ScaleX = db.Column(db.Float)
     ScaleY = db.Column(db.Float)
     Note = db.Column(db.String)
-    BuildStart = db.Column(db.DateTime)
-    BuildFinish = db.Column(db.DateTime)
+    BuildStart = db.Column(db.String)
+    BuildFinish = db.Column(db.String)
     BuildTime = db.Column(db.Integer)
     FinishHeight = db.Column(db.Integer)
     FinishPlatformWeight = db.Column(db.Float)

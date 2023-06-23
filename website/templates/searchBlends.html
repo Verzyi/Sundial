@@ -36,7 +36,7 @@
                 </div>
                 <div class="d-grid">
                     <button type="submit" name="search" class="btn btn-primary">Search</button><br>
-                    {% if blendNumber %}
+                    {% if blends %}
                     <div class="d-grid">
                         <div class="form-group">
                         <label for="printer" class="form-label mt-4" >Select Printer</label>
@@ -48,6 +48,7 @@
                     <div class="d-grid">
                         <input type="number" id="qty" name="qty" class="form-control" placeholder="1">
                         <button type="submit" name="Print" class="btn btn-primary">Print</button>
+                        <button type="submit" name="Report" class="btn btn-primary">Report</button>
                     {% endif %}
                 </div>
             </div>
@@ -55,28 +56,24 @@
         
         <!-- Display the blend results here -->
         <div class="table-responsive mt-4">
-            <table class ="table table-hover">
+            <table class="table table-hover">
                 <!-- Table headers -->
                 <thead>
                     <tr style="font-size: 20px;">
                         <th scope="col">ID</th>
                         <th scope="col">Weight</th>
                         <th scope="col">Material</th>
-                        <th scope="col">Last ID</th>
-                        <th scope="col">Last Weight</th>
                         <th scope="col">Date Created</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Loop through the blendNumber results -->
-                    {% if blendNumber %}
-                        {% for blend in blendNumber %}
+                    <!-- Loop through the blends results -->
+                    {% if blends %}
+                        {% for blend, material_name in blends %}
                             <tr class="table-active">
                                 <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
-                                <td>{{ blend.BlendWeight }}</td>
-                                <td>{{ blend.MaterialID }}</td>
-                                <td>{{ blend.AddedWeight }}</td>
-                                <td>{{ blend.AddedWeight }}</td>
+                                <td>{{ blend.TotalWeight }}</td>
+                                <td>{{ material_name }}</td>
                                 <td>{{ blend.BlendDate }}</td>
                             </tr>
                         {% endfor %}
@@ -84,5 +81,6 @@
                 </tbody>
             </table>
         </div>
+        
     </div>
 {% endblock %}

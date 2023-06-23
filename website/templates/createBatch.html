@@ -44,8 +44,9 @@
                     <div class="form-group">
                     <label for="material" class="form-label mt-4" >Material</label>
                     <select name="material" class="form-select" id="material" style="text-align: center;">
+                        <option value="" disabled selected>Select Material</option>
                         {% for product in Products %}
-                        <option>{{ product }} - ({{ material_name[product] }})</option>
+                        <option>{{ material_name[product] }} - ({{ product }} ) </option>
                       {% endfor %}
                     </select>
                 </div>
