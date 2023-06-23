@@ -20,10 +20,23 @@ def builds_home():
 def builds_page():
     if request.method == 'GET':
         builds = BuildsTable.query.all()
+        # Format the 'Created On' dates
+        # formatted_builds = [(build.BuildIt, build.CreatedBy, build.CreatedOn.strftime("%m/%d/%Y %H:%M")) for build in builds]
+
         return render_template('builds.html', user=current_user, current_build=None)
 
-    # Handle POST request
-    # Add your code for handling the form submission here
+    # # Handle POST request
+    # if request.method == 'POST':
+    #     # Retrieve form data
+    #     build_id = request.form.get('build_id')
+    #     created_by = request.form.get('created_by')
+    #     # Retrieve other form data
 
-    # Redirect to the builds page or display a success message
+    #     # Create a new Build object and save it to the database
+    #     new_build = BuildsTable(build_id=build_id, created_by=created_by)
+    #     db.session.add(new_build)
+    #     db.session.commit()
+
+        # Redirect to the builds page or display a success message
+    # return render_template('builds.html', user=current_user, current_build=None)
     return render_template('builds.html', user=current_user, current_build=None)

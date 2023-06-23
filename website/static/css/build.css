@@ -1,0 +1,36 @@
+
+
+.build-section {
+    display: inline-table;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    margin: 20px;
+    
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  #btn-group {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: flex-end;
+    margin-block-end: auto;
+  }
+  
+  .btn {
+    margin: 5px;
+  }
+  
