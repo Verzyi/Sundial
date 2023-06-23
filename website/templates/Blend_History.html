@@ -1,77 +1,155 @@
-{% extends "blend.html" %}
-{% block title %}History{% endblock %}
-{% block content %}
-    <h1 class="text-center">Blend System - History</h1>
-    <div class="container">
-        <div class="d-flex justify-content-center mt-3">
-            <div class="btn-group">
-                <input type="radio" class="btn-check" name="btnradio" id="Search" autocomplete="off" onclick="window.location.href = '/searchBlends'">
-                <label class="btn btn-outline-primary" for="Search">Search</label>
+{% extends "blend.html" %} {% block title %}History{% endblock %} {% block
+content %}
+<h1 class="text-center">Blend System - History</h1>
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/searchBlends'"
+      />
+      <label class="btn btn-outline-primary" for="Search">Search</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="New" autocomplete="off" onclick="window.location.href = '/createBlend'">
-                <label class="btn btn-outline-primary" for="New">Create Blend</label>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="New"
+        autocomplete="off"
+        onclick="window.location.href = '/createBlend'"
+      />
+      <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="createBatch" autocomplete="off" onclick="window.location.href = '/createBatch'">
-                <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="createBatch"
+        autocomplete="off"
+        onclick="window.location.href = '/createBatch'"
+      />
+      <label class="btn btn-outline-primary" for="createBatch"
+        >Create Batch</label
+      >
 
-                <input type="radio" class="btn-check" name="btnradio" id="Trace" autocomplete="off" onclick="">
-                <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Trace"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="History" autocomplete="off" checked onclick="window.location.href = '/BlendHistory'">
-                <label class="btn btn-outline-primary" for="History">History</label>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="History"
+        autocomplete="off"
+        checked
+        onclick="window.location.href = '/BlendHistory'"
+      />
+      <label class="btn btn-outline-primary" for="History">History</label>
 
-                <input type="radio" class="btn-check" name="btnradio" id="Report" autocomplete="off" onclick="">
-                <label class="btn btn-outline-primary" for="Report">Report</label>
-                
-                <input type="radio" class="btn-check" name="btnradio" id="Inventory" autocomplete="off" onclick="">
-                <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
-            </div>
-        </div>
-        <div class="container">
-            <form action="{{ url_for('views.blend_history') }}" method="POST" class="mt-4">
-                <div class="form-group">
-                    <input type="text" class="form-control" name="search" {% if search is none %}placeholder="Search Blend ID"{% else %}value="{{ search }}"{% endif %}>
-                </div>
-                    <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Search</button>
-                    </div>
-            </form>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Report"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Report">Report</label>
 
-            <div class="table-responsive mt-4">
-                <table class="table table-hover">
-                    <!-- Table headers -->
-                    <thead>
-                        <tr>
-                            <th>Blend ID</th>
-                            <th>Blend Material</th>
-                            <th>Total Weight</th>
-                            <th>Date Added</th>
-                            <th>Created By</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {% for blend, material_name in blends.items %}
-                        <tr class="table-active">
-                            <td>{{ blend.BlendID }}</td>
-                            <td>{{ material_name }}</td>
-                            <td>{{ blend.TotalWeight }}</td>
-                            <td>{{ blend.BlendDate }}</td>
-                            <td>{{ blend.BlendCreatedBy }}</td>
-                        </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            
-            <!-- Pagination -->
-            <nav class="mt-4">
-                {% if blends.has_prev %}
-                <a class="btn btn-primary" href="{{ url_for('views.blend_history', page=blends.prev_num, search=search) }}">Previous</a>
-                {% endif %}
-                {% if blends.has_next %}
-                <a class="btn btn-primary" href="{{ url_for('views.blend_history', page=blends.next_num, search=search) }}">Next</a>
-                {% endif %}
-            </nav>
-        </div>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Inventory"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
     </div>
+  </div>
+  <div class="container">
+    <form
+      action="{{ url_for('views.blend_history') }}"
+      method="POST"
+      class="mt-4"
+    >
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          name="search"
+          {%
+          if
+          search
+          is
+          none
+          %}placeholder="Search Blend ID"
+          {%
+          else
+          %}value="{{ search }}"
+          {%
+          endif
+          %}
+        />
+      </div>
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
+
+    <div class="table-responsive mt-4">
+      <table class="table table-hover">
+        <!-- Table headers -->
+        <thead>
+          <tr>
+            <th>Blend ID</th>
+            <th>Blend Material</th>
+            <th>Total Weight</th>
+            <th>Date Added</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for blend, material_name in blends.items %}
+          <tr class="table-active">
+            <td>{{ blend.BlendID }}</td>
+            <td>{{ material_name }}</td>
+            <td>{{ blend.TotalWeight }}</td>
+            <td>{{ blend.BlendDate }}</td>
+            <td>{{ blend.BlendCreatedBy }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+      {% if blends.has_prev %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('views.blend_history', page=blends.prev_num, search=search) }}"
+        >Previous</a
+      >
+      {% endif %} {% if blends.has_next %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('views.blend_history', page=blends.next_num, search=search) }}"
+        >Next</a
+      >
+      {% endif %}
+    </nav>
+  </div>
+</div>
 {% endblock %}
