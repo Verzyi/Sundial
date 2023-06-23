@@ -1,5 +1,6 @@
-{% extends "blend.html" %} {% block title %}History{% endblock %} {% block
-content %}
+{% extends "blend.html" %} 
+{% block title %}History{% endblock %} 
+{% block content %}
 <h1 class="text-center">Blend System - History</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
@@ -89,18 +90,11 @@ content %}
           type="text"
           class="form-control"
           name="search"
-          {%
-          if
-          search
-          is
-          none
-          %}placeholder="Search Blend ID"
-          {%
-          else
-          %}value="{{ search }}"
-          {%
-          endif
-          %}
+          {% if search is none %}
+          placeholder="Search Blend ID"
+          {% else %}
+          value="{{ search }}"
+          {%endif %}
         />
       </div>
       <div class="d-grid">
