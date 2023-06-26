@@ -1,36 +1,75 @@
-
-
 .build-section {
     display: inline-table;
+    position: relative;
     border: 1px solid #ffffff;
     padding: 20px;
-    margin: 20px;
+    margin: 5px;
+    left: 25px;
+    width: 250px;
+    top: -20px;
     
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  #btn-group {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    justify-content: flex-end;
-    margin-block-end: auto;
-  }
+.controlButtons{
+    display: inline-flex;
+    position: relative;
+    padding-top: 20px;
+    right: auto;
+    left: 300px;
+    margin:0 0 0 20px ;
+}
   
   .btn {
+    margin: 2px;
+    height: 120px;
+    width: 120px;
+  }
+
+.searchBuilds{
+    padding: 20px;
+    width: 300PX;
     margin: 5px;
+    height: 600px;
+}
+
+  
+.buildsTable{
+    border: 1px solid #ffffff;
+    display:flex;
+    width: 250px;
+    height: 550px;
+    overflow-y: scroll;
+    overflow-x: hidden;
+    padding: 0px;
+    margin-top: 5px;
+}
+
+.buildsetupForm{
+    position:absolute;
+    display: inline;
+    width: 1500px;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    text-align: center;
+    margin: 0 0 0 10px;
+    top: 220px;
+    left: 300px;
+}
+
+  .input-group .custom-file-input {
+    text-align: center;
   }
   
+/*   
+  
+  
+  @media (min-width: 992px) {
+    .buildsetSeupForm {
+      width: 100vw;
+      max-width: none;
+      left: 0;
+      right: 0;
+      margin: 0;
+    }
+  }
+   */

@@ -18,12 +18,33 @@ def builds_home():
 @builds.route('/builds', methods=['GET', 'POST'])
 @login_required
 def builds_page():
-    if request.method == 'GET':
-        builds = BuildsTable.query.all()
+    # if request.method == 'GET':
+    #     selectedFacility = request.form.get("Facility")
+    #     # selectedFacility = "Austin"
+    #     lastSelectedFacility=session['last_selected_facility'] = selectedFacility
+    #     if selectedFacility is not None:
+    #         builds = BuildsTable.query.filter_by(FacilityName = lastSelectedFacility).all()
+    #         flash(selectedFacility)
+    #     else:
+    #         builds = []
+    
+    # return render_template('builds.html', user=current_user, current_build=None, buildsInfo=builds)
+
+    if request.method == 'POST':
+        if 'Facility' in request.form:
+            selectedFacility = request.form.get("Facility")
+            session['last_selected_facility'] = selectedFacility
+
+    selectedFacility = session.get('last_selected_facility')
+    builds = []
+    if selectedFacility is not None:
+        builds = BuildsTable.query.filter_by(FacilityName=selectedFacility).all()
+
+    return render_template('builds.html', user=current_user, current_build=None, buildsInfo=builds)
         # Format the 'Created On' dates
         # formatted_builds = [(build.BuildIt, build.CreatedBy, build.CreatedOn.strftime("%m/%d/%Y %H:%M")) for build in builds]
 
-        return render_template('builds.html', user=current_user, current_build=None)
+   
 
     # # Handle POST request
     # if request.method == 'POST':
