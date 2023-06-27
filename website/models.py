@@ -45,16 +45,21 @@ class PowderBlends(db.Model):
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
+    CurrentWeight = db.Column(db.Float)
 
 
 class PowderBlendCalc(db.Model):
-    BlendID = db.Column(db.Integer, primary_key=True)	
+    BlendID = db.Column(db.Integer,primary_key=True)	
+    PartID = dbColumn(db.Integer,primary_key=True)
     PartBlendID	= db.Column(db.Integer)
     PartBatchID	= db.Column(db.Integer)
     PartWeight	= db.Column(db.Float)
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
-
+    
+__table_args__ = (
+        ForeignKeyConstraint(['BlendID', 'PartID'], ['other_table.BlendID', 'other_table.PartID']),
+    )
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)
