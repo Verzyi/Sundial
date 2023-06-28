@@ -51,7 +51,7 @@ class PowderBlends(db.Model):
 
 class PowderBlendCalc(db.Model):
     BlendID = db.Column(db.Integer, primary_key=True)	
-    PartBlendID = db.Column(db.Integer, primary_key=True)
+    PartID = db.Column(db.Integer, primary_key=True)
     PartWeight	= db.Column(db.Float)
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)

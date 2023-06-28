@@ -314,9 +314,11 @@ def create_blend():
                     last_part_id += 1
 
                 db.session.commit()
-                # Call BlendDatabaseUpdater to update the blend calculations
+                # Create an instance of the BlendDatabaseUpdater class and pass the blend numbers, weights, and db object
                 updater = BlendDatabaseUpdater(blend_limit=500, frac_limit=0.0001)
-                updater.update_blend_database(numbers, weights,db)
+                updater.update_blend_database(numbers, weights)
+
+
 
                 numbers.clear()
                 weights.clear()
@@ -442,5 +444,3 @@ def blend_history():
 def report():
 
     return render_template('blend_history.html', user=current_user)
-
-
