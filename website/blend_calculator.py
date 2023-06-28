@@ -36,19 +36,20 @@ class BlendDatabaseUpdater:
                 else:
                     part_blend_rows = db.session.query(PowderBlendCalc).filter(PowderBlendCalc.BlendID == old_blend).all()
                     for part_blend_row in part_blend_rows:
-                        part_id2 = part_blend_row.PartID
-                        batch2 = self.get_batch_id(old_blend, part_id2)
-                        frac2 = part_blend_row.PartFraction
-                        weight2 = frac2 * weight
-                        frac3 = frac2 * frac
-                        sieve_count2 = part_blend_row.SieveCount + 1
+                        if weight is not None and part_blend_row.PartFraction is not None:##added this so that it would work need to look this over tomorrow 
+                            part_id2 = part_blend_row.PartBlendID
+                            batch2 = self.get_batch_id(old_blend, part_id2)
+                            frac2 = part_blend_row.PartFraction
+                            weight2 = frac2 * weight
+                            frac3 = frac2 * frac
+                            sieve_count2 = part_blend_row.SieveCount + 1
 
-                        if frac3 <= self.frac_limit:
-                            continue
+                            if frac3 <= self.frac_limit:
+                                continue
 
-                        new_row = PowderBlendCalc(BlendID=blend_id, PartID=part_id2, PartWeight=weight2,
-                                                  PartFraction=frac3, SieveCount=sieve_count2)
-                        db.session.add(new_row)
+                            new_row = PowderBlendCalc(BlendID=blend_id, PartBlendID=part_id2, PartWeight=weight2,
+                                                    PartFraction=frac3, SieveCount=sieve_count2)
+                            db.session.add(new_row)
 
             count += 1
             if count >= self.blend_limit:

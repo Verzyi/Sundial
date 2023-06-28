@@ -103,7 +103,7 @@ def searchBlends():
 
                         search = db.session.query(PowderBlends, MaterialsTable.MaterialName) \
                             .join(MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID) \
-                            .filter(PowderBlends.BlendID == blendNumber) \
+                            .filter(PowderBlends.BlendID == blendNumber)\
                             .all()
 
                         if search:

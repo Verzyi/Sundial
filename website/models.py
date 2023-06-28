@@ -47,12 +47,11 @@ class PowderBlends(db.Model):
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
-    CurrentWeight = db.Column(db.Float)
 
 
 class PowderBlendCalc(db.Model):
     BlendID = db.Column(db.Integer, primary_key=True)	
-    PartID = db.Column(db.Integer, primary_key=True)
+    PartBlendID = db.Column(db.Integer, primary_key=True)
     PartWeight	= db.Column(db.Float)
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
