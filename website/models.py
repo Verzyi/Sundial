@@ -3,6 +3,8 @@ from flask_login import UserMixin
 from sqlalchemy.sql import func
 from sqlalchemy import func
 from datetime import datetime
+from sqlalchemy import ForeignKeyConstraint
+
 
 
 
@@ -45,16 +47,19 @@ class PowderBlends(db.Model):
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
+    CurrentWeight = db.Column(db.Float)
 
 
 class PowderBlendCalc(db.Model):
     BlendID = db.Column(db.Integer, primary_key=True)	
-    PartBlendID	= db.Column(db.Integer)
-    PartBatchID	= db.Column(db.Integer)
+    PartID = db.Column(db.Integer, primary_key=True)
     PartWeight	= db.Column(db.Float)
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
-
+    
+__table_args__ = (
+        ForeignKeyConstraint(['BlendID', 'PartID'], ['PowderBlends.BlendID', 'PowderBlendParts.PartID']),
+    )
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)

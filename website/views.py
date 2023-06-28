@@ -6,6 +6,7 @@ from datetime import datetime
 from sqlalchemy import func, join
 import socket
 from datetime import datetime
+from .blend_calculator import BlendDatabaseUpdater PowderBlendCalc
 
 views = Blueprint('views', __name__)
 
@@ -313,6 +314,9 @@ def create_blend():
                     last_part_id += 1
 
                 db.session.commit()
+                # Call BlendDatabaseUpdater to update the blend calculations
+                updater = BlendDatabaseUpdater(blend_limit=500, frac_limit=0.0001)
+                updater.update_blend_database(numbers, weights,db)
 
                 numbers.clear()
                 weights.clear()
