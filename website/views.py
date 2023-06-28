@@ -6,7 +6,7 @@ from datetime import datetime
 from sqlalchemy import func, join
 import socket
 from datetime import datetime
-from .blend_calculator import BlendDatabaseUpdater PowderBlendCalc
+from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
 
 views = Blueprint('views', __name__)
 
