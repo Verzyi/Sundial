@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <style>
+      h1 {
+        font-family: verdana;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+      }
+      h2 {
+        font-family: verdana;
+        text-align: center;
+        font-size: 16px;
+      }
+      p {
+        font-family: verdana;
+        font-size: 12px;
+        margin-bottom: 10px;
+      }
+      table {
+        margin-left: auto;
+        margin-right: auto;
+        font-family: verdana;
+        font-size: 12px;
+      }
+      th {
+        border: 2px solid black;
+        padding-right: 25px;
+      }
+      tr {
+      }
+      td {
+        border: 2px solid black;
+        padding-right: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>DMLM Powder Blend Report</h1>
+    <br />
+    <table>
+      <tr>
+        <th>Blend:</th>
+        <td>{{ blend_summary.Blend }}</td>
+      </tr>
+      <tr>
+        <th>Material:</th>
+        <td>{{ blend_summary.Material }}</td>
+      </tr>
+      <tr>
+        <th>Total Weight (kg):</th>
+        <td>{{ blend_summary['Total Weight (kg)'] }}</td>
+      </tr>
+      <tr>
+        <th>Avg. Sieve Count:</th>
+        <td>{{ blend_summary['Avg. Sieve Count'] }}</td>
+      </tr>
+      <tr>
+        <th>Max. Sieve Count:</th>
+        <td>{{ blend_summary['Max. Sieve Count'] }}</td>
+      </tr>
+    </table>
+    <br />
+    <h2>Majority Batch Information</h2>
+    <table>
+      <tr>
+        <th>BatchID</th>
+        <th>Supplier Product</th>
+        <th>Purchase Order</th>
+        <th>Virgin Lot</th>
+        <th>Percent</th>
+        <th>Sieve Count</th>
+      </tr>
+      <tr>
+        <td>{{ majority_batch.BatchID }}</td>
+        <td>{{ majority_batch['Supplier Product'] }}</td>
+        <td>{{ majority_batch['Purchase Order'] }}</td>
+        <td>{{ majority_batch['Virgin Lot'] }}</td>
+        <td>{{ majority_batch.Percent }}</td>
+        <td>{{ majority_batch['Sieve Count'] }}</td>
+      </tr>
+    </table>
+    <br />
+    <h2>Blend Breakdown</h2>
+    <table>
+      <tr>
+        <th>BatchID</th>
+        <th>Product</th>
+        <th>Purchase Order</th>
+        <th>Virgin Lot</th>
+        <th>Percent</th>
+        <th>Sieve Count</th>
+      </tr>
+      {% for breakdown_entry in blend_breakdown %}
+      <tr>
+        <td>{{ breakdown_entry.BatchID }}</td>
+        <td>{{ breakdown_entry.Product }}</td>
+        <td>{{ breakdown_entry['Purchase Order'] }}</td>
+        <td>{{ breakdown_entry['Virgin Lot'] }}</td>
+        <td>{{ breakdown_entry.Percent }}</td>
+        <td>{{ breakdown_entry['Sieve Count'] }}</td>
+      </tr>
+      {% endfor %}
+    </table>
+  </body>
+</html>

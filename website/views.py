@@ -1,4 +1,5 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask
+from jinja2 import Environment, PackageLoader, select_autoescape
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
 from flask_login import login_user, login_required, current_user
@@ -7,6 +8,7 @@ from sqlalchemy import func, join
 import socket
 from datetime import datetime
 from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
+# from weasyprint import HTML
 
 views = Blueprint('views', __name__)
 
@@ -121,11 +123,10 @@ def searchBlends():
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
-                blend_report = BlendReport(blend=blend_number)
-                blend_report.load_data()
-                blend_report.process_blend()
-                report_html = blend_report.generate_report_pdf()  # Generate the report HTML
-                return report_html  # Return the report HTML to be rendered in the browser
+                print("test")
+                generate_report(blend_number)
+
+                
 
         elif 'Print' in request.form:
             printerName = request.form.get("printer")
@@ -439,8 +440,115 @@ def blend_history():
     return render_template('blend_history.html', user=current_user, blends=blends, search=search)
 
 
-@views.route('/Report', methods=['GET', 'Post'])
+@views.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
-def report():
+def generate_report(blend_id="7324"):
+    if blend_id is None:
+        return 'Blend not found'
 
-    return render_template('blend_history.html', user=current_user)
+    blend = PowderBlends.query.filter_by(BlendID=blend_id).first()
+
+    # Get the blend parts information
+    blend_parts = PowderBlendParts.query.filter_by(BlendID=blend_id).all()
+
+    # Get the inventory virgin batch information
+    batch_ids = [part.PartBatchID for part in blend_parts]
+    virgin_batches = InventoryVirginBatch.query.filter(InventoryVirginBatch.BatchID.in_(batch_ids)).all()
+
+    # Get the materials information
+    blend_material_id = blend.MaterialID
+    materials = MaterialsTable.query.filter(MaterialsTable.MaterialID == blend_material_id).all()
+
+    # Process the data and create the required variables for the report
+    blend_summary = {
+        'Blend': blend_id,
+        'Material': materials[0].MaterialName if materials else '',
+        'Total Weight (kg)': blend.TotalWeight,
+        'Avg. Sieve Count': 0,
+        'Max. Sieve Count': 0
+    }
+
+    majority_batch = {
+        'BatchID': '',
+        'Supplier Product': '',
+        'Purchase Order': '',
+        'Virgin Lot': '',
+        'Percent': 0,
+        'Sieve Count': 0
+    }
+
+    blend_breakdown = []
+
+    # Calculate the average and maximum sieve count
+    sieve_counts = []
+    for part in blend_parts:
+        sieve_count = PowderBlendCalc.query.filter_by(BlendID=blend_id, PartID=part.PartID).first()
+        if sieve_count:
+            sieve_counts.append(sieve_count.SieveCount)
+
+    if sieve_counts:
+        blend_summary['Avg. Sieve Count'] = sum(sieve_counts) / len(sieve_counts)
+        blend_summary['Max. Sieve Count'] = max(sieve_counts)
+
+    # Generate the breakdown information
+    for part in blend_parts:
+        batch = next((b for b in virgin_batches if b.BatchID == part.PartBatchID), None)
+        material = next((m for m in materials if m.MaterialID == blend_material_id), None)
+
+        if batch and material:
+            breakdown_entry = {
+                'PartID': part.PartID,
+                'MaterialName': material.MaterialName,
+                'VirginLot': batch.VirginLot,
+                'VirginQty': batch.VirginQty,
+                'AddedWeight': part.AddedWeight,
+                'Sieve Count': 0
+            }
+
+            sieve_count = PowderBlendCalc.query.filter_by(BlendID=blend_id, PartID=part.PartID).first()
+            if sieve_count:
+                breakdown_entry['Sieve Count'] = sieve_count.SieveCount
+
+            blend_breakdown.append(breakdown_entry)
+
+    # Calculate the majority batch
+    majority_batch_weight = max(blend_parts, key=lambda part: part.AddedWeight).AddedWeight
+    majority_batch_part = next((part for part in blend_parts if part.AddedWeight == majority_batch_weight), None)
+    majority_batch_batch = next((batch for batch in virgin_batches if batch.BatchID == majority_batch_part.PartBatchID),
+                                None)
+    majority_batch_material = next((material for material in materials if material.MaterialID == blend_material_id),
+                                   None)
+
+    if majority_batch_part and majority_batch_batch and majority_batch_material:
+        majority_batch['BatchID'] = majority_batch_part.PartBatchID
+        majority_batch['Supplier Product'] = majority_batch_material.SupplierProduct
+        majority_batch['Purchase Order'] = majority_batch_batch.VirginPO
+        majority_batch['Virgin Lot'] = majority_batch_batch.VirginLot
+        majority_batch['Percent'] = majority_batch_weight / blend.TotalWeight * 100
+
+    # Render the report template
+    return render_template(
+        'blend_Report.html',
+        blend_summary=blend_summary,
+        majority_batch=majority_batch,
+        blend_breakdown=blend_breakdown
+    )
+
+
+    # Generate the report in the requested format
+    # if output_format == 'html':
+    #     return render_template('blend_history.html', user=current_user)
+    # elif output_format == 'pdf':
+    #     print("working on this ")
+        # pdf = HTML(string=rendered_report).write_pdf()
+        # response = make_response(pdf)
+    #     response.headers['Content-Type'] = 'application/pdf'
+    #     response.headers['Content-Disposition'] = 'attachment; filename=blend_report.pdf'
+    #     return response
+    # else:
+    #     return 'Invalid output format'
+
+
+
+
+    
