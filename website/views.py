@@ -4,7 +4,8 @@ from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBl
 from . import db
 from flask_login import login_user, login_required, current_user
 from datetime import datetime
-from sqlalchemy import func, join
+from sqlalchemy import func, join, and_
+from sqlalchemy.orm import joinedload
 import socket
 from datetime import datetime
 from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
@@ -125,8 +126,6 @@ def searchBlends():
             if blend_number:
                 print("test")
                 generate_report(blend_number)
-
-                
 
         elif 'Print' in request.form:
             printerName = request.form.get("printer")
@@ -316,10 +315,9 @@ def create_blend():
 
                 db.session.commit()
                 # Create an instance of the BlendDatabaseUpdater class and pass the blend numbers, weights, and db object
-                updater = BlendDatabaseUpdater(blend_limit=500, frac_limit=0.0001)
+                updater = BlendDatabaseUpdater(
+                    blend_limit=500, frac_limit=0.0001)
                 updater.update_blend_database(numbers, weights)
-
-
 
                 numbers.clear()
                 weights.clear()
@@ -453,11 +451,13 @@ def generate_report(blend_id="7324"):
 
     # Get the inventory virgin batch information
     batch_ids = [part.PartBatchID for part in blend_parts]
-    virgin_batches = InventoryVirginBatch.query.filter(InventoryVirginBatch.BatchID.in_(batch_ids)).all()
+    virgin_batches = InventoryVirginBatch.query.filter(
+        InventoryVirginBatch.BatchID.in_(batch_ids)).all()
 
     # Get the materials information
     blend_material_id = blend.MaterialID
-    materials = MaterialsTable.query.filter(MaterialsTable.MaterialID == blend_material_id).all()
+    materials = MaterialsTable.query.filter(
+        MaterialsTable.MaterialID == blend_material_id).all()
 
     # Process the data and create the required variables for the report
     blend_summary = {
@@ -482,38 +482,58 @@ def generate_report(blend_id="7324"):
     # Calculate the average and maximum sieve count
     sieve_counts = []
     for part in blend_parts:
-        sieve_count = PowderBlendCalc.query.filter_by(BlendID=blend_id, PartID=part.PartID).first()
+        sieve_count = PowderBlendCalc.query.filter_by(
+            BlendID=blend_id, PartID=part.PartID).first()
         if sieve_count:
             sieve_counts.append(sieve_count.SieveCount)
 
     if sieve_counts:
-        blend_summary['Avg. Sieve Count'] = sum(sieve_counts) / len(sieve_counts)
+        blend_summary['Avg. Sieve Count'] = sum(
+            sieve_counts) / len(sieve_counts)
         blend_summary['Max. Sieve Count'] = max(sieve_counts)
 
     # Generate the breakdown information
-    for part in blend_parts:
-        batch = next((b for b in virgin_batches if b.BatchID == part.PartBatchID), None)
-        material = next((m for m in materials if m.MaterialID == blend_material_id), None)
 
-        if batch and material:
-            breakdown_entry = {
-                'PartID': part.PartID,
-                'MaterialName': material.MaterialName,
-                'VirginLot': batch.VirginLot,
-                'VirginQty': batch.VirginQty,
-                'AddedWeight': part.AddedWeight,
-                'Sieve Count': 0
-            }
+    # Join the tables
+    blend_breakdown = db.session.query(
+        PowderBlendParts.PartBatchID,
+        MaterialsTable.SupplierProduct,
+        InventoryVirginBatch.VirginPO,
+        InventoryVirginBatch.VirginLot,
+        PowderBlendParts.AddedWeight,
+        PowderBlendCalc.SieveCount
+    ).select_from(
+        PowderBlendParts
+    ).join(
+        MaterialsTable, MaterialsTable.MaterialID == PowderBlendParts.MaterialID
+    ).join(
+        InventoryVirginBatch, InventoryVirginBatch.BatchID == PowderBlendParts.PartBatchID
+    ).join(
+        PowderBlendCalc,
+        and_(PowderBlendCalc.BlendID == PowderBlendParts.BlendID, PowderBlendCalc.PartID == PowderBlendParts.PartID)
+    ).filter(
+        PowderBlendParts.BlendID == blend_id
+    ).all()
 
-            sieve_count = PowderBlendCalc.query.filter_by(BlendID=blend_id, PartID=part.PartID).first()
-            if sieve_count:
-                breakdown_entry['Sieve Count'] = sieve_count.SieveCount
 
-            blend_breakdown.append(breakdown_entry)
+    blend_breakdown = []
+    for part, calc, batch, material in blend_parts:
+        breakdown_entry = {
+            'BatchID': batch.BatchID,
+            'Supplier Product': material.SupplierProduct,
+            'Purchase Order': batch.VirginPO,
+            'Virgin Lot': batch.VirginLot,
+            'Percent': part.AddedWeight / blend.TotalWeight * 100,
+            'Sieve Count': calc.SieveCount
+        }
+        blend_breakdown.append(breakdown_entry)
+
 
     # Calculate the majority batch
-    majority_batch_weight = max(blend_parts, key=lambda part: part.AddedWeight).AddedWeight
-    majority_batch_part = next((part for part in blend_parts if part.AddedWeight == majority_batch_weight), None)
+    majority_batch_weight = max(
+        blend_parts, key=lambda part: part.AddedWeight).AddedWeight
+    majority_batch_part = next(
+        (part for part in blend_parts if part.AddedWeight == majority_batch_weight), None)
     majority_batch_batch = next((batch for batch in virgin_batches if batch.BatchID == majority_batch_part.PartBatchID),
                                 None)
     majority_batch_material = next((material for material in materials if material.MaterialID == blend_material_id),
@@ -524,7 +544,8 @@ def generate_report(blend_id="7324"):
         majority_batch['Supplier Product'] = majority_batch_material.SupplierProduct
         majority_batch['Purchase Order'] = majority_batch_batch.VirginPO
         majority_batch['Virgin Lot'] = majority_batch_batch.VirginLot
-        majority_batch['Percent'] = majority_batch_weight / blend.TotalWeight * 100
+        majority_batch['Percent'] = majority_batch_weight / \
+            blend.TotalWeight * 100
 
     # Render the report template
     return render_template(
@@ -534,21 +555,15 @@ def generate_report(blend_id="7324"):
         blend_breakdown=blend_breakdown
     )
 
-
     # Generate the report in the requested format
     # if output_format == 'html':
     #     return render_template('blend_history.html', user=current_user)
     # elif output_format == 'pdf':
     #     print("working on this ")
-        # pdf = HTML(string=rendered_report).write_pdf()
-        # response = make_response(pdf)
+    # pdf = HTML(string=rendered_report).write_pdf()
+    # response = make_response(pdf)
     #     response.headers['Content-Type'] = 'application/pdf'
     #     response.headers['Content-Disposition'] = 'attachment; filename=blend_report.pdf'
     #     return response
     # else:
     #     return 'Invalid output format'
-
-
-
-
-    
