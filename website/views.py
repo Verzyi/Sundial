@@ -4,7 +4,7 @@ from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBl
 from . import db
 from flask_login import login_user, login_required, current_user
 from datetime import datetime
-from sqlalchemy import func, join, and_
+from sqlalchemy import func, join, and_, create_engine
 from sqlalchemy.orm import joinedload
 import socket
 from datetime import datetime
@@ -441,94 +441,103 @@ def blend_history():
 
 @views.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
-def BlendReport(blend='7047'):
+def BlendReport(blend=6661):
     
-    blend_data = []
-    calc_data = PowderBlendCalc.query.filter_by(BlendID=blend).all()
-    for calc in calc_data:
-        part_batch_id = PowderBlendParts.query.filter_by(PartID=calc.PartID).first().PartBatchID
-        inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
-
-        data = {
-            'PartBatchID': part_batch_id,
-            'SupplierProduct': '',
-            'VirginPO': '',
-            'VirginLot': '',
-            'ProductID': inventory_data.ProductID if inventory_data else '',
-            'PartFraction': calc.PartFraction,
-            'SieveCount': calc.SieveCount
-        }
-        blend_data.append(data)
-
-    blend_data.sort(key=lambda x: x['PartFraction'], reverse=True)
-
-    product_dict = {}
-    materials = MaterialsTable.query.all()
-    for material in materials:
-        product_dict[material.ProductID] = material.SupplierProduct
-
-    for data in blend_data:
-        product_id = data['ProductID']
-        data['SupplierProduct'] = product_dict.get(product_id, '')
-
-    material_id = PowderBlends.query.filter_by(BlendID=blend).first().MaterialID
-    material = MaterialsTable.query.filter_by(MaterialID=material_id).first().MaterialName
-    total_weight = PowderBlends.query.filter_by(BlendID=blend).first().TotalWeight
-    count_avg = round(sum(data['PartFraction'] * data['SieveCount'] for data in blend_data))
-    count_max = max(data['SieveCount'] for data in blend_data)
-
-    summary_dict = {
-        'Blend': blend,
-        'Material': material,
-        'Total Weight (kg)': total_weight,
-        'Avg. Sieve Count': count_avg,
-        'Max. Sieve Count': count_max,
-    }
+   
+    # import `powder_blend_calc`
+    calcTable = "Powder_Blend_Calc"
+    powder_blend_calc = pd.read_sql(f"SELECT * FROM {calcTable}", con=db.engine)
+    powder_blend_calc[['BlendID', 'PartID']] = powder_blend_calc[['BlendID', 'PartID']].astype('Int64')
+    # import `inventory_virgin_batch`
+    batchTable = "Inventory_Virgin_Batch"
+    inventory_virgin_batch = pd.read_sql(f"SELECT * FROM {batchTable}", con=db.engine)
+    inventory_virgin_batch[['BatchID', 'ProductID']] = inventory_virgin_batch[['BatchID', 'ProductID']] \
+        .astype('Int64')
+    # import `powder_material`
+    materialTable = "materials_table"
+    powder_material = pd.read_sql(f"SELECT * FROM {materialTable}", con=db.engine)
+    powder_material[['MaterialID', 'ProductID']] = powder_material[['MaterialID', 'ProductID']].astype('Int64')
+    # import `powder_blend`
+    blendsTable = "powder_blends"
+    powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
+    powder_blend[['MaterialID', 'BlendID']] = powder_blend[['MaterialID', 'BlendID']].astype('Int64')
+    # import `powder_blend_part`
+    blendPartTable = "Powder_Blend_Parts"
+    powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
+    powder_blend_part[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']] \
+        = powder_blend_part[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']].astype('Int64')
+        
+    # create new DF for requested Blend
+    blend_data = powder_blend_calc[powder_blend_calc['BlendID'] == blend].copy()
+    blend_data = blend_data.merge(powder_blend_part[['PartID', 'PartBatchID']], \
+            on=['PartID'], how='left', validate='m:1')
+    # blend_data = blend_data.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID']], \
+    #         left_on=['PartBatchID'], right_on=['BatchID'], how='left', validate='m:1')
+    blend_data.rename(columns={'PartBatchID': 'BatchID'}, inplace=True)
+    blend_data = blend_data.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID']], \
+            on=['BatchID'], how='left', validate='m:1')
+    blend_data.sort_values(by=['PartFraction'], ascending=False, inplace=True)
+    
+    product_dict = powder_material[['ProductID', 'SupplierProduct']].drop_duplicates(keep='first') \
+        .set_index('ProductID')['SupplierProduct'].to_dict()
+    blend_data['SupplierProduct'] = blend_data['ProductID'].map(product_dict)
+    
+    material_id = powder_blend.set_index('BlendID')['MaterialID'].to_dict()[blend]
+    material = powder_material.set_index('MaterialID')['MaterialName'].to_dict()[material_id]
+    # material = material_id.map(mat_dict) 
+    total_weight = powder_blend[powder_blend['BlendID'] == blend]['TotalWeight'].iloc[0]
+    count_avg = round((blend_data['PartFraction'] * blend_data['SieveCount']).sum())
+    count_max = blend_data['SieveCount'].max()
+    
+    summary_dict = {'Blend': blend, 
+                    'Material': material,
+                    'Total Weight (kg)': total_weight, 
+                    'Avg. Sieve Count': count_avg, 
+                    'Max. Sieve Count': count_max,
+                    }
     blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
     blend_summary.fillna(value='---', inplace=True)
-
-    grouped_data = []
-    for data in blend_data:
-        part_batch_id = data['PartBatchID']
-        inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
-        if inventory_data:
-            data['VirginPO'] = inventory_data.VirginPO
-            data['VirginLot'] = inventory_data.VirginLot
-            product_id = inventory_data.ProductID
-            data['SupplierProduct'] = product_dict.get(product_id, '')
-        grouped_data.append({
-            'BatchID': part_batch_id,
-            'SupplierProduct': data['SupplierProduct'],
-            'VirginPO': data['VirginPO'],
-            'VirginLot': data['VirginLot'],
-            'PartFraction': data['PartFraction'],
-            'SieveCount': data['SieveCount']
-        })
-
-    grouped_data.sort(key=lambda x: x['PartFraction'], reverse=True)
-    grouped_data = pd.DataFrame(grouped_data)
-
-    grouped_data['BatchID'] = pd.to_numeric(grouped_data['BatchID'], errors='coerce')
-    grouped = grouped_data.groupby('BatchID', as_index=False).sum(numeric_only=True)[['BatchID', 'PartFraction']]
-
-    majority_data = grouped_data.iloc[0]
-    majority_batch = pd.DataFrame(majority_data, index=['Value']).T
+    # blend_summary.reset_index(names='Summary', inplace=True)
+    
+    # Create new DF for data grouped by Batch
+    grouped = blend_data.groupby(by=['BatchID'], as_index=False).sum(numeric_only=True)[['BatchID', 'PartFraction']].copy()
+    grouped.sort_values(by=['PartFraction'], ascending=False, inplace=True)
+    grouped = grouped.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID',]], \
+            on=['BatchID'], how='left', validate='m:1')
+    grouped['SupplierProduct'] = grouped['ProductID'].map(product_dict)
+    maj = grouped.iloc[0]
+    maj_batch = maj['BatchID']
+    maj_prod = maj['SupplierProduct']
+    maj_po = maj['VirginPO']
+    maj_lot = maj['VirginLot']
+    # maj_per = grouped['PartFraction'].sum() * 100
+    
+    majority_dict = {'BatchID': maj_batch,
+                     'Supplier Product': maj_prod, 
+                     'Purchase Order': maj_po, 
+                     'Virgin Lot': maj_lot, 
+                     }
+    majority_batch = pd.DataFrame(majority_dict, index=['Value']).T
+    # majority_batch.loc['BatchID', 'Value'] = int(majority_batch.loc['BatchID', 'Value'])
     majority_batch.fillna(value='---', inplace=True)
-
-    blend_breakdown = grouped.merge(grouped_data, on='BatchID', how='left')
-    blend_breakdown['Percent'] = blend_breakdown['PartFraction'] / blend_breakdown['PartFraction'].sum() * 100
-
-    blend_breakdown['BatchID'] = blend_breakdown['BatchID'].fillna('').astype(int)
-    blend_breakdown['Product'] = blend_breakdown['SupplierProduct'].fillna('')
-    blend_breakdown['Purchase Order'] = blend_breakdown['VirginPO'].fillna('')
-    blend_breakdown['Virgin Lot'] = blend_breakdown['VirginLot'].fillna('')
+    
+    # Create a DF of the top 20 blend constituents
+    blend_breakdown = blend_data.head(30).copy()
+    blend_breakdown['Percent'] = blend_breakdown['PartFraction'] * 100
+    blend_breakdown = blend_breakdown[['BatchID', 'SupplierProduct', 'VirginPO', 'VirginLot', 'Percent', \
+        'SieveCount']]
+    blend_breakdown.rename(columns={'SupplierProduct': 'Product',
+                                    'VirginPO': 'Purchase Order', 
+                                    'VirginLot': 'Virgin Lot', 
+                                    'SieveCount': 'Sieve Count',
+                                    }, inplace=True)
+    other_per = 100.000001 - blend_breakdown['Percent'].sum()
+    # decimal.getcontext().rounding = decimal.ROUND_CEILING
+    # other_per = float(round(decimal.Decimal(str(other_per)), ndigits=3))
+    blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', 'Other', '', other_per, '']
     blend_breakdown['Percent'] = blend_breakdown['Percent'].map('{:.1f}%'.format)
-    blend_breakdown['Sieve Count'] = blend_breakdown['SieveCount'].fillna('').astype(int)
-
-    other_per = 100 - blend_breakdown['Percent'].sum()
-    blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', '', '', other_per, '']
     blend_breakdown.fillna(value='---', inplace=True)
-
+    
     print("Blend Summary:")
     print(blend_summary)
     print("\nMajority Batch:")
@@ -542,6 +551,94 @@ def BlendReport(blend='7047'):
                            blend_breakdown=blend_breakdown)
 
 
+    
+    # blend_data = []
+    # calc_data = PowderBlendCalc.query.filter_by(BlendID=blend).all()
+    # for calc in calc_data:
+    #     part_batch_id = PowderBlendParts.query.filter_by(PartID=calc.PartID).first().PartBatchID
+    #     inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
+
+    #     data = {
+    #         'PartBatchID': part_batch_id,
+    #         'SupplierProduct': '',
+    #         'VirginPO': '',
+    #         'VirginLot': '',
+    #         'ProductID': inventory_data.ProductID if inventory_data else '',
+    #         'PartFraction': calc.PartFraction,
+    #         'SieveCount': calc.SieveCount
+    #     }
+    #     blend_data.append(data)
+
+    # blend_data.sort(key=lambda x: x['PartFraction'], reverse=True)
+
+    # product_dict = {}
+    # materials = MaterialsTable.query.all()
+    # for material in materials:
+    #     product_dict[material.ProductID] = material.SupplierProduct
+
+    # for data in blend_data:
+    #     product_id = data['ProductID']
+    #     data['SupplierProduct'] = product_dict.get(product_id, '')
+
+    # material_id = PowderBlends.query.filter_by(BlendID=blend).first().MaterialID
+    # material = MaterialsTable.query.filter_by(MaterialID=material_id).first().MaterialName
+    # total_weight = PowderBlends.query.filter_by(BlendID=blend).first().TotalWeight
+    # count_avg = round(sum(data['PartFraction'] * data['SieveCount'] for data in blend_data))
+    # count_max = max(data['SieveCount'] for data in blend_data)
+
+    # summary_dict = {
+    #     'Blend': blend,
+    #     'Material': material,
+    #     'Total Weight (kg)': total_weight,
+    #     'Avg. Sieve Count': count_avg,
+    #     'Max. Sieve Count': count_max,
+    # }
+    # blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
+    # blend_summary.fillna(value='---', inplace=True)
+
+    # grouped_data = []
+    # for data in blend_data:
+    #     part_batch_id = data['PartBatchID']
+    #     inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
+    #     if inventory_data:
+    #         data['VirginPO'] = inventory_data.VirginPO
+    #         data['VirginLot'] = inventory_data.VirginLot
+    #         product_id = inventory_data.ProductID
+    #         data['SupplierProduct'] = product_dict.get(product_id, '')
+    #     grouped_data.append({
+    #         'BatchID': part_batch_id,
+    #         'SupplierProduct': data['SupplierProduct'],
+    #         'VirginPO': data['VirginPO'],
+    #         'VirginLot': data['VirginLot'],
+    #         'PartFraction': data['PartFraction'],
+    #         'SieveCount': data['SieveCount']
+    #     })
+
+    # grouped_data.sort(key=lambda x: x['PartFraction'], reverse=True)
+    # grouped_data = pd.DataFrame(grouped_data)
+
+    # grouped_data['BatchID'] = pd.to_numeric(grouped_data['BatchID'], errors='coerce')
+    # grouped = grouped_data.groupby('BatchID', as_index=False).sum(numeric_only=True)[['BatchID', 'PartFraction']]
+
+    # majority_data = grouped_data.iloc[0]
+    # majority_batch = pd.DataFrame(majority_data, index=['Value']).T
+    # majority_batch.fillna(value='---', inplace=True)
+
+    # blend_breakdown = grouped.merge(grouped_data, on='BatchID', how='left')
+    # blend_breakdown['Percent'] = blend_breakdown['PartFraction'] / blend_breakdown['PartFraction'].sum() * 100
+
+    # blend_breakdown['BatchID'] = blend_breakdown['BatchID'].fillna('').astype(int)
+    # blend_breakdown['Product'] = blend_breakdown['SupplierProduct'].fillna('')
+    # blend_breakdown['Purchase Order'] = blend_breakdown['VirginPO'].fillna('')
+    # blend_breakdown['Virgin Lot'] = blend_breakdown['VirginLot'].fillna('')
+    # blend_breakdown['Percent'] = blend_breakdown['Percent'].map('{:.1f}%'.format)
+    # blend_breakdown['Sieve Count'] = blend_breakdown['SieveCount'].fillna('').astype(int)
+
+    # other_per = 100 - blend_breakdown['Percent'].sum()
+    # blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', '', '', other_per, '']
+    # blend_breakdown.fillna(value='---', inplace=True)
+
+  
 
 
 
