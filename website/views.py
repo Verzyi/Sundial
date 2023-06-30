@@ -509,13 +509,15 @@ def BlendReport():
             on=['BatchID'], how='left', validate='m:1')
     grouped['SupplierProduct'] = grouped['ProductID'].map(product_dict)
     maj = grouped.iloc[0]
-    maj_batch = maj['BatchID']
+    maj_batch = maj['BatchID'].astype(str).replace('.0', '')
     maj_prod = maj['SupplierProduct']
     maj_po = maj['VirginPO']
     maj_lot = maj['VirginLot']
-    # maj_per = grouped['PartFraction'].sum() * 100
+    maj_per = maj['PartFraction'] * 100
+    maj_per = f'{maj_per:.1f}%'
     
     majority_dict = {'BatchID': maj_batch,
+                     'Percentage': maj_per,
                      'Supplier Product': maj_prod, 
                      'Purchase Order': maj_po, 
                      'Virgin Lot': maj_lot, 
@@ -525,7 +527,8 @@ def BlendReport():
     majority_batch.fillna(value='---', inplace=True)
     
     # Create a DF of the top 20 blend constituents
-    blend_breakdown = blend_data.head(30).copy()
+    top = 30
+    blend_breakdown = blend_data.head(top).copy()
     blend_breakdown['Percent'] = blend_breakdown['PartFraction'] * 100
     blend_breakdown = blend_breakdown[['BatchID', 'SupplierProduct', 'VirginPO', 'VirginLot', 'Percent', \
         'SieveCount']]
@@ -537,6 +540,8 @@ def BlendReport():
     other_per = 100.000001 - blend_breakdown['Percent'].sum()
     # decimal.getcontext().rounding = decimal.ROUND_CEILING
     # other_per = float(round(decimal.Decimal(str(other_per)), ndigits=3))
+    blend_breakdown[['BatchID']] = blend_breakdown[['BatchID']].astype(str)
+    blend_breakdown.reset_index(drop=True, inplace=True)
     blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', 'Other', '', other_per, '']
     blend_breakdown['Percent'] = blend_breakdown['Percent'].map('{:.1f}%'.format)
     blend_breakdown.fillna(value='---', inplace=True)

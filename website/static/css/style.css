@@ -19,7 +19,7 @@ input {
     display: flex;
     justify-content: center;
     align-items: center;
-    width: 180px;
+    width: 100%;
     margin: 10px auto;
     text-align: center;
     height: 40px;
