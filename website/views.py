@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response
 from jinja2 import Environment, PackageLoader, select_autoescape
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
@@ -10,7 +10,10 @@ import socket
 from datetime import datetime
 from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
 import pandas as pd
-# from weasyprint import HTML
+import pdfkit
+from pdfkit.api import configuration
+
+wkhtml_path = pdfkit.configuration(wkhtmltopdf = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")  #by using configuration you can add path value.
 
 views = Blueprint('views', __name__)
 
@@ -125,8 +128,7 @@ def searchBlends():
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
-                print("test")
-                generate_report(blend_number)
+                return redirect(url_for('views.BlendReport', blend = blend_number))
 
         elif 'Print' in request.form:
             printerName = request.form.get("printer")
@@ -441,8 +443,9 @@ def blend_history():
 
 @views.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
-def BlendReport(blend=6661):
-    
+def BlendReport():
+    blend = request.args.get('blend')
+    blend=int(blend)
    
     # import `powder_blend_calc`
     calcTable = "Powder_Blend_Calc"
@@ -544,101 +547,18 @@ def BlendReport(blend=6661):
     print(majority_batch)
     print("\nBlend Breakdown:")
     print(blend_breakdown)
+    
 
-    return render_template('Blend_Report.html',
+    rendered = render_template('Blend_Report.html',
                            blend_summary=blend_summary,
                            majority_batch=majority_batch,
                            blend_breakdown=blend_breakdown)
-
-
+    pdf = pdfkit.from_string(rendered, False,configuration = wkhtml_path)
     
-    # blend_data = []
-    # calc_data = PowderBlendCalc.query.filter_by(BlendID=blend).all()
-    # for calc in calc_data:
-    #     part_batch_id = PowderBlendParts.query.filter_by(PartID=calc.PartID).first().PartBatchID
-    #     inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
+    response = make_response(pdf)
+    response.headers['Content-type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename={blend}_Report.pdf'
+    return response
 
-    #     data = {
-    #         'PartBatchID': part_batch_id,
-    #         'SupplierProduct': '',
-    #         'VirginPO': '',
-    #         'VirginLot': '',
-    #         'ProductID': inventory_data.ProductID if inventory_data else '',
-    #         'PartFraction': calc.PartFraction,
-    #         'SieveCount': calc.SieveCount
-    #     }
-    #     blend_data.append(data)
-
-    # blend_data.sort(key=lambda x: x['PartFraction'], reverse=True)
-
-    # product_dict = {}
-    # materials = MaterialsTable.query.all()
-    # for material in materials:
-    #     product_dict[material.ProductID] = material.SupplierProduct
-
-    # for data in blend_data:
-    #     product_id = data['ProductID']
-    #     data['SupplierProduct'] = product_dict.get(product_id, '')
-
-    # material_id = PowderBlends.query.filter_by(BlendID=blend).first().MaterialID
-    # material = MaterialsTable.query.filter_by(MaterialID=material_id).first().MaterialName
-    # total_weight = PowderBlends.query.filter_by(BlendID=blend).first().TotalWeight
-    # count_avg = round(sum(data['PartFraction'] * data['SieveCount'] for data in blend_data))
-    # count_max = max(data['SieveCount'] for data in blend_data)
-
-    # summary_dict = {
-    #     'Blend': blend,
-    #     'Material': material,
-    #     'Total Weight (kg)': total_weight,
-    #     'Avg. Sieve Count': count_avg,
-    #     'Max. Sieve Count': count_max,
-    # }
-    # blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
-    # blend_summary.fillna(value='---', inplace=True)
-
-    # grouped_data = []
-    # for data in blend_data:
-    #     part_batch_id = data['PartBatchID']
-    #     inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
-    #     if inventory_data:
-    #         data['VirginPO'] = inventory_data.VirginPO
-    #         data['VirginLot'] = inventory_data.VirginLot
-    #         product_id = inventory_data.ProductID
-    #         data['SupplierProduct'] = product_dict.get(product_id, '')
-    #     grouped_data.append({
-    #         'BatchID': part_batch_id,
-    #         'SupplierProduct': data['SupplierProduct'],
-    #         'VirginPO': data['VirginPO'],
-    #         'VirginLot': data['VirginLot'],
-    #         'PartFraction': data['PartFraction'],
-    #         'SieveCount': data['SieveCount']
-    #     })
-
-    # grouped_data.sort(key=lambda x: x['PartFraction'], reverse=True)
-    # grouped_data = pd.DataFrame(grouped_data)
-
-    # grouped_data['BatchID'] = pd.to_numeric(grouped_data['BatchID'], errors='coerce')
-    # grouped = grouped_data.groupby('BatchID', as_index=False).sum(numeric_only=True)[['BatchID', 'PartFraction']]
-
-    # majority_data = grouped_data.iloc[0]
-    # majority_batch = pd.DataFrame(majority_data, index=['Value']).T
-    # majority_batch.fillna(value='---', inplace=True)
-
-    # blend_breakdown = grouped.merge(grouped_data, on='BatchID', how='left')
-    # blend_breakdown['Percent'] = blend_breakdown['PartFraction'] / blend_breakdown['PartFraction'].sum() * 100
-
-    # blend_breakdown['BatchID'] = blend_breakdown['BatchID'].fillna('').astype(int)
-    # blend_breakdown['Product'] = blend_breakdown['SupplierProduct'].fillna('')
-    # blend_breakdown['Purchase Order'] = blend_breakdown['VirginPO'].fillna('')
-    # blend_breakdown['Virgin Lot'] = blend_breakdown['VirginLot'].fillna('')
-    # blend_breakdown['Percent'] = blend_breakdown['Percent'].map('{:.1f}%'.format)
-    # blend_breakdown['Sieve Count'] = blend_breakdown['SieveCount'].fillna('').astype(int)
-
-    # other_per = 100 - blend_breakdown['Percent'].sum()
-    # blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', '', '', other_per, '']
-    # blend_breakdown.fillna(value='---', inplace=True)
 
   
-
-
-

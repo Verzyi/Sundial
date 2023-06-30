@@ -122,16 +122,21 @@
               <button type="submit" name="Print" class="btn btn-primary">
                 Print
               </button>
-              <button type="submit" name="Report" class="btn btn-primary">
-                Report
-              </button>
               {% endif %}
             </div>
           </div>
         </div>
       </div>
     </form>
-
+    <div class="d-grid mt-4 form-group form-label">
+    {% if blends %}
+      <form method="POST" target="_blank">
+        <button type="submit" name="Report" class="btn btn-primary">
+          Report
+        </button>
+      </form>
+    {% endif %}
+    </div>
     <!-- Display the blend results here -->
     <div class="table-responsive mt-4 container">
       <table class="table table-hover">
