@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response, jsonify
 from jinja2 import Environment, PackageLoader, select_autoescape
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
