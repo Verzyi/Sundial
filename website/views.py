@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response, jsonify
 from jinja2 import Environment, PackageLoader, select_autoescape
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
@@ -566,4 +566,90 @@ def BlendReport():
     return response
 
 
-  
+@views.route('/TraceBack', methods=['GET', 'POST'])
+@login_required
+def BlendTraceback(blend=6111, lvl=0, limit=10):
+    blendPartTable = "Powder_Blend_Parts"
+    powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
+    blendsTable = "powder_blends"
+    powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
+
+    blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
+    blend_df['TotalWeight'] = blend_df['BlendID'].map(powder_blend.set_index('BlendID')['TotalWeight'])
+    blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
+    
+    if lvl == 0: 
+        total_weight = blend_df['TotalWeight'].max()
+        print(f'{lvl}: Blend {blend} ({total_weight:.2f} kg)')
+    
+    if limit > 0:
+        for i, r in blend_df.iterrows():
+            old_blend = r['PartBlendID']
+            batch = r['PartBatchID']
+            frac = r['PartFraction']
+            new_lvl = lvl + 1
+            
+            if old_blend is not pd.NA:
+                print(f'{new_lvl}:', '...' * new_lvl, f'Blend {old_blend} ({frac * 100:.0f}%)')
+                new_limit = limit - 1
+                BlendTraceback(old_blend, new_lvl, new_limit)
+                
+            elif old_blend is pd.NA: 
+                try:
+                    po = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginPO'].iloc[0]
+                    lot = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginLotNumber'].iloc[0]
+                except Exception as e:
+                    po = '[Error]'
+                    lot = '[Error]'
+                
+                print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%) → PO {po}, {lot}')
+    
+    return render_template('traceBack.html')
+
+# @views.route('/TraceBack', methods=['GET', 'POST'])
+# @login_required
+# def BlendTraceback(blend=6111, lvl=0, limit=10):
+#     blendPartTable = "Powder_Blend_Parts"
+#     powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
+    
+#     if 'BlendID' not in powder_blend_part.columns:
+#         return 'Error: BlendID column not found in powder_blend_part DataFrame'
+    
+#     blendsTable = "powder_blends"
+#     powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
+    
+#     blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
+#     blend_df['TotalWeight'] = blend_df['BlendID'].map(powder_blend.set_index('BlendID')['TotalWeight'])
+#     blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
+    
+#     result = {'name': f'Blend {blend}', 'children': []}
+#     if lvl == 0:
+#         total_weight = blend_df['TotalWeight'].max()
+#         result['size'] = total_weight
+    
+#     if limit > 0:
+#         for i, r in blend_df.iterrows():
+#             old_blend = r['PartBlendID']
+#             batch = r['PartBatchID']
+#             frac = r['PartFraction']
+#             new_lvl = lvl + 1
+            
+#             if pd.notnull(old_blend):
+#                 child = {'name': f'Blend {old_blend}', 'size': frac}
+#                 result['children'].append(child)
+#                 new_limit = limit - 1
+#                 child['children'] = BlendTraceback(old_blend, new_lvl, new_limit)['children']
+            
+#             else:
+#                 try:
+#                     # Handle the case when 'powder_inventory_virgin' is not defined or not accessible
+#                     po = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginPO'].iloc[0]
+#                     lot = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginLotNumber'].iloc[0]
+#                 except Exception as e:
+#                     po = '[Error]'
+#                     lot = '[Error]'
+                
+#                 child = {'name': f'Batch {batch}', 'size': frac, 'details': f'PO {po}, {lot}'}
+#                 result['children'].append(child)
+    
+#     return jsonify(result)
