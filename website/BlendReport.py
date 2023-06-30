@@ -1,4 +1,4 @@
-def generate_report(blend_id, output_format):
+def generate_report(blend_id='7334'):
     # Get the blend information
     blend = PowderBlends.query.get(blend_id)
     if blend is None:

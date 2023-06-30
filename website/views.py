@@ -9,6 +9,7 @@ from sqlalchemy.orm import joinedload
 import socket
 from datetime import datetime
 from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
+import pandas as pd
 # from weasyprint import HTML
 
 views = Blueprint('views', __name__)
@@ -440,130 +441,107 @@ def blend_history():
 
 @views.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
-def generate_report(blend_id="7324"):
-    if blend_id is None:
-        return 'Blend not found'
+def BlendReport(blend='7047'):
+    
+    blend_data = []
+    calc_data = PowderBlendCalc.query.filter_by(BlendID=blend).all()
+    for calc in calc_data:
+        part_batch_id = PowderBlendParts.query.filter_by(PartID=calc.PartID).first().PartBatchID
+        inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
 
-    blend = PowderBlends.query.filter_by(BlendID=blend_id).first()
-
-    # Get the blend parts information
-    blend_parts = PowderBlendParts.query.filter_by(BlendID=blend_id).all()
-
-    # Get the inventory virgin batch information
-    batch_ids = [part.PartBatchID for part in blend_parts]
-    virgin_batches = InventoryVirginBatch.query.filter(
-        InventoryVirginBatch.BatchID.in_(batch_ids)).all()
-
-    # Get the materials information
-    blend_material_id = blend.MaterialID
-    materials = MaterialsTable.query.filter(
-        MaterialsTable.MaterialID == blend_material_id).all()
-
-    # Process the data and create the required variables for the report
-    blend_summary = {
-        'Blend': blend_id,
-        'Material': materials[0].MaterialName if materials else '',
-        'Total Weight (kg)': blend.TotalWeight,
-        'Avg. Sieve Count': 0,
-        'Max. Sieve Count': 0
-    }
-
-    majority_batch = {
-        'BatchID': '',
-        'Supplier Product': '',
-        'Purchase Order': '',
-        'Virgin Lot': '',
-        'Percent': 0,
-        'Sieve Count': 0
-    }
-
-    blend_breakdown = []
-
-    # Calculate the average and maximum sieve count
-    sieve_counts = []
-    for part in blend_parts:
-        sieve_count = PowderBlendCalc.query.filter_by(
-            BlendID=blend_id, PartID=part.PartID).first()
-        if sieve_count:
-            sieve_counts.append(sieve_count.SieveCount)
-
-    if sieve_counts:
-        blend_summary['Avg. Sieve Count'] = sum(
-            sieve_counts) / len(sieve_counts)
-        blend_summary['Max. Sieve Count'] = max(sieve_counts)
-
-    # Generate the breakdown information
-
-    # Join the tables
-    blend_breakdown = db.session.query(
-        PowderBlendParts.PartBatchID,
-        MaterialsTable.SupplierProduct,
-        InventoryVirginBatch.VirginPO,
-        InventoryVirginBatch.VirginLot,
-        PowderBlendParts.AddedWeight,
-        PowderBlendCalc.SieveCount
-    ).select_from(
-        PowderBlendParts
-    ).join(
-        MaterialsTable, MaterialsTable.MaterialID == PowderBlendParts.MaterialID
-    ).join(
-        InventoryVirginBatch, InventoryVirginBatch.BatchID == PowderBlendParts.PartBatchID
-    ).join(
-        PowderBlendCalc,
-        and_(PowderBlendCalc.BlendID == PowderBlendParts.BlendID, PowderBlendCalc.PartID == PowderBlendParts.PartID)
-    ).filter(
-        PowderBlendParts.BlendID == blend_id
-    ).all()
-
-
-    blend_breakdown = []
-    for part, calc, batch, material in blend_parts:
-        breakdown_entry = {
-            'BatchID': batch.BatchID,
-            'Supplier Product': material.SupplierProduct,
-            'Purchase Order': batch.VirginPO,
-            'Virgin Lot': batch.VirginLot,
-            'Percent': part.AddedWeight / blend.TotalWeight * 100,
-            'Sieve Count': calc.SieveCount
+        data = {
+            'PartBatchID': part_batch_id,
+            'SupplierProduct': '',
+            'VirginPO': '',
+            'VirginLot': '',
+            'ProductID': inventory_data.ProductID if inventory_data else '',
+            'PartFraction': calc.PartFraction,
+            'SieveCount': calc.SieveCount
         }
-        blend_breakdown.append(breakdown_entry)
+        blend_data.append(data)
+
+    blend_data.sort(key=lambda x: x['PartFraction'], reverse=True)
+
+    product_dict = {}
+    materials = MaterialsTable.query.all()
+    for material in materials:
+        product_dict[material.ProductID] = material.SupplierProduct
+
+    for data in blend_data:
+        product_id = data['ProductID']
+        data['SupplierProduct'] = product_dict.get(product_id, '')
+
+    material_id = PowderBlends.query.filter_by(BlendID=blend).first().MaterialID
+    material = MaterialsTable.query.filter_by(MaterialID=material_id).first().MaterialName
+    total_weight = PowderBlends.query.filter_by(BlendID=blend).first().TotalWeight
+    count_avg = round(sum(data['PartFraction'] * data['SieveCount'] for data in blend_data))
+    count_max = max(data['SieveCount'] for data in blend_data)
+
+    summary_dict = {
+        'Blend': blend,
+        'Material': material,
+        'Total Weight (kg)': total_weight,
+        'Avg. Sieve Count': count_avg,
+        'Max. Sieve Count': count_max,
+    }
+    blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
+    blend_summary.fillna(value='---', inplace=True)
+
+    grouped_data = []
+    for data in blend_data:
+        part_batch_id = data['PartBatchID']
+        inventory_data = InventoryVirginBatch.query.filter_by(BatchID=part_batch_id).first()
+        if inventory_data:
+            data['VirginPO'] = inventory_data.VirginPO
+            data['VirginLot'] = inventory_data.VirginLot
+            product_id = inventory_data.ProductID
+            data['SupplierProduct'] = product_dict.get(product_id, '')
+        grouped_data.append({
+            'BatchID': part_batch_id,
+            'SupplierProduct': data['SupplierProduct'],
+            'VirginPO': data['VirginPO'],
+            'VirginLot': data['VirginLot'],
+            'PartFraction': data['PartFraction'],
+            'SieveCount': data['SieveCount']
+        })
+
+    grouped_data.sort(key=lambda x: x['PartFraction'], reverse=True)
+    grouped_data = pd.DataFrame(grouped_data)
+
+    grouped_data['BatchID'] = pd.to_numeric(grouped_data['BatchID'], errors='coerce')
+    grouped = grouped_data.groupby('BatchID', as_index=False).sum(numeric_only=True)[['BatchID', 'PartFraction']]
+
+    majority_data = grouped_data.iloc[0]
+    majority_batch = pd.DataFrame(majority_data, index=['Value']).T
+    majority_batch.fillna(value='---', inplace=True)
+
+    blend_breakdown = grouped.merge(grouped_data, on='BatchID', how='left')
+    blend_breakdown['Percent'] = blend_breakdown['PartFraction'] / blend_breakdown['PartFraction'].sum() * 100
+
+    blend_breakdown['BatchID'] = blend_breakdown['BatchID'].fillna('').astype(int)
+    blend_breakdown['Product'] = blend_breakdown['SupplierProduct'].fillna('')
+    blend_breakdown['Purchase Order'] = blend_breakdown['VirginPO'].fillna('')
+    blend_breakdown['Virgin Lot'] = blend_breakdown['VirginLot'].fillna('')
+    blend_breakdown['Percent'] = blend_breakdown['Percent'].map('{:.1f}%'.format)
+    blend_breakdown['Sieve Count'] = blend_breakdown['SieveCount'].fillna('').astype(int)
+
+    other_per = 100 - blend_breakdown['Percent'].sum()
+    blend_breakdown.loc[blend_breakdown.shape[0]] = ['', '', '', '', other_per, '']
+    blend_breakdown.fillna(value='---', inplace=True)
+
+    print("Blend Summary:")
+    print(blend_summary)
+    print("\nMajority Batch:")
+    print(majority_batch)
+    print("\nBlend Breakdown:")
+    print(blend_breakdown)
+
+    return render_template('Blend_Report.html',
+                           blend_summary=blend_summary,
+                           majority_batch=majority_batch,
+                           blend_breakdown=blend_breakdown)
 
 
-    # Calculate the majority batch
-    majority_batch_weight = max(
-        blend_parts, key=lambda part: part.AddedWeight).AddedWeight
-    majority_batch_part = next(
-        (part for part in blend_parts if part.AddedWeight == majority_batch_weight), None)
-    majority_batch_batch = next((batch for batch in virgin_batches if batch.BatchID == majority_batch_part.PartBatchID),
-                                None)
-    majority_batch_material = next((material for material in materials if material.MaterialID == blend_material_id),
-                                   None)
 
-    if majority_batch_part and majority_batch_batch and majority_batch_material:
-        majority_batch['BatchID'] = majority_batch_part.PartBatchID
-        majority_batch['Supplier Product'] = majority_batch_material.SupplierProduct
-        majority_batch['Purchase Order'] = majority_batch_batch.VirginPO
-        majority_batch['Virgin Lot'] = majority_batch_batch.VirginLot
-        majority_batch['Percent'] = majority_batch_weight / \
-            blend.TotalWeight * 100
 
-    # Render the report template
-    return render_template(
-        'blend_Report.html',
-        blend_summary=blend_summary,
-        majority_batch=majority_batch,
-        blend_breakdown=blend_breakdown
-    )
 
-    # Generate the report in the requested format
-    # if output_format == 'html':
-    #     return render_template('blend_history.html', user=current_user)
-    # elif output_format == 'pdf':
-    #     print("working on this ")
-    # pdf = HTML(string=rendered_report).write_pdf()
-    # response = make_response(pdf)
-    #     response.headers['Content-Type'] = 'application/pdf'
-    #     response.headers['Content-Disposition'] = 'attachment; filename=blend_report.pdf'
-    #     return response
-    # else:
-    #     return 'Invalid output format'
