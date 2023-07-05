@@ -230,7 +230,7 @@ def create_blend():
                         elif radioOption == 'Batch':
                             search = InventoryVirginBatch.query.filter_by(
                                 BatchID=blendNumber).scalar()
-                            if blendNumber in numbers:
+                            if blendNumber in batchs:
                                 flash("batch number is already added",
                                       category='error')
                             elif search:
@@ -361,49 +361,57 @@ def remove_batch(batchIndex):
 @views.route('/createBatch', methods=['GET', 'POST'])
 @login_required
 def create_batch():
-    materials_table = MaterialsTable.query.order_by(
-        MaterialsTable.MaterialName, MaterialsTable.SupplierProduct).all()
-    products = [material.SupplierProduct for material in materials_table]
-    material = {
-        material.SupplierProduct: material.MaterialName for material in materials_table}
+    
+
+
+    
+    
+    materials_table = MaterialsTable.query.order_by(MaterialsTable.SupplierProduct, MaterialsTable.MaterialName).all()
+
+    material_names = [material.MaterialName for material in materials_table]
+    
+    material_products = {}
+    for material in materials_table:
+        if material.MaterialName not in material_products:
+            material_products[material.MaterialName] = []
+        material_products[material.MaterialName].append(material.SupplierProduct)
+
+
+
 
     if request.method == 'POST':
         poNumber = request.form.get('poNumber', '')
         vlot = request.form.get('vLot', '')
         weight = request.form.get('weight', '')
-        product = request.form.get('material', '')
+        material = request.form.get('material', '')
+        product = request.form.get('product', '')
 
         if not poNumber:
-            flash("Missing PO Number. Please Enter a PO Number.", category='error')
+            flash("Missing PO Number. Please enter a PO Number.", category='error')
         elif not vlot:
-            flash("Missing Virgin Lot. Please Enter a Virgin Lot.", category='error')
+            flash("Missing Virgin Lot. Please enter a Virgin Lot.", category='error')
         elif not weight:
-            flash("Missing Weight. Please Enter a Weight.", category='error')
+            flash("Missing Weight. Please enter a Weight.", category='error')
         elif not product:
-            flash("Missing material. Please Select a Material.", category='error')
+            flash("Missing product. Please select a Product.", category='error')
         elif not weight.isnumeric():
             flash("Weight must be a numeric value.", category='error')
         else:
             flash("Batch has been created", category='success')
 
-            product = product.split(" - (")[1]
-            product = product.split(' )')[0]
             # Get product id
-            product_obj = MaterialsTable.query.filter_by(
-                SupplierProduct=product).first()
+            product_obj = MaterialsTable.query.filter_by(SupplierProduct=product).first()
             if product_obj:
                 product_id = product_obj.ProductID
 
                 # Update PowderBlendParts records
-                last_batch = InventoryVirginBatch.query.order_by(
-                    InventoryVirginBatch.BatchID.desc()).first()
+                last_batch = InventoryVirginBatch.query.order_by(InventoryVirginBatch.BatchID.desc()).first()
                 last_batch_id = last_batch.BatchID if last_batch else 0
 
                 new_batch = InventoryVirginBatch(
                     BatchID=int(last_batch_id + 1),
                     BatchCreatedBy=current_user.id,
-                    BatchTimeStamp=str(
-                        datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
+                    BatchTimeStamp=str(datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
                     BatchFacilityID=int(4),
                     VirginPO=int(poNumber),
                     VirginLot=str(vlot),
@@ -418,7 +426,8 @@ def create_batch():
                 flash("Product not found." + str(product), category='error')
                 # Additional error handling code if needed
 
-    return render_template("createBatch.html", user=current_user, Products=products, material_name=material)
+    return render_template("createBatch.html", user=current_user, material_name=material_names, material_products=material_products)
+
 
 
 @views.route('/BlendHistory', methods=['GET', 'POST'])
@@ -569,12 +578,14 @@ def BlendReport():
 
 @views.route('/TraceBack', methods=['GET', 'POST'])
 @login_required
-def BlendTraceback(blend=6111, lvl=0, limit=10):
+def BlendTraceback(blend=6111, lvl=0, limit=30):
     blendPartTable = "Powder_Blend_Parts"
     powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
     blendsTable = "powder_blends"
     powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
 
+    powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[['PartBlendID', 'PartBatchID']].astype('Int64')
+    
     blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
     blend_df['TotalWeight'] = blend_df['BlendID'].map(powder_blend.set_index('BlendID')['TotalWeight'])
     blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
@@ -595,14 +606,17 @@ def BlendTraceback(blend=6111, lvl=0, limit=10):
                 new_limit = limit - 1
                 BlendTraceback(old_blend, new_lvl, new_limit)
                 
-            elif old_blend is pd.NA: 
-                try:
-                    po = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginPO'].iloc[0]
-                    lot = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginLotNumber'].iloc[0]
-                except Exception as e:
-                    po = '[Error]'
-                    lot = '[Error]'
+            elif old_blend is pd.NA:
+                print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%)')
                 
-                print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%) → PO {po}, {lot}')
+            # elif old_blend is pd.NA: 
+            #     try:
+            #         po = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginPO'].iloc[0]
+            #         lot = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginLotNumber'].iloc[0]
+            #     except Exception as e:
+            #         po = '[Error]'
+            #         lot = '[Error]'
+                
+            #     print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%) → PO {po}, {lot}')
     
     return render_template('traceBack.html')

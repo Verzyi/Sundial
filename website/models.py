@@ -35,8 +35,8 @@ class InventoryVirginBatch(db.Model):
     
 
 class MaterialsTable(db.Model):
-    MaterialName = db.Column(db.String(50), primary_key=True, unique=True)
-    SupplierProduct = db.Column(db.String)
+    MaterialName = db.Column(db.String(50))
+    SupplierProduct = db.Column(db.String, primary_key=True, unique=True)
     MaterialID = db.Column(db.Integer)
     ProductID = db.Column(db.Integer)    
 
