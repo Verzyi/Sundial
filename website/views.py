@@ -433,21 +433,26 @@ def create_batch():
 @views.route('/BlendHistory', methods=['GET', 'POST'])
 @login_required
 def blend_history():
-    search = None
+    material_name = None
     query = db.session.query(PowderBlends, MaterialsTable.MaterialName)\
         .join(MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID)\
         .order_by(PowderBlends.BlendID.desc())
 
     if request.method == 'POST':
-        search = request.form.get('search')
-        if search:
-            query = query.filter(PowderBlends.BlendID.contains(search))
+        material_name = request.form.get('material')
+
+        if material_name:
+            query = query.filter(MaterialsTable.MaterialName == material_name)
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
     blends = query.paginate(page=page, per_page=per_page)
 
-    return render_template('blend_history.html', user=current_user, blends=blends, search=search)
+    material_names = db.session.query(MaterialsTable.MaterialName).distinct().all()
+    material_names = [name[0] for name in material_names]
+
+    return render_template('blend_history.html', user=current_user, blends=blends, material_name=material_names, selected_material=material_name)
+
 
 
 @views.route('/BlendReport', methods=['GET', 'Post'])

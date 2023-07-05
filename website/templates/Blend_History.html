@@ -85,22 +85,37 @@
       method="POST"
       class="mt-4"
     >
-      <div class="form-group">
-        <input
-          type="text"
-          class="form-control"
-          name="search"
-          {% if search is none %}
-          placeholder="Search Blend ID"
-          {% else %}
-          value="{{ search }}"
-          {%endif %}
-        />
-      </div>
-      <div class="d-grid">
-        <button type="submit" class="btn btn-primary">Search</button>
-      </div>
-    </form>
+    <div class="container">
+      <form action="{{ url_for('views.blend_history') }}" method="POST" class="mt-4">
+        <div class="d-grid">
+          <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/searchBlends'"
+      />
+      <label class="btn btn-outline-primary" for="Search">Switch to Virgin Batch History</label>
+        </div>
+        <div class="form-group">
+          <select
+            name="material"
+            class="form-select"
+            id="material"
+            style="text-align: center"
+            onchange="this.form.submit()"
+          >
+            <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
+            {% for material in material_name %}
+            <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="d-grid">
+          <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+      </form>
 
     <div class="table-responsive mt-4">
       <table class="table table-hover">
