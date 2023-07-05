@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Blend Traceback</title>
+  <style>
+    ul {
+      list-style-type: none;
+      padding-left: 20px;
+    }
+    ul li {
+      position: relative;
+    }
+    ul li:before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -15px;
+      border-left: 1px solid #ccc;
+      height: 100%;
+    }
+  </style>
+</head>
+<body>
+  <ul id="blend-traceback"></ul>
+
+  <script>
+    // Retrieve the blend history data from the server
+    fetch('/TraceBack')
+      .then(response => response.json())
+      .then(data => {
+        // Create the blend traceback hierarchy
+        var blendTraceback = createHierarchy(data);
+
+        // Render the blend traceback in the HTML
+        var blendTracebackContainer = document.getElementById('blend-traceback');
+        renderHierarchy(blendTraceback, blendTracebackContainer);
+      });
+
+    // Function to create the hierarchy from the blend history data
+    function createHierarchy(data) {
+      var blendTraceback = { name: data.name, children: [] };
+      if (data.children.length > 0) {
+        data.children.forEach(function(child) {
+          blendTraceback.children.push(createHierarchy(child));
+        });
+      }
+      return blendTraceback;
+    }
+
+    // Function to render the hierarchy in the HTML
+    function renderHierarchy(node, container) {
+      var listItem = document.createElement('li');
+      listItem.textContent = node.name;
+      container.appendChild(listItem);
+
+      if (node.children.length > 0) {
+        var childList = document.createElement('ul');
+        listItem.appendChild(childList);
+        node.children.forEach(function(child) {
+          renderHierarchy(child, childList);
+        });
+      }
+    }
+  </script>
+</body>
+</html>
