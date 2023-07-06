@@ -454,6 +454,34 @@ def blend_history():
     return render_template('blend_history.html', user=current_user, blends=blends, material_name=material_names, selected_material=material_name)
 
 
+@views.route('/BatchHistory', methods=['GET', 'POST'])
+@login_required
+def batch_history():
+    material_name = None
+    query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct)\
+        .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID)\
+        .order_by(InventoryVirginBatch.BatchID.desc())
+
+    if request.method == 'POST':
+        material_name = request.form.get('material')
+
+        if material_name:
+            query = query.filter(MaterialsTable.MaterialName == material_name)
+
+    page = request.args.get('page', 1, type=int)
+    per_page = 100  # Number of rows to display per page
+    blends = query.paginate(page=page, per_page=per_page)
+
+    material_names = db.session.query(MaterialsTable.MaterialName).distinct().all()
+    material_names = [name[0] for name in material_names]
+    
+    supplier_product = db.session.query(MaterialsTable.SupplierProduct).distinct().all()
+    supplier_product = [name[0] for name in supplier_product]
+    
+    
+
+    return render_template('Batch_history.html', user=current_user, batchs=blends, material_name=material_names, supplier_name = supplier_product , selected_material=material_name)
+
 
 @views.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
