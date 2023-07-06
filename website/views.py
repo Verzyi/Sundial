@@ -609,6 +609,8 @@ def BlendReport():
 
 
 
+traceNum = []
+
 @views.route('/TraceBack', methods=['GET', 'POST'])
 @login_required
 def BlendTraceback(blend=6111, lvl=0, limit=30):
@@ -652,4 +654,4 @@ def BlendTraceback(blend=6111, lvl=0, limit=30):
                 
             #     print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%) → PO {po}, {lot}')
     
-    return render_template('traceBack.html')
+    return render_template('traceBack.html', user=current_user)
