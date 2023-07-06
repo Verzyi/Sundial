@@ -147,6 +147,7 @@
             <th scope="col">Weight (kg)</th>
             <th scope="col">Material</th>
             <th scope="col">Date Created</th>
+            <th scope="col">Created By</th>
           </tr>
         </thead>
         <tbody>
@@ -157,6 +158,7 @@
             <td>{{ blend.TotalWeight }}</td>
             <td>{{ material_name }}</td>
             <td>{{ blend.BlendDate }}</td>
+            <td>{{blend.BlendCreatedBy}}</td>
           </tr>
           {% endfor %} {% endif %}
         </tbody>
