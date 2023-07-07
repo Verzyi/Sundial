@@ -1,7 +1,7 @@
 {% extends "blend.html" %} 
 {% block title %}History{% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - History</h1>
+<h1 class="text-center">Blend System - Virgin Batch History</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -41,32 +41,12 @@
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Trace"
-        autocomplete="off"
-        onclick="window.location.href = '/TraceBack'"
-      />
-      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
         id="History"
         autocomplete="off"
         checked
         onclick="window.location.href = '/BlendHistory'"
       />
       <label class="btn btn-outline-primary" for="History">History</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Report"
-        autocomplete="off"
-        onclick=""
-      />
-      <label class="btn btn-outline-primary" for="Report">Report</label>
 
       <input
         type="radio"
@@ -131,9 +111,9 @@
           <tr>
             <th>Batch ID</th>
             <th>Batch Material</th>
-            <th>Batch Product</th>
-            <th>Vergin Lot</th>
-            <th>Vergin PO</th>
+            <th>Suplier Product </th>
+            <th>Virgin Lot</th>
+            <th>Virgin PO</th>
             <th>Total Weight</th>
             <th>Date Added</th>
             <th>Created By</th>
@@ -144,9 +124,9 @@
           <tr class="table-active">
             <td>{{ batch.BatchID }}</td>
             <td>{{ material_name }}</td>
-            <td>{{ batch.VirginLot }}</td>
-            <td>{{ batch.VirginLot }}</td>
             <td>{{ supplier_product }}</td>
+            <td>{{ batch.VirginLot }}</td>
+            <td>{{ batch.VirginPO }}</td>
             <td>{{ batch.VirginQty }}</td>
             <td>{{ batch.BatchTimeStamp }}</td>
             <td>{{ batch.BatchCreatedBy }}</td>

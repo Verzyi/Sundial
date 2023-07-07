@@ -41,31 +41,11 @@
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="Trace"
-          autocomplete="off"
-          onclick="window.location.href = '/TraceBack'"
-        />
-        <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
           id="History"
           autocomplete="off"
           onclick="window.location.href = '/BlendHistory'"
         />
         <label class="btn btn-outline-primary" for="History">History</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Report"
-          autocomplete="off"
-          onclick=""
-        />
-        <label class="btn btn-outline-primary" for="Report">Report</label>
 
         <input
           type="radio"
@@ -194,7 +174,7 @@
                   <button
                     type="submit"
                     class="btn btn-danger"
-                    formaction="{{ url_for('views.remove_blend', blendIndex=i + blends|length) }}"
+                    formaction="{{ url_for('views.remove_batch', batchIndex=i) }}"
                   >
                     Remove
                   </button>

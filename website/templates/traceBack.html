@@ -1,110 +1,63 @@
-{% extends "base.html" %}
-
-{% block title %}Blend Trace Back{% endblock %}
-
-{% block content %}
-<h1 class="text-center">Blend System - Trace Back</h1>
-
-<div class="container">
-  <div class="d-flex justify-content-center mt-3">
-    <div class="btn-group">
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Search"
-        autocomplete="off"
-        onclick="window.location.href = '/searchBlends'"
-      />
-      <label class="btn btn-outline-primary" for="Search">Search</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="New"
-        autocomplete="off"
-        onclick="window.location.href = '/createBlend'"
-      />
-      <label class="btn btn-outline-primary" for="New">Create Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="createBatch"
-        autocomplete="off"
-        onclick="window.location.href = '/createBatch'"
-      />
-      <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Trace"
-        autocomplete="off"
-        checked
-        onclick="window.location.href = '/TraceBack'"
-      />
-      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="History"
-        autocomplete="off"
-        onclick="window.location.href = '/BlendHistory'"
-      />
-      <label class="btn btn-outline-primary" for="History">History</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Report"
-        autocomplete="off"
-        onclick=""
-      />
-      <label class="btn btn-outline-primary" for="Report">Report</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Inventory"
-        autocomplete="off"
-        onclick=""
-      />
-      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
-    </div>
-  </div>
-
-  <form id="searchBlendForm" method="POST" class="mt-4">
-    <div id="search" class="menus">
-      <div class="mb-3">
-        <label for="BlendNum" class="form-label">Blend Number</label>
-        <input
-          type="number"
-          id="BlendNum"
-          name="BlendNum"
-          class="form-control"
-          placeholder="0"
-        />
-      </div>
-      <div class="d-grid">
-        <button type="submit" name="search" class="btn btn-primary">Search</button>
-      </div>
-    </div>
-  </form>
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    h1 {
+      font-family: verdana;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+    }
+    h2 {
+      font-family: verdana;
+      text-align: center;
+      font-size: 16px;
+    }
+    p {
+      font-family: verdana;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+    ul {
+      font-family: verdana;
+      font-size: 12px;
+      list-style-type: none;
+    }
+    .indent {
+      margin-left: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Blend Trace Back</h1>
 
   <div class="container">
     <ul>
       {% for traceback in tracebacks %}
-              <li>{{ traceback }}</li>
+      <li>
+        {{ traceback.blend_number }} (Weight: {{ traceback.weight }} kg, Date: {{ traceback.date_created }})
+        {% if traceback.children %}
+        <ul class="indent">
+          {% for child in traceback.children %}
+          <li>
+            {{ child.blend_number }} (Weight: {{ child.weight }} kg, Date: {{ child.date_created }})
+            {% if child.children %}
+            <ul class="indent">
+              {% for sub_child in child.children %}
+              <li>
+                {{ sub_child.blend_number }} (Weight: {{ sub_child.weight }} kg, Date: {{ sub_child.date_created }})
+              </li>
               {% endfor %}
             </ul>
-          </div>
-        </div>
-{% endblock %}
+            {% endif %}
+          </li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+</body>
+</html>
