@@ -122,9 +122,16 @@ def searchBlends():
                     else:
                         flash("Blend number must be positive: " +
                               str(blendNumber), category='error')
+                        
+        elif 'Trace' in request.form:
+            flash("Making Trace", category='success')
+            # Retrieve the blend number from session
+            blend_number = session.get('last_blend_number')
+            if blend_number:
+                return redirect(url_for('views.BlendTraceback', blend = blend_number, lvl=0, limit=10))
 
         elif 'Report' in request.form:
-            flash("Making reports", category='success')
+            flash("Making Trace", category='success')
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
@@ -608,10 +615,20 @@ def BlendReport():
     return response
 
 
+def Trace():
+    
+    
+
 
 @views.route('/TraceBack', methods=['GET', 'POST'])
 @login_required
-def BlendTraceback(blend=6111, lvl=0, limit=10):
+def BlendTraceback():
+    
+    blend = int(request.args.get('blend'))
+    lvl=int(request.args.get('lvl'))
+    limit=int(request.args.get('limit'))
+    
+    
     blendPartTable = "Powder_Blend_Parts"
     powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
     blendsTable = "powder_blends"
