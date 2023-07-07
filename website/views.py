@@ -621,7 +621,7 @@ def BlendTraceback(blend=6111, lvl=0, limit=10):
 
     blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
     blend_df['TotalWeight'] = blend_df['BlendID'].map(powder_blend.set_index('BlendID')['TotalWeight'])
-    blend_df['PartFraction'] = blend_df[cdcd'AddedWeight'] / blend_df['TotalWeight']
+    blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
 
     tracebacks = []  # List to store the tracebacks
 
@@ -644,7 +644,10 @@ def BlendTraceback(blend=6111, lvl=0, limit=10):
             elif old_blend is pd.NA:
                 tracebacks.append(f'{new_lvl}: {"..." * new_lvl} Batch {batch} ({frac * 100:.0f}%)')
 
-    return render_template('traceBack.html', user=current_user, tracebacks=tracebacks)
+    cleaned_tracebacks = [traceback.strip() for traceback in tracebacks if traceback.strip()]  # Remove unwanted characters
+    # print(cleaned_tracebacks)
+    # return render_template('traceBack.html', user=current_user, tracebacks=[])
+    return cleaned_tracebacks
 
 
 

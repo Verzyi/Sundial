@@ -1,66 +1,110 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Blend Traceback</title>
-  <style>
-    ul {
-      list-style-type: none;
-      padding-left: 20px;
-    }
-    ul li {
-      position: relative;
-    }
-    ul li:before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -15px;
-      border-left: 1px solid #ccc;
-      height: 100%;
-    }
-  </style>
-</head>
-<body>
-  <ul id="blend-traceback"></ul>
+{% extends "base.html" %}
 
-  <script>
-    // Retrieve the blend history data from the server
-    fetch('/TraceBack')
-      .then(response => response.json())
-      .then(data => {
-        // Create the blend traceback hierarchy
-        var blendTraceback = createHierarchy(data);
+{% block title %}Blend Trace Back{% endblock %}
 
-        // Render the blend traceback in the HTML
-        var blendTracebackContainer = document.getElementById('blend-traceback');
-        renderHierarchy(blendTraceback, blendTracebackContainer);
-      });
+{% block content %}
+<h1 class="text-center">Blend System - Trace Back</h1>
 
-    // Function to create the hierarchy from the blend history data
-    function createHierarchy(data) {
-      var blendTraceback = { name: data.name, children: [] };
-      if (data.children.length > 0) {
-        data.children.forEach(function(child) {
-          blendTraceback.children.push(createHierarchy(child));
-        });
-      }
-      return blendTraceback;
-    }
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/searchBlends'"
+      />
+      <label class="btn btn-outline-primary" for="Search">Search</label>
 
-    // Function to render the hierarchy in the HTML
-    function renderHierarchy(node, container) {
-      var listItem = document.createElement('li');
-      listItem.textContent = node.name;
-      container.appendChild(listItem);
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="New"
+        autocomplete="off"
+        onclick="window.location.href = '/createBlend'"
+      />
+      <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
-      if (node.children.length > 0) {
-        var childList = document.createElement('ul');
-        listItem.appendChild(childList);
-        node.children.forEach(function(child) {
-          renderHierarchy(child, childList);
-        });
-      }
-    }
-  </script>
-</body>
-</html>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="createBatch"
+        autocomplete="off"
+        onclick="window.location.href = '/createBatch'"
+      />
+      <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Trace"
+        autocomplete="off"
+        checked
+        onclick="window.location.href = '/TraceBack'"
+      />
+      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="History"
+        autocomplete="off"
+        onclick="window.location.href = '/BlendHistory'"
+      />
+      <label class="btn btn-outline-primary" for="History">History</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Report"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Report">Report</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Inventory"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+    </div>
+  </div>
+
+  <form id="searchBlendForm" method="POST" class="mt-4">
+    <div id="search" class="menus">
+      <div class="mb-3">
+        <label for="BlendNum" class="form-label">Blend Number</label>
+        <input
+          type="number"
+          id="BlendNum"
+          name="BlendNum"
+          class="form-control"
+          placeholder="0"
+        />
+      </div>
+      <div class="d-grid">
+        <button type="submit" name="search" class="btn btn-primary">Search</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="container">
+    <ul>
+      {% for traceback in tracebacks %}
+              <li>{{ traceback }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+{% endblock %}
