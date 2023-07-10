@@ -1,5 +1,5 @@
 {% extends "blend.html" %} {% block title %}Blend{% endblock %} {% block content %}
-<h1 class="text-center">Blend System - Blend Search</h1>
+<h1 class="text-center">Blend System - Batch Search</h1>
 <div class="container">
   <div class="container">
     <div class="d-flex justify-content-center mt-3">
@@ -60,20 +60,20 @@
     </div>
 
     <form id="searchBlendForm" method="POST" class="mt-4">
-      <label class="btn btn-outline-primary form-group" for="swtich">Switch to Batch Search</label>
+      <label class="btn btn-outline-primary form-group" for="swtich">Switch to Blend Search</label>
       <input type="radio"
       class="btn-check"
       name="btnradio"
       id="swtich"
       autocomplete="off"
-      onclick="window.location.href = '/searchBatchs'">
+      onclick="window.location.href = '/searchBlends'">
       <div id="search" class="menus">
         <div class="mb-3">
-          <label for="BlendNum" class="form-label">Blend Number</label>
+          <label for="BatchNum" class="form-label">Batch Number</label>
           <input
             type="number"
-            id="BlendNum"
-            name="BlendNum"
+            id="BatchNum"
+            name="BatchNum"
             class="form-control"
             placeholder="0"
           />
@@ -82,7 +82,7 @@
           <button type="submit" name="search" class="btn btn-primary">
             Search</button
           >
-          {% if blends %}
+          {% if batch %}
           <div class="d-grid">
             <div class="form-group">
               <label for="printer" class="form-label mt-4"
@@ -115,46 +115,34 @@
         </div>
       </div>
     </form>
-    <div>
-    {% if blends %}
-      <form method="POST" target="_blank">
-        <button type="submit" name="Report" class="btn btn-primary Add">
-          Report
-        </button>
-      </form>
-    {% endif %}
-    </div>
-    <div>
-      {% if blends %}
-        <form method="POST" target="_blank">
-          <button type="submit" name="Trace" class="btn btn-primary Add">
-            Trace
-          </button>
-        </form>
-      {% endif %}
-      </div>
     <!-- Display the blend results here -->
     <div class="table-responsive mt-4 container">
       <table class="table table-hover">
         <!-- Table headers -->
         <thead>
-          <tr style="font-size: 20px">
-            <th scope="col">ID</th>
-            <th scope="col">Weight (kg)</th>
-            <th scope="col">Material</th>
-            <th scope="col">Date Created</th>
-            <th scope="col">Created By</th>
-          </tr>
-        </thead>
+            <tr>
+              <th>Batch ID</th>
+              <th>Batch Material</th>
+              <th>Suplier Product </th>
+              <th>Virgin Lot</th>
+              <th>Virgin PO</th>
+              <th>Total Weight</th>
+              <th>Date Added</th>
+              <th>Created By</th>
+            </tr>
+          </thead>
         <tbody>
           <!-- Loop through the blends results -->
-          {% if blends %} {% for blend, material_name in blends %}
+          {% if batch %} {% for batch_result, material_name, supplier_product in batch %}
           <tr class="table-active">
-            <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
-            <td>{{ blend.TotalWeight }}</td>
+            <td>{{ batch_result.BatchID }}</td>
             <td>{{ material_name }}</td>
-            <td>{{ blend.BlendDate }}</td>
-            <td>{{blend.BlendCreatedBy}}</td>
+            <td>{{ supplier_product }}</td>
+            <td>{{ batch_result.VirginLot }}</td>
+            <td>{{ batch_result.VirginPO }}</td>
+            <td>{{ batch_result.VirginQty }}</td>
+            <td>{{ batch_result.BatchTimeStamp }}</td>
+            <td>{{ batch_result.BatchCreatedBy }}</td>
           </tr>
           {% endfor %} {% endif %}
         </tbody>

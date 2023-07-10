@@ -89,7 +89,7 @@ def print_sticker(printer_ip, blend_number, material, date, weight, qty):
     sock.sendall(command_string.encode())
 
     # Close the socket
-    sock.close()
+    sock.close()                 
 
 
 @views.route('/searchBlends', methods=['GET', 'POST'])
@@ -173,6 +173,70 @@ def searchBlends():
                 flash("Error: Blend not printed", category='error')
 
     return render_template("searchBlends.html", user=current_user, blends=search)
+
+
+@views.route('/searchBatchs', methods=['GET', 'POST'])
+@login_required
+def searchBatchs():
+    batches = None
+
+    if request.method == 'POST':
+        batchNumber = request.form.get('BatchNum')
+
+        if batchNumber:
+            query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct) \
+                .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID) \
+                .order_by(InventoryVirginBatch.BatchID.desc()) \
+                .filter(InventoryVirginBatch.BatchID == batchNumber)
+
+            batches = query.all()  # Retrieve the batch search results
+            if batches:
+                flash("Found Batch number: " +
+                                  str(batchNumber), category='success')
+                # Store the blend number in session
+                session['last_batch_number'] = batchNumber
+            else:
+                    flash("Batch number not found", category='error')
+                
+
+    elif 'Print' in request.form:
+        printerName = request.form.get("printer")
+        qty = request.form.get("qty")
+
+        if printerName == 'Shop printer':
+            printer_ip = '10.101.102.21'
+        elif printerName == 'Programmers printer':
+            printer_ip = '10.101.102.65'
+
+        batch_number = session.get('last_batch_number')
+
+        if batch_number:
+            query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct) \
+                .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID) \
+                .order_by(InventoryVirginBatch.BatchID.desc()) \
+                .filter(InventoryVirginBatch.BatchID == batch_number)
+
+            batches = query.all()  # Retrieve the batch search results
+
+            if batches:
+                for batch, material_name, supplier_product in batches:
+                    blend_number = batch.BatchID
+                    weight = batch.VirginQty
+                    date = batch.BatchTimeStamp
+                    material = material_name
+
+                    # Print the sticker
+                    print_sticker(printer_ip, blend_number, material, date, weight, qty)
+
+                flash("Batch printed: " + str(qty), category='success')
+            else:
+                flash("No batch found: " + str(batch_number), category='error')
+        else:
+            flash("Batch number not found in session", category='error')
+
+    return render_template("searchBatchs.html", user=current_user, batch=batches)
+
+
 
 
 numbers = []
