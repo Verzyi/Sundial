@@ -707,3 +707,48 @@ def BlendTraceback(blend, lvl, limit):
 
     cleaned_tracebacks = [traceback.strip() for traceback in tracebacks if traceback.strip()]  # Remove unwanted characters
     return cleaned_tracebacks
+
+
+@views.route('/inventory', methods=['GET', 'POST'])
+@login_required
+def inventory():
+    # Retrieve the blend inventory data
+    # Retrieve the blend inventory data
+    query = db.session.query(
+        PowderBlends.BlendID,
+        MaterialsTable.MaterialName,
+        PowderBlends.CurrentWeight
+    ).join(
+        MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID
+    )
+
+    # Fetch the blend inventory data
+    inventory_data = query.all()
+
+    # Create a DataFrame from the inventory data
+    df = pd.DataFrame(inventory_data, columns=["Blend ID", "Material", "Current Weight"])
+
+    # Filter out blends with weight less than or equal to 20
+    df = df[df["Current Weight"] > 20]
+
+    # Calculate subtotal for each material
+    df_subtotal = df.groupby("Material").agg({"Current Weight": "sum"})
+    df_subtotal = df_subtotal.reset_index()
+    df_subtotal["Blend ID"] = "Subtotal"
+
+    # Concatenate the subtotal rows with the blend items
+    df_result = pd.concat([df_subtotal, df])
+
+    # Calculate total weight
+    total_weight = df_result[df_result["Blend ID"] != "Subtotal"]["Current Weight"].sum()
+
+    # Retrieve the distinct material names
+    material_names = df_result["Material"].unique()
+
+    return render_template(
+        "inventory.html",
+        user=current_user,
+        inventory_data=df_result.to_dict(orient="records"),
+        material_names=material_names,
+        total_weight=total_weight
+    )
