@@ -1,114 +1,116 @@
-{% extends "base.html" %}
-{% block title %}Blend Inventory{% endblock %}
+{% extends "base.html" %} {% block title %}Blend Inventory{% endblock %} {%
+block content %}
+<h1 class="text-center">Blend System - Blend Inventory</h1>
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/searchBlends'"
+      />
+      <label class="btn btn-outline-primary" for="Search">Search</label>
 
-{% block content %}
-  <h1 class="text-center">Blend System - Blend Inventory</h1>
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="New"
+        autocomplete="off"
+        onclick="window.location.href = '/createBlend'"
+      />
+      <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="createBatch"
+        autocomplete="off"
+        onclick="window.location.href = '/createBatch'"
+      />
+      <label class="btn btn-outline-primary" for="createBatch"
+        >Create Batch</label
+      >
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="History"
+        autocomplete="off"
+        onclick="window.location.href = '/BlendHistory'"
+      />
+      <label class="btn btn-outline-primary" for="History">History</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Inventory"
+        autocomplete="off"
+        checked
+        onclick="window.location.href = '/inventory'"
+      />
+      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+    </div>
+  </div>
   <div class="container">
-    <div class="d-flex justify-content-center mt-3">
-      <div class="btn-group">
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Search"
-          autocomplete="off"
-          onclick="window.location.href = '/searchBlends'"
-        />
-        <label class="btn btn-outline-primary" for="Search">Search</label>
-  
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="New"
-          autocomplete="off"
-          onclick="window.location.href = '/createBlend'"
-        />
-        <label class="btn btn-outline-primary" for="New">Create Blend</label>
-  
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="createBatch"
-          autocomplete="off"
-          onclick="window.location.href = '/createBatch'"
-        />
-        <label class="btn btn-outline-primary" for="createBatch"
-          >Create Batch</label
+    <form action="{{ url_for('views.inventory') }}" method="POST" class="mt-4">
+      <div class="form-group">
+        <select
+          name="material"
+          class="form-select"
+          id="material"
+          style="text-align: center"
+          onchange="this.form.submit()"
         >
-  
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="History"
-          autocomplete="off"
-          onclick="window.location.href = '/BlendHistory'"
-        />
-        <label class="btn btn-outline-primary" for="History">History</label>
-  
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Inventory"
-          autocomplete="off"
-          checked
-          onclick="window.location.href = '/inventory'"
-        />
-        <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+        
+          <option value="">All Materials</option>
+          {% for material in material_names %}
+          <option value="{{ material }}">{{ material }}</option>
+          {% endfor %}
+        </select>
       </div>
-    </div>
-    <div class="container">
-        <form action="{{ url_for('views.inventory') }}" method="POST" class="mt-4">
-          <div class="form-group">
-            <select name="material" class="form-select" id="material" style="text-align: center" onchange="this.form.submit()">
-              <option value="">All Materials</option>
-              {% for material in material_names %}
-              <option value="{{ material }}">{{ material }}</option>
-              {% endfor %}
-            </select>
-          </div>
-        </form>
-      </div>
-      <div class="table-responsive mt-4">
-        <table class="table table-hover">
-          <thead>
-            <tr>
-              <th>Blend ID</th>
-              <th>Material</th>
-              <th>Current Weight</th>
-            </tr>
-          </thead>
-          <tbody>
-            {% set current_material = None %}
-            {% for item in inventory_data %}
-              {% if item["Blend ID"] == "Subtotal" %}
-                <tr class="subtotal">
-                  <td>{{ item["Blend ID"] }}</td>
-                  <td>{{ item["Material"] }}</td>
-                  <td>Total Weight: {{ item["Current Weight"] }}</td>
-                </tr>
-              {% else %}
-                {% if current_material != item["Material"] %}
-                  {% set current_material = item["Material"] %}
-                  <tr class="material">
-                    <td colspan="3">{{ item["Material"] }}</td>
-                  </tr>
-                {% endif %}
-                <tr>
-                  <td>{{ item["Blend ID"] }}</td>
-                  <td>{{ item["Material"] }}</td>
-                  <td>{{ item["Current Weight"] }}</td>
-                </tr>
-              {% endif %}
-            {% endfor %}
-          </tbody>
-        </table>
-      </div>
-      <div class="subtotal">
-        <p>Total Weight: {{ total_weight }}</p>
-      </div>
-    </div>
-  {% endblock %}
+    </form>
+  </div>
+  <div class="table-responsive mt-4">
+    <table class="table table-hover">
+      <thead>
+        <tr>
+          <th>Blend ID</th>
+          <th>Material</th>
+          <th>Current Weight</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% set current_material = None %} {% for item in inventory_data %} {% if
+        item["Blend ID"] == "Subtotal" %}
+        <tr class="subtotal">
+          <td>{{ item["Blend ID"] }}</td>
+          <td>{{ item["Material"] }}</td>
+          <td>Total Weight: {{ item["Current Weight"] }}</td>
+        </tr>
+        {% else %} {% if current_material != item["Material"] %} {% set
+        current_material = item["Material"] %}
+        <tr class="material">
+          <td colspan="3">{{ item["Material"] }}</td>
+        </tr>
+        {% endif %}
+        <tr>
+          <td>{{ item["Blend ID"] }}</td>
+          <td>{{ item["Material"] }}</td>
+          <td>{{ item["Current Weight"] }}</td>
+        </tr>
+        {% endif %} {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="subtotal">
+    <p>Total Weight: {{ total_weight }}</p>
+  </div>
+</div>
+{% endblock %}

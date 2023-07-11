@@ -1,0 +1,158 @@
+{% extends "blend.html" %} {% block title %}Blend{% endblock %} {% block content
+%}
+<h1 class="text-center">Blend System - Batch Search</h1>
+<div class="container">
+  <div class="container">
+    <div class="d-flex justify-content-center mt-3">
+      <div class="btn-group">
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          id="Search"
+          autocomplete="off"
+          checked
+          onclick="window.location.href = '/searchBlends'"
+        />
+        <label class="btn btn-outline-primary" for="Search">Search</label>
+
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          id="New"
+          autocomplete="off"
+          onclick="window.location.href = '/createBlend'"
+        />
+        <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          id="createBatch"
+          autocomplete="off"
+          onclick="window.location.href = '/createBatch'"
+        />
+        <label class="btn btn-outline-primary" for="createBatch"
+          >Create Batch</label
+        >
+
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          id="History"
+          autocomplete="off"
+          onclick="window.location.href = '/BlendHistory'"
+        />
+        <label class="btn btn-outline-primary" for="History">History</label>
+        <input
+          type="radio"
+          class="btn-check"
+          name="btnradio"
+          id="Inventory"
+          autocomplete="off"
+          onclick=""
+        />
+        <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+      </div>
+    </div>
+
+    <form id="searchBlendForm" method="POST" class="mt-4">
+      <label class="btn btn-outline-primary form-group" for="swtich"
+        >Switch to Blend Search</label
+      >
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="swtich"
+        autocomplete="off"
+        onclick="window.location.href = '/searchBlends'"
+      />
+      <div id="search" class="menus">
+        <div class="mb-3">
+          <label for="BatchNum" class="form-label">Batch Number</label>
+          <input
+            type="number"
+            id="BatchNum"
+            name="BatchNum"
+            class="form-control"
+            placeholder="0"
+          />
+        </div>
+        <div class="d-grid">
+          <button type="submit" name="search" class="btn btn-primary">
+            Search
+          </button>
+          {% if batch %}
+          <div class="d-grid">
+            <div class="form-group">
+              <label for="printer" class="form-label mt-4"
+                >Select Printer</label
+              >
+              <select
+                name="printer"
+                class="form-select"
+                id="printer"
+                style="text-align: center"
+              >
+                <option>Shop printer</option>
+                <option>Programmers printer</option>
+              </select>
+            </div>
+            <div class="d-grid">
+              <input
+                type="number"
+                id="qty"
+                name="qty"
+                class="form-control"
+                placeholder="1"
+              />
+              <button type="submit" name="Print" class="btn btn-primary">
+                Print
+              </button>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+    <!-- Display the blend results here -->
+    <div class="table-responsive mt-4 container">
+      <table class="table table-hover">
+        <!-- Table headers -->
+        <thead>
+          <tr>
+            <th>Batch ID</th>
+            <th>Batch Material</th>
+            <th>Suplier Product</th>
+            <th>Virgin Lot</th>
+            <th>Virgin PO</th>
+            <th>Total Weight</th>
+            <th>Date Added</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loop through the blends results -->
+          {% if batch %} {% for batch_result, material_name, supplier_product in
+          batch %}
+          <tr class="table-active">
+            <td>{{ batch_result.BatchID }}</td>
+            <td>{{ material_name }}</td>
+            <td>{{ supplier_product }}</td>
+            <td>{{ batch_result.VirginLot }}</td>
+            <td>{{ batch_result.VirginPO }}</td>
+            <td>{{ batch_result.VirginQty }}</td>
+            <td>{{ batch_result.BatchTimeStamp }}</td>
+            <td>{{ batch_result.BatchCreatedBy }}</td>
+          </tr>
+          {% endfor %} {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
