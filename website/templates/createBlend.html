@@ -41,31 +41,11 @@
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="Trace"
-          autocomplete="off"
-          onclick=""
-        />
-        <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
           id="History"
           autocomplete="off"
           onclick="window.location.href = '/BlendHistory'"
         />
         <label class="btn btn-outline-primary" for="History">History</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Report"
-          autocomplete="off"
-          onclick=""
-        />
-        <label class="btn btn-outline-primary" for="Report">Report</label>
 
         <input
           type="radio"
@@ -99,7 +79,7 @@
               autocomplete="off"
               checked
             />
-            <label class="btn btn-outline-primary" for="Blend">Blend</label>
+            <label class="btn btn-outline-primary" style="width:120px;" for="Blend">Blend</label>
 
             <input
               type="radio"
@@ -109,7 +89,7 @@
               value="Batch"
               autocomplete="off"
             />
-            <label class="btn btn-outline-primary" for="Batch">Batch</label>
+            <label class="btn btn-outline-primary" style="width:120px;" for="Batch">Virgin Batch</label>
           </div>
         </div>
 
@@ -123,7 +103,7 @@
             placeholder="0"
           />
 
-          <label for="weight" class="form-label">Weight</label>
+          <label for="weight" class="form-label">Weight (kg)</label>
           <input
             type="number"
             step="0.01"
@@ -145,7 +125,7 @@
         </div>
         <div class="form-group mt-4">
           <label for="total" id="weightTotal"
-            >Total Weight: {{ totalWeight }}</label
+            >Total Weight: {{ totalWeight }} kg</label
           >
         </div>
         <div class="d-grid">
@@ -163,10 +143,10 @@
             <!-- Table headers -->
             <thead>
               <tr style="font-size: 20px">
-                <th scope="col">ID:</th>
-                <th scope="col">Weight:</th>
-                <th scope="col">Material:</th>
-                <th scope="col">Action:</th>
+                <th scope="col">ID</th>
+                <th scope="col">Weight (kg)</th>
+                <th scope="col">Material</th>
+                <th scope="col">Action</th>
               </tr>
             </thead>
             <tbody>
@@ -186,7 +166,7 @@
                 </td>
               </tr>
               {% endfor %} {% for i in range(batchs|length) %}
-              <tr class="table-active">
+              <tr style='font-style: italic;' class="table-active">
                 <td>Batch {{ batchs[i] }}</td>
                 <td>{{ batchWeights[i] }}</td>
                 <td>{{ materials[i] }}</td>
@@ -194,7 +174,7 @@
                   <button
                     type="submit"
                     class="btn btn-danger"
-                    formaction="{{ url_for('views.remove_blend', blendIndex=i + blends|length) }}"
+                    formaction="{{ url_for('views.remove_batch', batchIndex=i) }}"
                   >
                     Remove
                   </button>

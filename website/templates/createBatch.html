@@ -41,31 +41,11 @@ content %}
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Trace"
-        autocomplete="off"
-        onclick=""
-      />
-      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
         id="History"
         autocomplete="off"
         onclick="window.location.href = '/BlendHistory'"
       />
       <label class="btn btn-outline-primary" for="History">History</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Report"
-        autocomplete="off"
-        onclick=""
-      />
-      <label class="btn btn-outline-primary" for="Report">Report</label>
 
       <input
         type="radio"
@@ -82,58 +62,45 @@ content %}
   <div class="container-fluid">
     <form id="createBlendForm" method="POST" class="mt-4">
       <div id="blendFields" class="mb-3">
+        <!-- Form fields for PO Number, Virgin Lot, Weight -->
         <label for="poNumber" class="form-label">PO Number</label>
-        <input
-          type="number"
-          class="form-control"
-          name="poNumber"
-          id="poNumber"
-          placeholder="0"
-        />
+        <input type="number" class="form-control" name="poNumber" id="poNumber" placeholder="0">
 
         <label for="vLotNumber" class="form-label">Virgin Lot</label>
-        <input
-          type="text"
-          class="form-control"
-          name="vLot"
-          id="vLot"
-          placeholder="0"
-        />
+        <input type="text" class="form-control" name="vLot" id="vLot" placeholder="0">
 
         <label for="weight" class="form-label">Weight</label>
-        <input
-          type="number"
-          step="0.01"
-          class="form-control"
-          name="weight"
-          id="weight"
-          placeholder="0"
-        />
+        <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
       </div>
+
       <div class="d-grid">
         <div class="form-group">
-          <label for="material" class="form-label mt-4">Material</label>
           <select
             name="material"
             class="form-select"
             id="material"
             style="text-align: center"
+            onchange="updateProductDropdown()"
           >
             <option value="" disabled selected>Select Material</option>
-            {% for product in Products %}
-            <option>{{ material_name[product] }} - ({{ product }} )</option>
+            {% for material in material_name %}
+            <option value="{{ material }}">{{ material }}</option>
             {% endfor %}
           </select>
-        </div>
-        <div class="d-grid">
-          <button
-            type="submit"
-            id="createButton"
-            class="btn btn-primary"
-            name="create"
+          <br>
+          <select
+            name="product"
+            class="form-select"
+            id="product"
+            style="text-align: center"
           >
-            Create Batch
-          </button>
+            <option value="" disabled selected>Select Product</option>
+          </select>
+        </div>
+
+        <div class="d-grid">
+          <!-- Submit button -->
+          <button type="submit" id="createButton" class="btn btn-primary" name="create">Create Batch</button>
         </div>
       </div>
     </form>
@@ -152,7 +119,8 @@ content %}
         </thead>
         <tbody>
           <!-- Loop through the blendNumber results -->
-          {% if blendNumber %} {% for blend in blendNumber %}
+          {% if blendNumber %}
+          {% for blend in blendNumber %}
           <tr class="table-active">
             <td>{{ blend.PowderBlendID }}</td>
             <td>{{ blend.AddedWeight }}</td>
@@ -160,10 +128,35 @@ content %}
             <td>{{ blend.AddedWeight }}</td>
             <td>{{ blend.PowderInventoryBatchID }}</td>
           </tr>
-          {% endfor %} {% endif %}
+          {% endfor %}
+          {% endif %}
         </tbody>
       </table>
     </div>
   </div>
-  {% endblock %}
 </div>
+<script>
+  function updateProductDropdown() {
+    var materialDropdown = document.getElementById("material");
+    var productDropdown = document.getElementById("product");
+    var selectedMaterial = materialDropdown.value;
+
+    // Clear existing options
+    productDropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
+
+    // Filter products based on selected material
+    var products = {{ material_products | tojson }};
+    var filteredProducts = products[selectedMaterial];
+
+    // Add filtered products to the dropdown
+    if (filteredProducts) {
+      for (var i = 0; i < filteredProducts.length; i++) {
+        var option = document.createElement("option");
+        option.value = filteredProducts[i];
+        option.text = filteredProducts[i];
+        productDropdown.appendChild(option);
+      }
+    }
+  }
+</script>
+{% endblock %}

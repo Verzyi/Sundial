@@ -1,5 +1,5 @@
 {% extends "blend.html" %} {% block title %}Blend{% endblock %} {% block content %}
-<h1 class="text-center">Blend System - Search</h1>
+<h1 class="text-center">Blend System - Blend Search</h1>
 <div class="container">
   <div class="container">
     <div class="d-flex justify-content-center mt-3">
@@ -41,31 +41,11 @@
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="Trace"
-          autocomplete="off"
-          onclick=""
-        />
-        <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
           id="History"
           autocomplete="off"
           onclick="window.location.href = '/BlendHistory'"
         />
         <label class="btn btn-outline-primary" for="History">History</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Report"
-          autocomplete="off"
-          onclick=""
-        />
-        <label class="btn btn-outline-primary" for="Report">Report</label>
 
         <input
           type="radio"
@@ -80,6 +60,13 @@
     </div>
 
     <form id="searchBlendForm" method="POST" class="mt-4">
+      <label class="btn btn-outline-primary form-group" for="swtich">Switch to Batch Search</label>
+      <input type="radio"
+      class="btn-check"
+      name="btnradio"
+      id="swtich"
+      autocomplete="off"
+      onclick="window.location.href = '/searchBatchs'">
       <div id="search" class="menus">
         <div class="mb-3">
           <label for="BlendNum" class="form-label">Blend Number</label>
@@ -94,7 +81,7 @@
         <div class="d-grid">
           <button type="submit" name="search" class="btn btn-primary">
             Search</button
-          ><br />
+          >
           {% if blends %}
           <div class="d-grid">
             <div class="form-group">
@@ -128,7 +115,7 @@
         </div>
       </div>
     </form>
-    <div class="mt-4 menus d-grid">
+    <div>
     {% if blends %}
       <form method="POST" target="_blank">
         <button type="submit" name="Report" class="btn btn-primary Add">
@@ -137,6 +124,15 @@
       </form>
     {% endif %}
     </div>
+    <div>
+      {% if blends %}
+        <form method="POST" target="_blank">
+          <button type="submit" name="Trace" class="btn btn-primary Add">
+            Trace
+          </button>
+        </form>
+      {% endif %}
+      </div>
     <!-- Display the blend results here -->
     <div class="table-responsive mt-4 container">
       <table class="table table-hover">
@@ -144,9 +140,10 @@
         <thead>
           <tr style="font-size: 20px">
             <th scope="col">ID</th>
-            <th scope="col">Weight</th>
+            <th scope="col">Weight (kg)</th>
             <th scope="col">Material</th>
             <th scope="col">Date Created</th>
+            <th scope="col">Created By</th>
           </tr>
         </thead>
         <tbody>
@@ -157,6 +154,7 @@
             <td>{{ blend.TotalWeight }}</td>
             <td>{{ material_name }}</td>
             <td>{{ blend.BlendDate }}</td>
+            <td>{{blend.BlendCreatedBy}}</td>
           </tr>
           {% endfor %} {% endif %}
         </tbody>

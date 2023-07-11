@@ -1,7 +1,7 @@
 {% extends "blend.html" %} 
 {% block title %}History{% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - Blend History</h1>
+<h1 class="text-center">Blend System - Virgin Batch History</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -61,12 +61,12 @@
   </div>
   <div class="container">
     <form
-      action="{{ url_for('views.blend_history') }}"
+      action="{{ url_for('views.batch_history') }}"
       method="POST"
       class="mt-4"
     >
     <div class="container">
-      <form action="{{ url_for('views.blend_history') }}" method="POST" class="mt-4">
+      <form action="{{ url_for('views.batch_history') }}" method="POST" class="mt-4">
         <div class="d-grid">
           <input
         type="radio"
@@ -76,13 +76,13 @@
         autocomplete="off"
         onclick="window.location.href = '/searchBlends'"
       />
-      <label class="btn btn-outline-primary" for="swtich" >Switch to Virgin Batch History</label>
+      <label class="btn btn-outline-primary" for="swtich">Switch to Blend History</label>
       <input type="radio"
       class="btn-check"
       name="btnradio"
       id="swtich"
       autocomplete="off"
-      onclick="window.location.href = '/BatchHistory'"
+      onclick="window.location.href = '/BlendHistory'"
       ></input>
         </div>
         <div class="form-group">
@@ -108,21 +108,27 @@
         <!-- Table headers -->
         <thead>
           <tr>
-            <th>Blend ID</th>
-            <th>Blend Material</th>
+            <th>Batch ID</th>
+            <th>Batch Material</th>
+            <th>Suplier Product </th>
+            <th>Virgin Lot</th>
+            <th>Virgin PO</th>
             <th>Total Weight</th>
             <th>Date Added</th>
             <th>Created By</th>
           </tr>
         </thead>
         <tbody>
-          {% for blend, material_name in blends.items %}
+          {% for batch, material_name, supplier_product in batchs.items %}
           <tr class="table-active">
-            <td>{{ blend.BlendID }}</td>
+            <td>{{ batch.BatchID }}</td>
             <td>{{ material_name }}</td>
-            <td>{{ blend.TotalWeight }}</td>
-            <td>{{ blend.BlendDate }}</td>
-            <td>{{ blend.BlendCreatedBy }}</td>
+            <td>{{ supplier_product }}</td>
+            <td>{{ batch.VirginLot }}</td>
+            <td>{{ batch.VirginPO }}</td>
+            <td>{{ batch.VirginQty }}</td>
+            <td>{{ batch.BatchTimeStamp }}</td>
+            <td>{{ batch.BatchCreatedBy }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -131,16 +137,16 @@
 
     <!-- Pagination -->
     <nav class="mt-4">
-      {% if blends.has_prev %}
+      {% if batchs.has_prev %}
       <a
         class="btn btn-primary"
-        href="{{ url_for('views.blend_history', page=blends.prev_num, search=search) }}"
+        href="{{ url_for('views.batch_history', page=batchs.prev_num, search=search) }}"
         >Previous</a
       >
-      {% endif %} {% if blends.has_next %}
+      {% endif %} {% if batchs.has_next %}
       <a
         class="btn btn-primary"
-        href="{{ url_for('views.blend_history', page=blends.next_num, search=search) }}"
+        href="{{ url_for('views.batch_history', page=batchs.next_num, search=search) }}"
         >Next</a
       >
       {% endif %}
