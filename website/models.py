@@ -57,6 +57,7 @@ class PowderBlendCalc(db.Model):
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
     
+    
 __table_args__ = (
         ForeignKeyConstraint(['BlendID', 'PartID'], ['PowderBlends.BlendID', 'PowderBlendParts.PartID']),
     )
