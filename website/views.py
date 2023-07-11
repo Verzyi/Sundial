@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response, jsonify
 from jinja2 import Environment, PackageLoader, select_autoescape
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
@@ -90,7 +90,7 @@ def print_sticker(printer_ip, blend_number, material, date, weight, qty):
     sock.sendall(command_string.encode())
 
     # Close the socket
-    sock.close()                 
+    sock.close()
 
 
 @views.route('/searchBlends', methods=['GET', 'POST'])
@@ -123,17 +123,9 @@ def searchBlends():
                     else:
                         flash("Blend number must be positive: " +
                               str(blendNumber), category='error')
-                        
-        elif 'Trace' in request.form:
-            flash("Making Trace", category='success')
-            # Retrieve the blend number from session
-            blend_number = session.get('last_blend_number')
-            if blend_number:
-                return redirect(url_for('views.BlendTraceback', blend=blend_number, lvl=0, limit=10))
-
 
         elif 'Report' in request.form:
-            flash("Making Trace", category='success')
+            flash("Making reports", category='success')
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
@@ -176,72 +168,6 @@ def searchBlends():
     return render_template("searchBlends.html", user=current_user, blends=search)
 
 
-@views.route('/searchBatchs', methods=['GET', 'POST'])
-@login_required
-def searchBatchs():
-    batches = None
-
-    if request.method == 'POST':
-        if 'search' in request.form:
-            
-            batchNumber = request.form.get('BatchNum')
-
-            if batchNumber:
-                query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct) \
-                    .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID) \
-                    .order_by(InventoryVirginBatch.BatchID.desc()) \
-                    .filter(InventoryVirginBatch.BatchID == batchNumber)
-
-                batches = query.all()  # Retrieve the batch search results
-                if batches:
-                    flash("Found Batch number: " +
-                                    str(batchNumber), category='success')
-                    # Store the blend number in session
-                    session['last_batch_number'] = batchNumber
-                else:
-                        flash("Batch number not found", category='error')
-                
-
-        elif 'Print' in request.form:
-            printerName = request.form.get("printer")
-            qty = request.form.get("qty")
-
-            if printerName == 'Shop printer':
-                printer_ip = '10.101.102.21'
-            elif printerName == 'Programmers printer':
-                printer_ip = '10.101.102.65'
-
-            batch_number = session.get('last_batch_number')
-
-            if batch_number:
-                query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct) \
-                    .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID) \
-                    .order_by(InventoryVirginBatch.BatchID.desc()) \
-                    .filter(InventoryVirginBatch.BatchID == batch_number)
-
-                batches = query.all()  # Retrieve the batch search results
-
-                if batches:
-                    for batch, material_name, supplier_product in batches:
-                        blend_number = batch.BatchID
-                        weight = batch.VirginQty
-                        date = batch.BatchTimeStamp
-                        material = material_name
-
-                        # Print the sticker
-                        print_sticker(printer_ip, blend_number, material, date, weight, qty)
-
-                    flash("Batch printed: " + str(qty), category='success')
-                else:
-                    flash("No batch found: " + str(batch_number), category='error')
-            else:
-                flash("Batch number not found in session", category='error')
-
-    return render_template("searchBatchs.html", user=current_user, batch=batches)
-
-
-
-
 numbers = []
 weights = []
 batchs = []
@@ -254,140 +180,163 @@ materials = []
 def create_blend():
 
     blendOrBatch = 'Blend'
+    # material=db.session.query(MaterialsTable.MaterialName)
 
     if request.method == 'POST':
-        blendNumber = request.form.get('BlendNumber')
+        blendNumber = request.form.get(
+            'BlendNumber')  # Move the assignment here
 
         if 'add' in request.form:
+            blendNumber = request.form.get('BlendNumber')
             weight = request.form.get('weight')
+            if blendNumber is not None and weight is not None:
+                if len(blendNumber) != 0 and len(weight) != 0:
+                    if float(weight) > 1:
+                        # Get the selected radio button option
+                        radioOption = request.form.get('option')
+                        search = None
+                        blendWeight = None
 
-            if blendNumber is not None and weight is not None and blendNumber != "" and weight != "":
-                if float(weight) > 1:
-                    radioOption = request.form.get('option')
-
-                    if radioOption == 'Blend':
-                        if blendNumber in numbers:
-                            flash("Blend number is already added", category='error')
-                        else:
-                            search = PowderBlends.query.filter_by(BlendID=blendNumber).first()
-
-                            if search:
+                        if radioOption == 'Blend':
+                            search = PowderBlends.query.filter_by(
+                                BlendID=blendNumber).first()
+                            if blendNumber in numbers:
+                                flash("Blend number is already added",
+                                      category='error')
+                            elif search:
                                 blendWeight = search.TotalWeight
                                 material_id = search.MaterialID
+                                # Join operation to retrieve MaterialName
                                 query = db.session.query(MaterialsTable.MaterialName).join(
                                     PowderBlends, MaterialsTable.MaterialID == PowderBlends.MaterialID
                                 ).filter(PowderBlends.MaterialID == material_id)
+
+                                # Retrieve the MaterialName
                                 material = query.first()[0]
 
                                 if float(blendWeight) < float(weight):
-                                    flash("Blend cannot exceed the available weight (" + str(blendWeight) + " Kg)", category='error')
+                                    flash("Blend cannot exceed the available weight (" +
+                                          str(blendWeight) + " Kg)", category='error')
                                 else:
-                                    flash("Blend entry added", category='success')
+                                    flash("Blend entry added",
+                                          category='success')
                                     numbers.append(blendNumber)
                                     weights.append(weight)
                                     materials.append(material)
                                     session['material_name'] = material
                             else:
-                                flash("Blend number does not exist", category='error')
+                                flash("Blend number does not exist",
+                                      category='error')
 
-                    elif radioOption == 'Batch':
-                        if blendNumber in batchs:
-                            flash("Batch number is already added", category='error')
-                        else:
-                            search = InventoryVirginBatch.query.filter_by(BatchID=blendNumber).scalar()
-
-                            if search:
+                        elif radioOption == 'Batch':
+                            search = InventoryVirginBatch.query.filter_by(
+                                BatchID=blendNumber).scalar()
+                            if blendNumber in numbers:
+                                flash("batch number is already added",
+                                      category='error')
+                            elif search:
                                 batchWeight = search.VirginQty
-
                                 if float(batchWeight) < float(weight):
-                                    flash("Batch cannot exceed the available weight (" + str(batchWeight) + " Kg)", category='error')
+                                    flash("Batch cannot exceed the available weight (" +
+                                          str(blendWeight) + " Kg)", category='error')
                                 else:
-                                    flash("Batch entry added", category='success')
+                                    flash("Blend entry added",
+                                          category='success')
                                     batchs.append(blendNumber)
                                     batchWeights.append(weight)
                                     material_id = search.ProductID
                                     query = db.session.query(MaterialsTable.MaterialName).join(
                                         InventoryVirginBatch, MaterialsTable.ProductID == InventoryVirginBatch.ProductID
                                     ).filter(InventoryVirginBatch.ProductID == material_id)
+
+                                    # Retrieve the MaterialName
                                     material = query.first()[0]
+
                                     materials.append(material)
                             else:
-                                flash("Batch number does not exist", category='error')
+                                flash("Batch number does not exist",
+                                      category='error')
 
         elif 'create' in request.form:
             if materials == []:
-                flash("No items to blend", category='error')
+                flash("No items to Blend", category='error')
+
+            # Check if all elements in the list are the same
             elif all(x == materials[0] for x in materials):
+                # Retrieve the last material from session
                 material_name = session.get('material_name')
-                material = MaterialsTable.query.filter_by(MaterialName=material_name).first()
+                material = MaterialsTable.query.filter_by(
+                    MaterialName=material_name).first()
+                material_id = material.ProductID
 
-                if material:
-                    material_id = material.ProductID
-                    blendWeight = sum([float(w) for w in weights] + [float(w) for w in batchWeights])
+                # update powderBlend records
+                last_blend = PowderBlends.query.order_by(
+                    PowderBlends.BlendID.desc()).first()
+                last_blend_id = last_blend.BlendID if last_blend else 0
 
-                    if blendWeight > 0:
-                        last_blend = PowderBlends.query.order_by(PowderBlends.BlendID.desc()).first()
-                        last_blend_id = last_blend.BlendID if last_blend else 0
+                new_blend = PowderBlends(
+                    BlendID=int(last_blend_id + 1),
+                    BlendDate=datetime.now().strftime("%m/%d/%Y %H:%M").lstrip("0").replace(" 0", " "),
+                    BlendCreatedBy=current_user.id,
+                    MaterialID=material_id,
+                    TotalWeight=sum([float(blendWeight) for blendWeight in weights] +
+                                    [float(batchWeight) for batchWeight in batchWeights])
+                )
+                db.session.add(new_blend)
+                db.session.commit()
 
-                        new_blend = PowderBlends(
-                            BlendID=last_blend_id + 1,
-                            BlendDate=datetime.now().strftime("%m/%d/%Y %H:%M").lstrip("0").replace(" 0", " "),
-                            BlendCreatedBy=current_user.id,
-                            MaterialID=material_id,
-                            TotalWeight=blendWeight
-                        )
-                        db.session.add(new_blend)
-                        db.session.commit()
+                flash("Blend Number created " +
+                      str(last_blend_id+1), category='success')
 
-                        flash("Blend number created: " + str(last_blend_id + 1), category='success')
+                # update PowderBlendParts records
+                last_blend = PowderBlendParts.query.order_by(
+                    PowderBlendParts.PartID.desc()).first()
+                last_part_id = last_blend.PartID if last_blend else 0
+                last_blend_id = int(last_blend.BlendID +
+                                    1) if last_blend else 0
 
-                        last_part_id = 0
-                        if PowderBlendParts.query.count() > 0:
-                            last_part_id = db.session.query(func.max(PowderBlendParts.PartID)).scalar()
+                for x in range(len(numbers)):
+                    new_blend = PowderBlendParts(
+                        PartID=int(last_part_id + 1),
+                        BlendID=int(last_blend_id),
+                        PartBlendID=int(numbers[x]),
+                        PartBatchID=None,
+                        AddedWeight=float(weights[x])
+                    )
+                    db.session.add(new_blend)
+                    last_part_id += 1
 
-                        for i, number in enumerate(numbers):
-                            new_part = PowderBlendParts(
-                                PartID=last_part_id + i + 1,
-                                BlendID=last_blend_id + 1,
-                                PartBlendID=number,
-                                PartBatchID=None,
-                                AddedWeight=float(weights[i])
-                            )
-                            db.session.add(new_part)
+                for x in range(len(batchs)):
+                    new_blend = PowderBlendParts(
+                        PartID=int(last_part_id + 1),
+                        BlendID=int(last_blend_id),
+                        PartBlendID=None,
+                        PartBatchID=batchs[x],
+                        AddedWeight=float(batchWeights[x])
+                    )
+                    db.session.add(new_blend)
+                    last_part_id += 1
 
-                        for i, batch in enumerate(batchs):
-                            new_part = PowderBlendParts(
-                                PartID=last_part_id + len(numbers) + i + 1,
-                                BlendID=last_blend_id + 1,
-                                PartBlendID=None,
-                                PartBatchID=batch,
-                                AddedWeight=float(batchWeights[i])
-                            )
-                            db.session.add(new_part)
+                db.session.commit()
+                # Create an instance of the BlendDatabaseUpdater class and pass the blend numbers, weights, and db object
+                updater = BlendDatabaseUpdater(
+                    blend_limit=500, frac_limit=0.0001)
+                updater.update_blend_database(numbers, weights)
 
-                        db.session.commit()
+                numbers.clear()
+                weights.clear()
+                batchs.clear()
+                batchWeights.clear()
+                materials.clear()
 
-                        updater = BlendDatabaseUpdater(blend_limit=500, frac_limit=0.0001)
-                        updater.update_blend_database(numbers, weights)
-
-                        numbers.clear()
-                        weights.clear()
-                        batchs.clear()
-                        batchWeights.clear()
-                        materials.clear()
-                        session.pop('material_name', None)
-                    else:
-                        flash("Blend weight must be greater than 0", category='error')
-                else:
-                    flash("Selected material does not exist", category='error')
             else:
                 flash("Selected materials do not match", category='error')
 
     return render_template("createBlend.html", user=current_user, blends=numbers, blendWeights=weights,
                            batchs=batchs, batchWeights=batchWeights, materials=materials,
-                           totalWeight=sum([float(w) for w in weights] + [float(w) for w in batchWeights]),
+                           totalWeight=sum([float(blendWeight) for blendWeight in weights] +
+                                           [float(batchWeight) for batchWeight in batchWeights]),
                            type=blendOrBatch)
-
 
 
 @views.route('/removeBlend/<int:blendIndex>', methods=['POST'])
@@ -397,8 +346,6 @@ def remove_blend(blendIndex):
         numbers.pop(blendIndex)
         weights.pop(blendIndex)
         materials.pop(blendIndex)
-    if not numbers:  # Check if the numbers list is empty
-        session.pop('material_name', None)  # Clear the session variable
     return redirect(url_for('views.create_blend'))
 
 
@@ -408,66 +355,56 @@ def remove_batch(batchIndex):
     if batchIndex < len(batchs):
         batchs.pop(batchIndex)
         batchWeights.pop(batchIndex)
-        materials.pop(batchIndex)
+        material.pop(batchIndex)
     return redirect(url_for('views.create_blend'))
-
-
 
 
 @views.route('/createBatch', methods=['GET', 'POST'])
 @login_required
 def create_batch():
-    
-
-
-    
-    
-    materials_table = MaterialsTable.query.order_by(MaterialsTable.SupplierProduct, MaterialsTable.MaterialName).all()
-
-    material_names = [material.MaterialName for material in materials_table]
-    
-    material_products = {}
-    for material in materials_table:
-        if material.MaterialName not in material_products:
-            material_products[material.MaterialName] = []
-        material_products[material.MaterialName].append(material.SupplierProduct)
-
-
-
+    materials_table = MaterialsTable.query.order_by(
+        MaterialsTable.MaterialName, MaterialsTable.SupplierProduct).all()
+    products = [material.SupplierProduct for material in materials_table]
+    material = {
+        material.SupplierProduct: material.MaterialName for material in materials_table}
 
     if request.method == 'POST':
         poNumber = request.form.get('poNumber', '')
         vlot = request.form.get('vLot', '')
         weight = request.form.get('weight', '')
-        material = request.form.get('material', '')
-        product = request.form.get('product', '')
+        product = request.form.get('material', '')
 
         if not poNumber:
-            flash("Missing PO Number. Please enter a PO Number.", category='error')
+            flash("Missing PO Number. Please Enter a PO Number.", category='error')
         elif not vlot:
-            flash("Missing Virgin Lot. Please enter a Virgin Lot.", category='error')
+            flash("Missing Virgin Lot. Please Enter a Virgin Lot.", category='error')
         elif not weight:
-            flash("Missing Weight. Please enter a Weight.", category='error')
+            flash("Missing Weight. Please Enter a Weight.", category='error')
         elif not product:
-            flash("Missing product. Please select a Product.", category='error')
+            flash("Missing material. Please Select a Material.", category='error')
         elif not weight.isnumeric():
             flash("Weight must be a numeric value.", category='error')
         else:
             flash("Batch has been created", category='success')
 
+            product = product.split(" - (")[1]
+            product = product.split(' )')[0]
             # Get product id
-            product_obj = MaterialsTable.query.filter_by(SupplierProduct=product).first()
+            product_obj = MaterialsTable.query.filter_by(
+                SupplierProduct=product).first()
             if product_obj:
                 product_id = product_obj.ProductID
 
                 # Update PowderBlendParts records
-                last_batch = InventoryVirginBatch.query.order_by(InventoryVirginBatch.BatchID.desc()).first()
+                last_batch = InventoryVirginBatch.query.order_by(
+                    InventoryVirginBatch.BatchID.desc()).first()
                 last_batch_id = last_batch.BatchID if last_batch else 0
 
                 new_batch = InventoryVirginBatch(
                     BatchID=int(last_batch_id + 1),
                     BatchCreatedBy=current_user.id,
-                    BatchTimeStamp=str(datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
+                    BatchTimeStamp=str(
+                        datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
                     BatchFacilityID=int(4),
                     VirginPO=int(poNumber),
                     VirginLot=str(vlot),
@@ -482,61 +419,27 @@ def create_batch():
                 flash("Product not found." + str(product), category='error')
                 # Additional error handling code if needed
 
-    return render_template("createBatch.html", user=current_user, material_name=material_names, material_products=material_products)
-
+    return render_template("createBatch.html", user=current_user, Products=products, material_name=material)
 
 
 @views.route('/BlendHistory', methods=['GET', 'POST'])
 @login_required
 def blend_history():
-    material_name = None
+    search = None
     query = db.session.query(PowderBlends, MaterialsTable.MaterialName)\
         .join(MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID)\
         .order_by(PowderBlends.BlendID.desc())
 
     if request.method == 'POST':
-        material_name = request.form.get('material')
-
-        if material_name:
-            query = query.filter(MaterialsTable.MaterialName == material_name)
-
-    page = request.args.get('page', 1, type=int)
-    per_page = 100  # Number of rows to display per page
-    blends = query.paginate(page=page, per_page=per_page)
-
-    material_names = db.session.query(MaterialsTable.MaterialName).distinct().all()
-    material_names = [name[0] for name in material_names]
-
-    return render_template('blend_history.html', user=current_user, blends=blends, material_name=material_names, selected_material=material_name)
-
-
-@views.route('/BatchHistory', methods=['GET', 'POST'])
-@login_required
-def batch_history():
-    material_name = None
-    query = db.session.query(InventoryVirginBatch, MaterialsTable.MaterialName, MaterialsTable.SupplierProduct)\
-        .join(MaterialsTable, InventoryVirginBatch.ProductID == MaterialsTable.ProductID)\
-        .order_by(InventoryVirginBatch.BatchID.desc())
-
-    if request.method == 'POST':
-        material_name = request.form.get('material')
-
-        if material_name:
-            query = query.filter(MaterialsTable.MaterialName == material_name)
+        search = request.form.get('search')
+        if search:
+            query = query.filter(PowderBlends.BlendID.contains(search))
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
     blends = query.paginate(page=page, per_page=per_page)
 
-    material_names = db.session.query(MaterialsTable.MaterialName).distinct().all()
-    material_names = [name[0] for name in material_names]
-    
-    supplier_product = db.session.query(MaterialsTable.SupplierProduct).distinct().all()
-    supplier_product = [name[0] for name in supplier_product]
-    
-    
-
-    return render_template('Batch_history.html', user=current_user, batchs=blends, material_name=material_names, supplier_name = supplier_product , selected_material=material_name)
+    return render_template('blend_history.html', user=current_user, blends=blends, search=search)
 
 
 @views.route('/BlendReport', methods=['GET', 'Post'])
@@ -664,42 +567,45 @@ def BlendReport():
     return response
 
 
-
-
-@views.route('/TraceBack/<int:blend>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@views.route('/TraceBack', methods=['GET', 'POST'])
 @login_required
-def BlendTraceback(blend, lvl, limit):
+def BlendTraceback(blend=6111, lvl=0, limit=10):
     blendPartTable = "Powder_Blend_Parts"
     powder_blend_part = pd.read_sql(f"SELECT * FROM {blendPartTable}", con=db.engine)
     blendsTable = "powder_blends"
     powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
 
-    powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[['PartBlendID', 'PartBatchID']].astype('Int64')
-
     blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
     blend_df['TotalWeight'] = blend_df['BlendID'].map(powder_blend.set_index('BlendID')['TotalWeight'])
     blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
-
-    tracebacks = []  # List to store the tracebacks
-
-    if lvl == 0:
+    
+    if lvl == 0: 
         total_weight = blend_df['TotalWeight'].max()
-        blend_date = powder_blend.loc[powder_blend['BlendID'] == blend, 'BlendDate'].values[0]
-        tracebacks.append(f'{lvl}: Blend {blend} ({total_weight:.2f} kg) (Date: {blend_date})')
-
+        print(f'{lvl}: Blend {blend} ({total_weight:.2f} kg)')
+    
     if limit > 0:
         for i, r in blend_df.iterrows():
             old_blend = r['PartBlendID']
             batch = r['PartBatchID']
             frac = r['PartFraction']
             new_lvl = lvl + 1
-
+            
             if old_blend is not pd.NA:
-                blend_weight = powder_blend.loc[powder_blend['BlendID'] == old_blend, 'TotalWeight'].values[0]
-                blend_date = powder_blend.loc[powder_blend['BlendID'] == old_blend, 'BlendDate'].values[0]
-                tracebacks.append(f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) (Weight: {blend_weight:.2f} kg) (Date: {blend_date})')
+                print(f'{new_lvl}:', '...' * new_lvl, f'Blend {old_blend} ({frac * 100:.0f}%)')
                 new_limit = limit - 1
-                tracebacks.extend(BlendTraceback(old_blend, new_lvl, new_limit))
+                BlendTraceback(old_blend, new_lvl, new_limit)
+                
+            elif old_blend is pd.NA: 
+                try:
+                    po = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginPO'].iloc[0]
+                    lot = powder_inventory_virgin[powder_inventory_virgin['PowderInventoryBatchID'] == batch]['VirginLotNumber'].iloc[0]
+                except Exception as e:
+                    po = '[Error]'
+                    lot = '[Error]'
+                
+                print(f'{new_lvl}:', '...' * new_lvl, f'Batch {batch} ({frac * 100:.0f}%) → PO {po}, {lot}')
+    
+    return render_template('traceBack.html')
 
             elif old_blend is pd.NA:
                 batch_weight = powder_blend_part.loc[powder_blend_part['PartBatchID'] == batch, 'AddedWeight'].sum()

@@ -1,7 +1,7 @@
 {% extends "blend.html" %} 
 {% block title %}History{% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - Blend History</h1>
+<h1 class="text-center">Blend System - History</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -41,12 +41,32 @@
         type="radio"
         class="btn-check"
         name="btnradio"
+        id="Trace"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Trace">Trace Blend</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
         id="History"
         autocomplete="off"
         checked
         onclick="window.location.href = '/BlendHistory'"
       />
       <label class="btn btn-outline-primary" for="History">History</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Report"
+        autocomplete="off"
+        onclick=""
+      />
+      <label class="btn btn-outline-primary" for="Report">Report</label>
 
       <input
         type="radio"
@@ -65,43 +85,22 @@
       method="POST"
       class="mt-4"
     >
-    <div class="container">
-      <form action="{{ url_for('views.blend_history') }}" method="POST" class="mt-4">
-        <div class="d-grid">
-          <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Search"
-        autocomplete="off"
-        onclick="window.location.href = '/searchBlends'"
-      />
-      <label class="btn btn-outline-primary" for="swtich" >Switch to Virgin Batch History</label>
-      <input type="radio"
-      class="btn-check"
-      name="btnradio"
-      id="swtich"
-      autocomplete="off"
-      onclick="window.location.href = '/BatchHistory'"
-      ></input>
-        </div>
-        <div class="form-group">
-          <select
-            name="material"
-            class="form-select"
-            id="material"
-            style="text-align: center"
-            onchange="this.form.submit()"
-          >
-            <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
-            {% for material in material_name %}
-            <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="d-grid">
-        </div>
-      </form>
+      <div class="form-group">
+        <input
+          type="text"
+          class="form-control"
+          name="search"
+          {% if search is none %}
+          placeholder="Search Blend ID"
+          {% else %}
+          value="{{ search }}"
+          {%endif %}
+        />
+      </div>
+      <div class="d-grid">
+        <button type="submit" class="btn btn-primary">Search</button>
+      </div>
+    </form>
 
     <div class="table-responsive mt-4">
       <table class="table table-hover">
