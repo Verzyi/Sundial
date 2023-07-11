@@ -47,6 +47,7 @@ class PowderBlends(db.Model):
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
+    CurrentWeight = db.Column(db.Float)
 
 
 class PowderBlendCalc(db.Model):
