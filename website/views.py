@@ -12,6 +12,7 @@ from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
 import pandas as pd
 import pdfkit
 from pdfkit.api import configuration
+from collections import defaultdict
 
 wkhtml_path = pdfkit.configuration(wkhtmltopdf = "C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")  #by using configuration you can add path value.
 
