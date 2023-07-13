@@ -834,4 +834,5 @@ def inventory():
         material_names=["All Materials"] + sorted(material_names),
         selected_material=selected_material,
         total_weight=total_weight
+        
     )
