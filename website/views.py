@@ -754,6 +754,7 @@ def BlendTraceback(blend, lvl, limit):
 def inventory():
     # Import necessary libraries
     import datetime
+    from sqlalchemy import func
     from sqlalchemy.orm import aliased
 
     # Define aliases for the tables
@@ -797,10 +798,17 @@ def inventory():
             subtotal_weight = 0
 
         # Check if blend_date is not None before converting to datetime.date object
-        blend_date = datetime.datetime.strptime(blend_date, '%m/%d/%Y %H:%M').date() if blend_date is not None else None
+        if blend_date is not None:
+            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date() if blend_date is not None else None
 
-        # Add blend row if BlendDate is after 8/1/2021 and current weight > 20 and blend ID not in set
-        if blend_date is not None and blend_date > datetime.date(2021, 8, 1) and total_weight is not None and total_weight > 20 and blend_id not in blend_ids_set:
+        # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
+        if (
+            blend_date is not None
+            and blend_date > datetime.date(2021, 8, 1)
+            and total_weight is not None
+            and total_weight > 20
+            and blend_id not in blend_ids_set
+        ):
             blend_row = (blend_id, material_name, total_weight)
             result_data.append(blend_row)
 
@@ -831,8 +839,7 @@ def inventory():
         "inventory.html",
         user=current_user,
         inventory_data=result_data,
-        material_names=["All Materials"] + sorted(material_names),
-        selected_material=selected_material,
-        total_weight=total_weight
-        
+        material_names=material_names,
+        total_weight=total_weight,
+        selected_material=selected_material
     )
