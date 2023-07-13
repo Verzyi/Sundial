@@ -61,7 +61,7 @@
   <form action="{{ url_for('views.inventory') }}" method="POST" class="mt-4">
     <div class="form-group">
       <select
-        name="material_name"
+        name="material"
         class="form-select"
         id="material_name"
         style="text-align: center"
@@ -86,13 +86,21 @@
         </tr>
       </thead>
       <tbody>
-        {% for blend_id, material_name, current_weight in inventory_data %}
-          <tr>
+      {% for blend_id, material_name, current_weight in inventory_data %}
+        {% if blend_id == 'Subtotal' %}
+          <tr class="table-active">
+            <td><span style="color: red;">{{ blend_id }}</td>
+            <td><span style="color: red;">{{ material_name }}</td>
+            <td><span style="color: red;">{{ "%.2f" % current_weight }}</span></td>
+          </tr>
+        {% else %}
+          <tr class="table-active">
             <td>{{ blend_id }}</td>
             <td>{{ material_name }}</td>
-            <td>{{ current_weight }}</td>
+            <td>{{ "%.2f" % current_weight }}</td>
           </tr>
-        {% endfor %}
+        {% endif %}
+      {% endfor %}
       </tbody>
     </table>
   </div>
@@ -101,4 +109,3 @@
 
 </div>
 {% endblock %}
-

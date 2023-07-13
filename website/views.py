@@ -13,12 +13,14 @@ import pandas as pd
 import pdfkit
 from pdfkit.api import configuration
 from sqlalchemy.orm import aliased
+from apscheduler.schedulers.background import BackgroundScheduler
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
     wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
 views = Blueprint('views', __name__)
+scheduler = BackgroundScheduler()
 
 
 @views.route('/')
@@ -700,53 +702,20 @@ def BlendTraceback(blend, lvl, limit):
     blendsTable = "powder_blends"
     powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
 
-    powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[[
-        'PartBlendID', 'PartBatchID']].astype('Int64')
+    # Rest of your existing code for BlendTraceback function
 
-    blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
-    blend_df['TotalWeight'] = blend_df['BlendID'].map(
-        powder_blend.set_index('BlendID')['TotalWeight'])
-    blend_df['PartFraction'] = blend_df['AddedWeight'] / \
-        blend_df['TotalWeight']
+    # Define the APScheduler job function
+    def run_traceback(blend, lvl, limit):
+        tracebacks = BlendTraceback(blend, lvl, limit)
+        # Process or store the tracebacks as required
 
-    tracebacks = []  # List to store the tracebacks
+    # Schedule the job to run every minute (adjust as needed)
+    scheduler.add_job(run_traceback, 'interval', args=[blend, lvl, limit], minutes=1)
 
-    if lvl == 0:
-        total_weight = blend_df['TotalWeight'].max()
-        blend_date = powder_blend.loc[powder_blend['BlendID']
-                                      == blend, 'BlendDate'].values[0]
-        tracebacks.append(
-            f'{lvl}: Blend {blend} ({total_weight:.2f} kg) (Date: {blend_date})')
+    # Start the scheduler
+    scheduler.start()
 
-    if limit > 0:
-        for i, r in blend_df.iterrows():
-            old_blend = r['PartBlendID']
-            batch = r['PartBatchID']
-            frac = r['PartFraction']
-            new_lvl = lvl + 1
-
-            if old_blend is not pd.NA:
-                blend_weight = powder_blend.loc[powder_blend['BlendID']
-                                                == old_blend, 'TotalWeight'].values[0]
-                blend_date = powder_blend.loc[powder_blend['BlendID']
-                                              == old_blend, 'BlendDate'].values[0]
-                tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) (Weight: {blend_weight:.2f} kg) (Date: {blend_date})')
-                new_limit = limit - 1
-                tracebacks.extend(BlendTraceback(
-                    old_blend, new_lvl, new_limit))
-
-            elif old_blend is pd.NA:
-                batch_weight = powder_blend_part.loc[powder_blend_part['PartBatchID'] == batch, 'AddedWeight'].sum(
-                )
-                batch_date = powder_blend.loc[powder_blend['BlendID']
-                                              == blend, 'BlendDate'].values[0]
-                tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Batch {batch} ({frac * 100:.0f}%) (Weight: {batch_weight:.2f} kg) (Date: {batch_date})')
-
-    cleaned_tracebacks = [traceback.strip(
-    ) for traceback in tracebacks if traceback.strip()]  # Remove unwanted characters
-    return cleaned_tracebacks
+    return "Traceback task has been scheduled."
 
 
 @views.route('/inventory', methods=['GET', 'POST'])
@@ -821,8 +790,9 @@ def inventory():
 
     # Add final subtotal row for the last material
     if current_material is not None:
-        subtotal_row = ("Subtotal", current_material, subtotal_weight)
+        subtotal_row = ("Subtotal", current_material, round(subtotal_weight, 2))
         result_data.append(subtotal_row)
+
 
     # Calculate total weight
     total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
@@ -831,14 +801,16 @@ def inventory():
     material_names = set(row[1] for row in result_data)
 
     # Filter by selected material name
-    selected_material = request.form.get('material')
+    selected_material = request.form.get('material') or request.args.get('material')
     if selected_material and selected_material != "All Materials":
-        result_data = [row for row in result_data if row[1] == selected_material]
+        filtered_data = [row for row in result_data if row[1] == selected_material]
+    else:
+        filtered_data = result_data
 
     return render_template(
         "inventory.html",
         user=current_user,
-        inventory_data=result_data,
+        inventory_data=filtered_data,
         material_names=material_names,
         total_weight=total_weight,
         selected_material=selected_material
