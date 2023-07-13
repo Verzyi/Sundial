@@ -1,6 +1,7 @@
-{% extends "base.html" %} {% block title %}Blend Inventory{% endblock %} {%
-block content %}
-<h1 class="text-center">Blend System - Blend Inventory</h1>
+{% extends "blend.html" %}
+{% block title %}Inventory{% endblock %}
+{% block content %}
+<h1 class="text-center">Blend System - Inventory</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -32,9 +33,7 @@ block content %}
         autocomplete="off"
         onclick="window.location.href = '/createBatch'"
       />
-      <label class="btn btn-outline-primary" for="createBatch"
-        >Create Batch</label
-      >
+      <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
 
       <input
         type="radio"
@@ -53,32 +52,31 @@ block content %}
         id="Inventory"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/inventory'"
       />
       <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
     </div>
   </div>
-  <div class="container">
-    <form action="{{ url_for('views.inventory') }}" method="POST" class="mt-4">
-      <div class="form-group">
-        <select
-          name="material"
-          class="form-select"
-          id="material"
-          style="text-align: center"
-          onchange="this.form.submit()"
-        >
-        
-          <option value="">All Materials</option>
-          {% for material in material_names %}
-          <option value="{{ material }}">{{ material }}</option>
-          {% endfor %}
-        </select>
-      </div>
-    </form>
-  </div>
+
+  <form action="{{ url_for('views.inventory') }}" method="POST" class="mt-4">
+    <div class="form-group">
+      <select
+        name="material_name"
+        class="form-select"
+        id="material_name"
+        style="text-align: center"
+        onchange="this.form.submit()"
+      >
+        <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
+        {% for material in material_names %}
+          <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
+        {% endfor %}
+      </select>
+    </div>
+  </form>
+
   <div class="table-responsive mt-4">
     <table class="table table-hover">
+      <!-- Table headers -->
       <thead>
         <tr>
           <th>Blend ID</th>
@@ -87,30 +85,18 @@ block content %}
         </tr>
       </thead>
       <tbody>
-        {% set current_material = None %} {% for item in inventory_data %} {% if
-        item["Blend ID"] == "Subtotal" %}
-        <tr class="subtotal">
-          <td>{{ item["Blend ID"] }}</td>
-          <td>{{ item["Material"] }}</td>
-          <td>Total Weight: {{ item["Current Weight"] }}</td>
-        </tr>
-        {% else %} {% if current_material != item["Material"] %} {% set
-        current_material = item["Material"] %}
-        <tr class="material">
-          <td colspan="3">{{ item["Material"] }}</td>
-        </tr>
-        {% endif %}
-        <tr>
-          <td>{{ item["Blend ID"] }}</td>
-          <td>{{ item["Material"] }}</td>
-          <td>{{ item["Current Weight"] }}</td>
-        </tr>
-        {% endif %} {% endfor %}
+        {% for blend_id, material_name, current_weight in inventory_data %}
+          <tr>
+            <td>{{ blend_id }}</td>
+            <td>{{ material_name }}</td>
+            <td>{{ current_weight }}</td>
+          </tr>
+        {% endfor %}
       </tbody>
     </table>
   </div>
-  <div class="subtotal">
-    <p>Total Weight: {{ total_weight }}</p>
-  </div>
+
+  <p class="text-end mt-3">Total Weight: {{ total_weight }}</p>
+
 </div>
 {% endblock %}

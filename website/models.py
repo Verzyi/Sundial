@@ -42,7 +42,7 @@ class MaterialsTable(db.Model):
 
 
 class PowderBlends(db.Model):
-    BlendID	= db.Column(db.Integer, primary_key=True)
+    BlendID	= db.Column(db.Integer, primary_key=True, unique=True )
     BlendDate = db.Column(db.String)
     BlendCreatedBy	= db.Column(db.Integer)
     MaterialID	=db.Column(db.Integer)

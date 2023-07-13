@@ -12,6 +12,7 @@ from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
 import pandas as pd
 import pdfkit
 from pdfkit.api import configuration
+from sqlalchemy.orm import aliased
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -751,45 +752,86 @@ def BlendTraceback(blend, lvl, limit):
 @views.route('/inventory', methods=['GET', 'POST'])
 @login_required
 def inventory():
-    # Retrieve the blend inventory data
+    # Import necessary libraries
+    import datetime
+    from sqlalchemy.orm import aliased
+
+    # Define aliases for the tables
+    PowderBlendsAlias = aliased(PowderBlends)
+    MaterialsTableAlias = aliased(MaterialsTable)
+
     # Retrieve the blend inventory data
     query = db.session.query(
-        PowderBlends.BlendID,
-        MaterialsTable.MaterialName,
-        PowderBlends.CurrentWeight
+        PowderBlendsAlias.BlendID,
+        MaterialsTableAlias.MaterialName,
+        PowderBlendsAlias.CurrentWeight,
+        PowderBlendsAlias.BlendDate
     ).join(
-        MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID
-    )
+        MaterialsTableAlias, PowderBlendsAlias.MaterialID == MaterialsTableAlias.MaterialID
+    ).order_by(MaterialsTableAlias.MaterialName)
 
     # Fetch the blend inventory data
     inventory_data = query.all()
 
-    # Create a DataFrame from the inventory data
-    df = pd.DataFrame(inventory_data, columns=[
-                      "Blend ID", "Material", "Current Weight"])
+    # Create a list to store the result data
+    result_data = []
 
-    # Filter out blends with weight less than or equal to 20
-    df = df[df["Current Weight"] > 20]
+    # Variables for subtotal calculation
+    current_material = None
+    subtotal_weight = 0
 
-    # Calculate subtotal for each material
-    df_subtotal = df.groupby("Material").agg({"Current Weight": "sum"})
-    df_subtotal = df_subtotal.reset_index()
-    df_subtotal["Blend ID"] = "Subtotal"
+    # Set to store blend IDs
+    blend_ids_set = set()
 
-    # Concatenate the subtotal rows with the blend items
-    df_result = pd.concat([df_subtotal, df])
+    # Iterate over the inventory data
+    for blend_id, material_name, total_weight, blend_date in inventory_data:
+        # Check if the material has changed
+        if material_name != current_material:
+            # Add subtotal row for previous material
+            if current_material is not None:
+                subtotal_row = ("Subtotal", current_material, subtotal_weight)
+                result_data.append(subtotal_row)
+
+            # Update current material and reset subtotal weight
+            current_material = material_name
+            subtotal_weight = 0
+
+        # Check if blend_date is not None before converting to datetime.date object
+        blend_date = datetime.datetime.strptime(blend_date, '%m/%d/%Y %H:%M').date() if blend_date is not None else None
+
+        # Add blend row if BlendDate is after 8/1/2021 and current weight > 20 and blend ID not in set
+        if blend_date is not None and blend_date > datetime.date(2021, 8, 1) and total_weight is not None and total_weight > 20 and blend_id not in blend_ids_set:
+            blend_row = (blend_id, material_name, total_weight)
+            result_data.append(blend_row)
+
+            # Update subtotal weight
+            if total_weight is not None:
+                subtotal_weight += total_weight
+
+            # Add blend ID to set
+            blend_ids_set.add(blend_id)
+
+    # Add final subtotal row for the last material
+    if current_material is not None:
+        subtotal_row = ("Subtotal", current_material, subtotal_weight)
+        result_data.append(subtotal_row)
 
     # Calculate total weight
-    total_weight = df_result[df_result["Blend ID"]
-                             != "Subtotal"]["Current Weight"].sum()
+    total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
 
-    # Retrieve the distinct material names
-    material_names = df_result["Material"].unique()
+    # Get distinct material names
+    material_names = set(row[1] for row in result_data)
+
+    # Filter by selected material name
+    selected_material = request.form.get('material')
+    if selected_material and selected_material != "All Materials":
+        result_data = [row for row in result_data if row[1] == selected_material]
 
     return render_template(
         "inventory.html",
         user=current_user,
-        inventory_data=df_result.to_dict(orient="records"),
-        material_names=material_names,
+        inventory_data=result_data,
+        material_names=["All Materials"] + sorted(material_names),
+        selected_material=selected_material,
         total_weight=total_weight
     )
