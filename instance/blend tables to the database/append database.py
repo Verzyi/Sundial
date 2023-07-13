@@ -52,15 +52,15 @@ class DatabaseAppender:
         return column_types
 
 # Example usage:
-appender = DatabaseAppender("MLSBuilds_20230522_Clean.csv", "builds_table")
+appender = DatabaseAppender("MLSBuilds_20230711_Clean.csv", "builds_table")
 appender.append_to_database()
-appender = DatabaseAppender("InventoryVirginBatch_20230622.csv", "inventory_virgin_batch")
+appender = DatabaseAppender("InventoryVirginBatch_20230713_1236.csv", "inventory_virgin_batch")
 appender.append_to_database()
-appender = DatabaseAppender("PowderMaterial_20230622.csv", "materials_table")
+appender = DatabaseAppender("PowderMaterial_20230711.csv", "materials_table")
 appender.append_to_database()
-appender = DatabaseAppender("PowderBlendPart_20230626_1514_Test.csv", "Powder_Blend_Parts")
+appender = DatabaseAppender("PowderBlendPart_20230713_1224.csv", "Powder_Blend_Parts")
 appender.append_to_database()
-appender = DatabaseAppender("PowderBlend_20230626_1515_Test.csv", "powder_blends")
+appender = DatabaseAppender("PowderBlend_20230713_1224.csv", "powder_blends")
 appender.append_to_database()
-appender = DatabaseAppender("PowderBlendCalc_20230627_1640_Test.csv", "Powder_Blend_Calc")
+appender = DatabaseAppender("PowderBlendCalc_20230713_1314.csv", "Powder_Blend_Calc")
 appender.append_to_database()
