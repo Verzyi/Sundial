@@ -115,3 +115,11 @@ h3 {
     margin-right: 10px;
 }
 
+.alert-dismissible {
+    transition: opacity 0.5s, visibility 0.5s;
+}
+
+.fade {
+    opacity: 0 !important;
+    visibility: hidden !important;
+}
