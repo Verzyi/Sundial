@@ -435,8 +435,8 @@ def create_batch():
 
     materials_table = MaterialsTable.query.order_by(
         MaterialsTable.SupplierProduct, MaterialsTable.MaterialName).all()
-
-    material_names = [material.MaterialName for material in materials_table]
+ 
+    material_names = sorted(set([material.MaterialName for material in materials_table]))
 
     material_products = {}
     for material in materials_table:
@@ -829,7 +829,8 @@ def inventory():
     total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
 
     # Get distinct material names
-    material_names = set(row[1] for row in result_data)
+    material_names = sorted(set(row[1] for row in result_data))
+    
 
     # Filter by selected material name
     selected_material = request.form.get('material') or request.args.get('material')
