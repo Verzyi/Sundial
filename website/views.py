@@ -13,14 +13,12 @@ import pandas as pd
 import pdfkit
 from pdfkit.api import configuration
 from sqlalchemy.orm import aliased
-from apscheduler.schedulers.background import BackgroundScheduler
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
     wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
 views = Blueprint('views', __name__)
-scheduler = BackgroundScheduler()
 
 
 @views.route('/')
@@ -702,20 +700,53 @@ def BlendTraceback(blend, lvl, limit):
     blendsTable = "powder_blends"
     powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
 
-    # Rest of your existing code for BlendTraceback function
+    powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[[
+        'PartBlendID', 'PartBatchID']].astype('Int64')
 
-    # Define the APScheduler job function
-    def run_traceback(blend, lvl, limit):
-        tracebacks = BlendTraceback(blend, lvl, limit)
-        # Process or store the tracebacks as required
+    blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
+    blend_df['TotalWeight'] = blend_df['BlendID'].map(
+        powder_blend.set_index('BlendID')['TotalWeight'])
+    blend_df['PartFraction'] = blend_df['AddedWeight'] / \
+        blend_df['TotalWeight']
 
-    # Schedule the job to run every minute (adjust as needed)
-    scheduler.add_job(run_traceback, 'interval', args=[blend, lvl, limit], minutes=1)
+    tracebacks = []  # List to store the tracebacks
 
-    # Start the scheduler
-    scheduler.start()
+    if lvl == 0:
+        total_weight = blend_df['TotalWeight'].max()
+        blend_date = powder_blend.loc[powder_blend['BlendID']
+                                      == blend, 'BlendDate'].values[0]
+        tracebacks.append(
+            f'{lvl}: Blend {blend} ({total_weight:.2f} kg) (Date: {blend_date})')
 
-    return "Traceback task has been scheduled."
+    if limit > 0:
+        for i, r in blend_df.iterrows():
+            old_blend = r['PartBlendID']
+            batch = r['PartBatchID']
+            frac = r['PartFraction']
+            new_lvl = lvl + 1
+
+            if old_blend is not pd.NA:
+                blend_weight = powder_blend.loc[powder_blend['BlendID']
+                                                == old_blend, 'TotalWeight'].values[0]
+                blend_date = powder_blend.loc[powder_blend['BlendID']
+                                              == old_blend, 'BlendDate'].values[0]
+                tracebacks.append(
+                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) (Weight: {blend_weight:.2f} kg) (Date: {blend_date})')
+                new_limit = limit - 1
+                tracebacks.extend(BlendTraceback(
+                    old_blend, new_lvl, new_limit))
+
+            elif old_blend is pd.NA:
+                batch_weight = powder_blend_part.loc[powder_blend_part['PartBatchID'] == batch, 'AddedWeight'].sum(
+                )
+                batch_date = powder_blend.loc[powder_blend['BlendID']
+                                              == blend, 'BlendDate'].values[0]
+                tracebacks.append(
+                    f'{new_lvl}: {"..." * new_lvl} Batch {batch} ({frac * 100:.0f}%) (Weight: {batch_weight:.2f} kg) (Date: {batch_date})')
+
+    cleaned_tracebacks = [traceback.strip(
+    ) for traceback in tracebacks if traceback.strip()]  # Remove unwanted characters
+    return cleaned_tracebacks
 
 
 @views.route('/inventory', methods=['GET', 'POST'])
