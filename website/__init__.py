@@ -1,8 +1,8 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import create_engine
 import os
 from flask_login import LoginManager
+from flask_debugtoolbar import DebugToolbarExtension
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -18,6 +18,11 @@ def create_app():
     app.config['SECRET_KEY'] = 'jflkdsjfalksjfdsa jfsdlkjfdsljfa'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
+
+    # Debug Toolbar Configuration
+    app.config['DEBUG_TB_ENABLED'] = True
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    toolbar = DebugToolbarExtension(app)
 
     from .blends import blends
     from .auth import auth
