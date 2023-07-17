@@ -64,7 +64,7 @@
     <form
       id="createBlendForm"
       method="POST"
-      action="{{ url_for('views.create_blend') }} "
+      action="{{ url_for('blends.create_blend') }} "
       class="mt-4"
     >
       <div id="createBlend" class="createBlend">
@@ -159,7 +159,7 @@
                   <button
                     type="submit"
                     class="btn btn-danger"
-                    formaction="{{ url_for('views.remove_blend', blendIndex=i) }}"
+                    formaction="{{ url_for('blends.remove_blend', blendIndex=i) }}"
                   >
                     Remove
                   </button>
@@ -174,7 +174,7 @@
                   <button
                     type="submit"
                     class="btn btn-danger"
-                    formaction="{{ url_for('views.remove_batch', batchIndex=i) }}"
+                    formaction="{{ url_for('blends.remove_batch', batchIndex=i) }}"
                   >
                     Remove
                   </button>

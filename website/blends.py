@@ -18,17 +18,17 @@ from sqlalchemy.orm import aliased
 wkhtml_path = pdfkit.configuration(
     wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
 
-views = Blueprint('views', __name__)
+blends = Blueprint('blends', __name__)
 
 
-@views.route('/')
+@blends.route('/')
 @login_required
 def home():
     blends = PowderBlends.query.all()
     return render_template("home.html", user=current_user, blends=blends)
 
 
-@views.route('/blend', methods=['GET', 'POST'])
+@blends.route('/blend', methods=['GET', 'POST'])
 @login_required
 def blend():
 
@@ -95,7 +95,7 @@ def print_sticker(printer_ip, blend_number, material, date, weight, qty):
     sock.close()
 
 
-@views.route('/searchBlends', methods=['GET', 'POST'])
+@blends.route('/searchBlends', methods=['GET', 'POST'])
 @login_required
 def searchBlends():
     search = None
@@ -131,14 +131,14 @@ def searchBlends():
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
-                return redirect(url_for('views.BlendTraceback', blend=blend_number, lvl=0, limit=10))
+                return redirect(url_for('blends.BlendTraceback', blend=blend_number, lvl=0, limit=10))
 
         elif 'Report' in request.form:
             flash("Making Trace", category='success')
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
-                return redirect(url_for('views.BlendReport', blend=blend_number))
+                return redirect(url_for('blends.BlendReport', blend=blend_number))
 
         elif 'Print' in request.form:
             printerName = request.form.get("printer")
@@ -177,7 +177,7 @@ def searchBlends():
     return render_template("searchBlends.html", user=current_user, blends=search)
 
 
-@views.route('/searchBatchs', methods=['GET', 'POST'])
+@blends.route('/searchBatchs', methods=['GET', 'POST'])
 @login_required
 def searchBatchs():
     batches = None
@@ -249,7 +249,7 @@ batchWeights = []
 materials = []
 
 
-@views.route('/createBlend', methods=['GET', 'POST'])
+@blends.route('/createBlend', methods=['GET', 'POST'])
 @login_required
 def create_blend():
 
@@ -407,7 +407,7 @@ def create_blend():
                            type=blendOrBatch)
 
 
-@views.route('/removeBlend/<int:blendIndex>', methods=['POST'])
+@blends.route('/removeBlend/<int:blendIndex>', methods=['POST'])
 @login_required
 def remove_blend(blendIndex):
     if blendIndex < len(numbers):
@@ -416,20 +416,20 @@ def remove_blend(blendIndex):
         materials.pop(blendIndex)
     if not numbers:  # Check if the numbers list is empty
         session.pop('material_name', None)  # Clear the session variable
-    return redirect(url_for('views.create_blend'))
+    return redirect(url_for('blends.create_blend'))
 
 
-@views.route('/removeBatch/<int:batchIndex>', methods=['POST'])
+@blends.route('/removeBatch/<int:batchIndex>', methods=['POST'])
 @login_required
 def remove_batch(batchIndex):
     if batchIndex < len(batchs):
         batchs.pop(batchIndex)
         batchWeights.pop(batchIndex)
         materials.pop(batchIndex)
-    return redirect(url_for('views.create_blend'))
+    return redirect(url_for('blends.create_blend'))
 
 
-@views.route('/createBatch', methods=['GET', 'POST'])
+@blends.route('/createBatch', methods=['GET', 'POST'])
 @login_required
 def create_batch():
 
@@ -498,7 +498,7 @@ def create_batch():
     return render_template("createBatch.html", user=current_user, material_name=material_names, material_products=material_products)
 
 
-@views.route('/BlendHistory', methods=['GET', 'POST'])
+@blends.route('/BlendHistory', methods=['GET', 'POST'])
 @login_required
 def blend_history():
     material_name = None
@@ -523,7 +523,7 @@ def blend_history():
     return render_template('blend_history.html', user=current_user, blends=blends, material_name=material_names, selected_material=material_name)
 
 
-@views.route('/BatchHistory', methods=['GET', 'POST'])
+@blends.route('/BatchHistory', methods=['GET', 'POST'])
 @login_required
 def batch_history():
     material_name = None
@@ -552,7 +552,7 @@ def batch_history():
     return render_template('Batch_history.html', user=current_user, batchs=blends, material_name=material_names, supplier_name=supplier_product, selected_material=material_name)
 
 
-@views.route('/BlendReport', methods=['GET', 'Post'])
+@blends.route('/BlendReport', methods=['GET', 'Post'])
 @login_required
 def BlendReport():
     blend = request.args.get('blend')
@@ -691,7 +691,7 @@ def BlendReport():
     return response
 
 
-@views.route('/TraceBack/<int:blend>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@blends.route('/TraceBack/<int:blend>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
 @login_required
 def BlendTraceback(blend, lvl, limit):
     blendPartTable = "Powder_Blend_Parts"
@@ -749,7 +749,7 @@ def BlendTraceback(blend, lvl, limit):
     return cleaned_tracebacks
 
 
-@views.route('/inventory', methods=['GET', 'POST'])
+@blends.route('/inventory', methods=['GET', 'POST'])
 @login_required
 def inventory():
     # Import necessary libraries

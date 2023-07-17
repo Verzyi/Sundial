@@ -61,12 +61,12 @@
   </div>
   <div class="container">
     <form
-      action="{{ url_for('views.blend_history') }}"
+      action="{{ url_for('blends.blend_history') }}"
       method="POST"
       class="mt-4"
     >
     <div class="container">
-      <form action="{{ url_for('views.blend_history') }}" method="POST" class="mt-4">
+      <form action="{{ url_for('blends.blend_history') }}" method="POST" class="mt-4">
         <div class="d-grid">
           <input
         type="radio"
@@ -134,13 +134,13 @@
       {% if blends.has_prev %}
       <a
         class="btn btn-primary"
-        href="{{ url_for('views.blend_history', page=blends.prev_num, search=search) }}"
+        href="{{ url_for('blends.blend_history', page=blends.prev_num, search=search) }}"
         >Previous</a
       >
       {% endif %} {% if blends.has_next %}
       <a
         class="btn btn-primary"
-        href="{{ url_for('views.blend_history', page=blends.next_num, search=search) }}"
+        href="{{ url_for('blends.blend_history', page=blends.next_num, search=search) }}"
         >Next</a
       >
       {% endif %}
