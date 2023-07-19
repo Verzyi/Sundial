@@ -1,79 +1,132 @@
-.build-section {
-    display: inline-table;
-    position: relative;
-    border: 1px solid #ffffff;
-    padding: 20px;
-    margin: 5px;
-    left: 25px;
-    width: 250px;
-    top: -20px;
-    
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.controlButtons{
-    display: inline-flex;
-    position: relative;
-    padding-top: 20px;
-    right: auto;
-    left: 300px;
-    margin:0 0 0 20px ;
+.navbar {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
 }
-  
+
+#build-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+#build-info {
+  border: 1px solid #ffffff;
+  padding: 20px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-top: 5px;
+  width: 250px;
+  border-radius: 5px;
+
+}
+
+.controlButtons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.build-state-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  width: auto;
+  margin-left: 30px;
+}
+
+.btn {
+  margin: 5px;
+  height: 75px;
+  width: 100px;
+  font-size: 15px;
+  border-radius: 5px;
+}
+
+.searchBuilds {
+  width: 250px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  margin-left: 5px; /* Adjust the left margin to 5px */
+  border-radius: 5px;
+}
+
+.buildsTable {
+  border: 1px solid #ffffff;
+  height: 550px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 0px;
+  margin-top: 5px;
+  margin-left: 0px; /* Adjust the left margin to 5px */
+  border-radius: 5px;
+}
+
+.col-md-8 {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.build-setup-form,
+.build-start-form,
+.build-finish-form {
+  width: 80vw;
+  border: 1px solid #ffffff;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  margin-left: 5px;
+}
+
+.input-group .custom-file-input {
+  text-align: center;
+}
+
+.highlighted-row {
+  background-color: yellow;
+}
+
+@media (max-width: 767px) {
+  .controlButtons {
+    justify-content: flex-start;
+  }
+
   .btn {
-    margin: 2px;
-    height: 120px;
-    width: 120px;
+    width: 80px;
+    height: 80px;
+    font-size: 12px;
   }
 
-.searchBuilds{
-    padding: 20px;
-    width: 300PX;
-    margin: 5px;
-    height: 600px;
+  .searchBuilds {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+.build-setup-form,
+.build-start-form,
+.build-finish-form {
+  width: 80vw;
+  border: 1px solid #ffffff;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  margin-left: 5px;
 }
-
-  
-.buildsTable{
-    border: 1px solid #ffffff;
-    display:flex;
-    width: 250px;
-    height: 550px;
-    overflow-y: scroll;
-    overflow-x: hidden;
-    padding: 0px;
-    margin-top: 5px;
 }
-
-.buildsetupForm{
-    position:absolute;
-    display: inline;
-    width: 1500px;
-    border: 1px solid #ffffff;
-    padding: 20px;
-    text-align: center;
-    margin: 0 0 0 10px;
-    top: 220px;
-    left: 300px;
-}
-
-  .input-group .custom-file-input {
-    text-align: center;
-  }
-  
-  .highlight {
-    background-color: yellow;
-  }
-
-/*   
-  
-  
-  @media (min-width: 992px) {
-    .buildsetSeupForm {
-      width: 100vw;
-      max-width: none;
-      left: 0;
-      right: 0;
-      margin: 0;
-    }
-  }
-   */
