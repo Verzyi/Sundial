@@ -40,7 +40,7 @@ body {
   flex-wrap: wrap;
   margin-bottom: 10px;
   width: auto;
-  margin-left: 30px;
+  margin-left: 0px;
 }
 
 .btn {
@@ -98,9 +98,11 @@ body {
   text-align: center;
 }
 
+/* Define the style for highlighted rows */
 .highlighted-row {
-  background-color: yellow;
+  background-color: #ffff99; /* Change this to the desired highlight color */
 }
+
 
 @media (max-width: 767px) {
   .controlButtons {

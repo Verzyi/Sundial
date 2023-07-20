@@ -18,18 +18,6 @@ def builds_home():
 @builds.route('/builds', methods=['GET', 'POST'])
 @login_required
 def builds_page():
-    # if request.method == 'GET':
-    #     selectedFacility = request.form.get("Facility")
-    #     # selectedFacility = "Austin"
-    #     lastSelectedFacility=session['last_selected_facility'] = selectedFacility
-    #     if selectedFacility is not None:
-    #         builds = BuildsTable.query.filter_by(FacilityName = lastSelectedFacility).all()
-    #         flash(selectedFacility)
-    #     else:
-    #         builds = []
-    
-    # return render_template('builds.html', user=current_user, current_build=None, buildsInfo=builds)
-
     if request.method == 'POST':
         if 'Facility' in request.form:
             selectedFacility = request.form.get("Facility")
@@ -39,25 +27,35 @@ def builds_page():
     builds = []
     if selectedFacility is not None:
         builds = BuildsTable.query.filter_by(FacilityName=selectedFacility).all()
+    
+    # You'll need to fetch the build information from the database
+    # based on the selected build ID (use the selectedBuildID variable)
+    selectedBuildID = request.form.get("solidJobsBuildIDInput")
+    selectedBuild = BuildsTable.query.filter_by(BuildIt=selectedBuildID).first()
 
-    return render_template('builds.html', user=current_user, current_build=None, buildsInfo=builds)
-        # Format the 'Created On' dates
-        # formatted_builds = [(build.BuildIt, build.CreatedBy, build.CreatedOn.strftime("%m/%d/%Y %H:%M")) for build in builds]
+    return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds)
 
-   
 
-    # # Handle POST request
-    # if request.method == 'POST':
-    #     # Retrieve form data
-    #     build_id = request.form.get('build_id')
-    #     created_by = request.form.get('created_by')
-    #     # Retrieve other form data
 
-    #     # Create a new Build object and save it to the database
-    #     new_build = BuildsTable(build_id=build_id, created_by=created_by)
-    #     db.session.add(new_build)
-    #     db.session.commit()
+@builds.route('/get_build_info', methods=['POST'])
+@login_required
+def get_build_info():
+    build_id = request.json.get('buildId')
+    if build_id:
+        build = BuildsTable.query.get(build_id)
+        if build:
+            # Return the build information as JSON
+            return jsonify({
+                "BuildIt": build.BuildIt,
+                "BuildName": build.BuildName,
+                "MachineID": build.MachineID,
+                "BlendID": build.BlendID,
+                "PlateSerial": build.PlateSerial,
+                "MaterialAdded": build.MaterialAdded,
+                "BuildFinish": build.BuildFinish,
+                # Add other build properties as needed
+            })
+    
+    # If build ID is not provided or not found, return an empty response
+    return jsonify({})
 
-        # Redirect to the builds page or display a success message
-    # return render_template('builds.html', user=current_user, current_build=None)
-    return render_template('builds.html', user=current_user, current_build=None)
