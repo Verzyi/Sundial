@@ -1,11 +1,12 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify  
 from .models import PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
 from flask_login import login_user, login_required, current_user
 from datetime import datetime
-from sqlalchemy import func, join
+from sqlalchemy import func, join, desc
 import socket
 from datetime import datetime
+
 
 builds = Blueprint('builds', __name__)
 
@@ -26,7 +27,7 @@ def builds_page():
     selectedFacility = session.get('last_selected_facility')
     builds = []
     if selectedFacility is not None:
-        builds = BuildsTable.query.filter_by(FacilityName=selectedFacility).all()
+        builds = BuildsTable.query.filter_by(FacilityName=selectedFacility).order_by(desc(BuildsTable.BuildIt)).all()
     
     # You'll need to fetch the build information from the database
     # based on the selected build ID (use the selectedBuildID variable)

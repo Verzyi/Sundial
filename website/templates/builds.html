@@ -27,7 +27,7 @@ content %}
                 <button
                   class="btn btn-primary"
                   type="button"
-                  style="display: none"
+                  
                 >
                   Data Viewer
                 </button>
@@ -43,7 +43,7 @@ content %}
           </div>
           <div class="column">
             <div class="build-state-buttons">
-              <div class="form-check">
+              <div>
                 <input
                   class="btn-check"
                   type="checkbox"
@@ -52,12 +52,12 @@ content %}
                   data-toggle="collapse"
                   data-target="#buildSetupForm"
                 />
-                <label class="btn btn-outline-primary" for="buildSetupCheckbox"
+                <label class="btn btn-outline-primary" for="buildSetupCheckbox" style="display: none"
                   >Build Setup</label
                 >
               </div>
               <div class="build-state-buttons">
-                <div class="form-check">
+                <div>
                   <input
                     class="btn-check"
                     type="checkbox"
@@ -69,12 +69,13 @@ content %}
                   <label
                     class="btn btn-outline-primary"
                     for="buildStartCheckbox"
+                    style="display: none"
                     >Build Start</label
                   >
                 </div>
               </div>
               <div class="build-state-buttons">
-                <div class="form-check">
+                <div>
                   <input
                     class="btn-check"
                     type="checkbox"
@@ -86,6 +87,7 @@ content %}
                   <label
                     class="btn btn-outline-primary"
                     for="buildFinishCheckbox"
+                    style="display: none"
                     >Build Finish</label
                   >
                 </div>
