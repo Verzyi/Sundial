@@ -38,25 +38,15 @@ def builds_page():
 
 
 
-@builds.route('/get_build_info', methods=['POST'])
-@login_required
-def get_build_info():
-    build_id = request.json.get('buildId')
-    if build_id:
-        build = BuildsTable.query.get(build_id)
-        if build:
-            # Return the build information as JSON
-            return jsonify({
-                "BuildIt": build.BuildIt,
-                "BuildName": build.BuildName,
-                "MachineID": build.MachineID,
-                "BlendID": build.BlendID,
-                "PlateSerial": build.PlateSerial,
-                "MaterialAdded": build.MaterialAdded,
-                "BuildFinish": build.BuildFinish,
-                # Add other build properties as needed
-            })
-    
-    # If build ID is not provided or not found, return an empty response
-    return jsonify({})
 
+@builds.route('/get_build_info/<int:buildid>', methods=['GET'])
+def get_build_info(buildid):
+    # Assuming you have a database table named 'BuildsTable' with a column named 'BuildId'
+    build = BuildsTable.query.get(buildid)
+    if build:
+        # Return the filtered build information as JSON
+        build_data = build.to_dict()
+        return jsonify(build_data)
+    else:
+        # If build ID is not found, return an empty response with 404 status code
+        return jsonify({"error": "Build not found"}), 404

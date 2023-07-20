@@ -24,11 +24,7 @@ content %}
                 >
                   Copy
                 </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  
-                >
+                <button class="btn btn-primary" type="button">
                   Data Viewer
                 </button>
                 <button
@@ -52,7 +48,10 @@ content %}
                   data-toggle="collapse"
                   data-target="#buildSetupForm"
                 />
-                <label class="btn btn-outline-primary" for="buildSetupCheckbox" style="display: none"
+                <label
+                  class="btn btn-outline-primary"
+                  for="buildSetupCheckbox"
+                  style="display: none"
                   >Build Setup</label
                 >
               </div>
@@ -104,22 +103,21 @@ content %}
         <div class="col-md-6">
           <div class="searchBuilds">
             <form id="facilityForm" action="/builds" method="POST">
-                <div class="dropdown-content">
-                  <select
-                    style="padding: 5px; margin-bottom: 5px; width: 250px"
-                    class="form-select text-center"
-                    id="Facility"
-                    name="Facility"
-                    onchange="updateFormAction(event)"
-                  >
-                    <option value="" disabled selected>Select Facility</option>
-                    <option value="Austin">Austin</option>
-                    <option value="Belton">Belton</option>
-                  </select>
-                </div>
+              <div class="dropdown-content">
+                <select
+                  style="padding: 5px; margin-bottom: 5px; width: 250px"
+                  class="form-select text-center"
+                  id="Facility"
+                  name="Facility"
+                  onchange="updateFormAction(event)"
+                >
+                  <option value="" disabled selected>Select Facility</option>
+                  <option value="Austin">Austin</option>
+                  <option value="Belton">Belton</option>
+                </select>
+              </div>
               <input type="submit" value="Submit" style="display: none" />
             </form>
-            
 
             <input
               style="width: 250px; padding: 5px"

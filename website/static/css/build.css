@@ -55,7 +55,8 @@ body {
   width: 250px;
   margin-right: 10px;
   margin-bottom: 10px;
-  margin-left: 5px; /* Adjust the left margin to 5px */
+  margin-left: 5px;
+  /* Adjust the left margin to 5px */
   border-radius: 5px;
 }
 
@@ -66,7 +67,8 @@ body {
   overflow-x: hidden;
   padding: 0px;
   margin-top: 5px;
-  margin-left: 0px; /* Adjust the left margin to 5px */
+  margin-left: 0px;
+  /* Adjust the left margin to 5px */
   border-radius: 5px;
 }
 
@@ -99,10 +101,6 @@ body {
   text-align: center;
 }
 
-/* Define the style for highlighted rows */
-.highlighted-row {
-  background-color: #ffff99; /* Change this to the desired highlight color */
-}
 
 
 @media (max-width: 767px) {
@@ -122,14 +120,14 @@ body {
     margin-bottom: 10px;
   }
 
-.build-setup-form,
-.build-start-form,
-.build-finish-form {
-  width: 80vw;
-  border: 1px solid #ffffff;
-  padding: 20px;
-  text-align: center;
-  margin-bottom: 10px;
-  margin-left: 5px;
-}
+  .build-setup-form,
+  .build-start-form,
+  .build-finish-form {
+    width: 80vw;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 5px;
+  }
 }
