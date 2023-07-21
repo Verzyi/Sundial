@@ -15,7 +15,7 @@ content %}
         <div>
           <div class="row">
             <div id="button-container" class="controlButtons">
-              <div id="btn-group" role="group">
+              <div id="btn-group" role="group" class="d-flex">
                 <button class="btn btn-primary" type="button">New build</button>
                 <button
                   class="btn btn-primary"
@@ -24,16 +24,25 @@ content %}
                 >
                   Copy
                 </button>
-                <button class="btn btn-primary" type="button">
-                  Data Viewer
-                </button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  style="display: none"
-                >
-                  Traveler
-                </button>
+                <form method="POST" target="_blank">
+                  <button
+                    type="submit"
+                    name="data_viewer"
+                    class="btn btn-primary"
+                  >
+                    Data Viewer
+                  </button>
+                <!--</form>
+                <form method="POST" target="_blank">
+                  <button
+                    type="submit"
+                    class="btn btn-primary"
+                    name = "traveler"
+                    style="display: none"
+                  >
+                    Traveler
+                  </button>
+                </form>-->
               </div>
             </div>
           </div>
