@@ -144,3 +144,57 @@ def generate_traveler_report():
     
 
     return response
+
+@builds.route('/new_build', methods=['POST'])
+@login_required
+def new_build():
+    # Get the highest BuildIt number from the database
+    highest_buildit = db.session.query(func.max(BuildsTable.BuildIt)).scalar()
+
+    # Increment the BuildIt number by 1 for the new build
+    new_buildit = highest_buildit + 1
+
+    # Retrieve the selected facility from the form or session
+    selected_facility = request.form.get("Facility")  # Replace "Facility" with the correct field name from your form
+
+    # Create a new record with the BuildIt number and FacilityName
+    new_build = BuildsTable(BuildIt=new_buildit, FacilityName="Austin")
+
+    db.session.add(new_build)
+    db.session.commit()
+
+    # Redirect to the builds page with the new build selected
+    return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))
+
+
+
+@builds.route('/copy_build', methods=['POST'])
+@login_required
+def copy_build():
+    # Get the selected build ID from the form
+    selected_buildid = int(request.form.get('solidJobsBuildIDInput'))
+
+    # Get the highest BuildIt number from the database
+    highest_buildit = db.session.query(func.max(BuildsTable.BuildIt)).scalar()
+
+    # Increment the BuildIt number by 1 for the new build
+    new_buildit = highest_buildit + 1
+
+    # Get the existing build record
+    existing_build = BuildsTable.query.filter_by(BuildIt=selected_buildid).first()
+
+    if existing_build:
+        # Create a new record with the same data as the existing build but with a new BuildIt number
+        new_build = BuildsTable(BuildIt=new_buildit, MachineID=existing_build.MachineID,
+                                Material=existing_build.Material, MinCharge=existing_build.MinCharge,
+                                MaxCharge=existing_build.MaxCharge, XScale=existing_build.XScale,
+                                YScale=existing_build.YScale, BeamOffset=existing_build.BeamOffset,
+                                LayerThickness=existing_build.LayerThickness, PlatformTemp=existing_build.PlatformTemp,
+                                # Include all other columns from the table that need to be copied
+                                )
+
+        db.session.add(new_build)
+        db.session.commit()
+
+    # Redirect to the builds page with the new build selected
+    return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))

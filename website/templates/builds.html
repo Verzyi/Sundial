@@ -16,14 +16,15 @@ content %}
           <div class="row">
             <div id="button-container" class="controlButtons">
               <div id="btn-group" role="group" class="d-flex">
-                <button class="btn btn-primary" type="button">New build</button>
-                <button
-                  class="btn btn-primary"
-                  type="button"
-                  style="display: none"
-                >
-                  Copy
-                </button>
+                <form method="POST" action="{{ url_for('builds.new_build') }}">
+                  <button class="btn btn-primary" type="submit">New build</button>
+                </form>
+          
+                <!-- Copy Build Form -->
+                <form method="POST" action="{{ url_for('builds.copy_build') }}">
+                  <input type="hidden" name="solidJobsBuildIDInput" value="{{ current_build.BuildIt }}">
+                  <button class="btn btn-primary" type="submit"style="display: none">Copy</button>
+                </form>
                 <form method="POST" target="_blank">
                   <button
                     type="submit"
