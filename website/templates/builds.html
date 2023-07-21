@@ -8,9 +8,9 @@ content %}
         <div id="build-info" class="build-section">
           <!-- Current Build Info -->
           <h4>Current Build Info</h4>
-          <p>Build Number: N/A</p>
-          <p>Created By: N/A</p>
-          <p>Date Created: N/A</p>
+          <p>Build Number: <span id="BuildIt">N/A</span></p>
+          <p>Created By: <span id="createdByInput">N/A</span></p>
+          <p>Created: <span id="createdOnInput"> N/A</span></p>
         </div>
         <div>
           <div class="row">
@@ -165,13 +165,12 @@ content %}
               <div class="row" class="container">
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="solidJobsBuildIDInput" class="form-label2"
-                      >Solid Jobs Build ID:</label
-                    >
+                    <label for="BuildID" class="form-label2">Build ID:</label>
                     <input
                       type="text"
                       class="form-control text-center"
-                      id="solidJobsBuildIDInput"
+                      id="BuildID"
+                      disabled
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -324,12 +323,15 @@ content %}
                   </div>
                   <div class="mb-3 form-label2 text-center">
                     <label class="form-label2">Recoater Type:</label>
-                    <select class="form-select text-center" name="recoaterType">
+                    <select
+                      class="form-select text-center"
+                      id="recoaterTypeInput"
+                    >
                       <option value="" disabled selected>
                         Select Recoater type
                       </option>
                       <option value="blade">Blade</option>
-                      <option value="blade">Brush</option>
+                      <option value="brush">Brush</option>
                       <option value="silicone">Silicone (Clear)</option>
                       <option value="nbr">NBR (Black)</option>
                     </select>
@@ -380,13 +382,13 @@ content %}
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="potentialBuildHeightInput" class="form-label2"
-                      >Potential Build Height:</label
+                    <label for="platformWeightInput" class="form-label2"
+                      >Plate Weight:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="potentialBuildHeightInput"
+                      id="platformWeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -512,13 +514,13 @@ content %}
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="maxFinishHeightInput" class="form-label2"
-                      >Max Finish Height:</label
+                    <label for="finishHeightInput" class="form-label2"
+                      >Build Finish Height:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="maxFinishHeightInput"
+                      id="finishHeightInput"
                     />
                   </div>
                 </div>
