@@ -1,8 +1,9 @@
-from flask import Blueprint, redirect, url_for, flash
+from flask import Blueprint, redirect, url_for, flash,render_template,request
 from flask_login import current_user, login_required
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
@@ -10,45 +11,33 @@ from . import db
 # Create a Blueprint for your views
 views = Blueprint('views', __name__)
 
-# # Create the admin instance
-# admin = Admin(name='My Admin Panel', template_mode='bootstrap4')
+@views.route('/')
+@login_required
+def builds_home():
+    blends = PowderBlends.query.all()
+    return render_template("home.html", user=current_user)
 
-# # Define the admin views
 
-# # Users
-# class UsersAdminView(ModelView):
-#     column_searchable_list = ['email', 'first_name', 'last_name']
+@views.route('/Settings', methods=['GET', 'POST'])
+@login_required
+def Settings():
+    if request.method == 'POST':
+        current_password = request.form.get('current_password')
+        new_password1 = request.form.get('new_password1')
+        new_password2 = request.form.get('new_password2')
 
-# admin.add_view(UsersAdminView(Users, db.session))
+        # Check if the entered current password matches the user's actual password
+        if not current_user.check_password(current_password):
+            flash('Incorrect current password', category='error')
+        elif new_password1 != new_password2:
+            flash('New passwords don\'t match', category='error')
+        elif len(new_password1) < 6:
+            flash('New password must be at least 6 characters long', category='error')
+        else:
+            # Update the user's password
+            current_user.set_password(new_password1)
+            db.session.commit()
+            flash('Password updated successfully', category='success')
+            return redirect(url_for('views.Settings'))
 
-# # Blends
-# class BlendModelView(ModelView):
-#     column_searchable_list = ['BlendID', 'BlendDate', 'BlendCreatedBy']
-
-# admin.add_view(BlendModelView(PowderBlends, db.session))
-# admin.add_view(ModelView(MaterialsTable, db.session))
-# admin.add_view(ModelView(InventoryVirginBatch, db.session))
-# admin.add_view(ModelView(PowderBlendParts, db.session))
-# admin.add_view(ModelView(PowderBlendCalc, db.session))
-
-# # Builds
-# admin.add_view(ModelView(BuildsTable, db.session))
-
-# # Create the drop-down menu categories
-# blends_category = MenuCategory(name='Blends')
-# admin.add_category(blends_category)
-
-# # Route for the admin panel and its sub-paths
-# @views.route('/admin', defaults={'path': ''})
-# @views.route('/admin/<path:path>')
-# @login_required
-# def admin_panel(path):
-#     if current_user.is_authenticated and current_user.id == 1:
-#         flash("Admin Login " + str(current_user.id), category='success')
-#         return admin.index()
-#     else:
-#         flash("Restricted access " + str(current_user.id), category='error')
-#         return redirect(url_for('blends.home'))
-
-# # Register the admin instance to the views blueprint
-# admin.init_app(views)
+    return render_template("Settings.html", user=current_user)

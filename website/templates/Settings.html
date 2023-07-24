@@ -1,0 +1,85 @@
+{% extends "base.html" %} {% block title %} Blend {% endblock %} {% block
+content %}
+<h1 class="text-center">User Settings</h1>
+
+<!-- User Settings Form -->
+<div class="container mt-5">
+  <form method="POST" action="/update_settings">
+    <!-- First Name -->
+    <div class="form-group row">
+      <label for="firstNameInput" class="col-sm-2 col-form-label"
+        >First Name</label
+      >
+      <div class="col-sm-10">
+        <input
+          type="text"
+          class="form-control"
+          id="firstNameInput"
+          name="first_name"
+          value="{{ user.first_name }}"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Last Name -->
+    <div class="form-group row">
+      <label for="lastNameInput" class="col-sm-2 col-form-label"
+        >Last Name</label
+      >
+      <div class="col-sm-10">
+        <input
+          type="text"
+          class="form-control"
+          id="lastNameInput"
+          name="last_name"
+          value="{{ user.last_name }}"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Password -->
+    <div class="form-group row">
+      <label for="passwordInput" class="col-sm-2 col-form-label"
+        >Password</label
+      >
+      <div class="col-sm-10">
+        <input
+          type="password"
+          class="form-control"
+          id="passwordInput"
+          name="password"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Confirm Password -->
+    <div class="form-group row">
+      <label for="confirmPasswordInput" class="col-sm-2 col-form-label"
+        >Confirm Password</label
+      >
+      <div class="col-sm-10">
+        <input
+          type="password"
+          class="form-control"
+          id="confirmPasswordInput"
+          name="confirm_password"
+          required
+        />
+      </div>
+    </div>
+
+    <!-- Submit Button -->
+    <div class="form-group row">
+      <div class="col-sm-10 text-center">
+        <button type="submit" class="btn btn-primary form-control">
+          Save Changes
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+{% endblock %}

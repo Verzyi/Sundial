@@ -24,14 +24,25 @@
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <div class="navbar-nav">
                         {% if user.is_authenticated %}
-                        <a class="nav-item nav-link" id="home" href="/">Home</a>
-                        <a class="nav-item nav-link" id="blend" href="/blend">Blend</a>
-                        <a class="nav-item nav-link" id="builds" href="/builds">Builds</a>
-                        <a class="nav-item nav-link" id="logOut" href="/logout">Logout</a>
-                        <span class="nav-item nav-link" id="user">{{user.first_name}}</span>
+                            <a class="nav-item nav-link" id="home" href="/">Home</a>
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Apps</a>
+                                <div class="dropdown-menu" style="">
+                            <a class="nav-item nav-link" id="blend" href="/blend">Blend</a>
+                            <a class="nav-item nav-link" id="builds" href="/builds">Builds</a>
+                            </div>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{user.first_name}} {{user.last_name}}</a>
+                            <div class="dropdown-menu" style="">
+                                <a class="nav-item nav-link" id="userSettings" href="/Settings">Settings</a>
+                            <a class="nav-item nav-link" id="logOut" href="/logout">Logout</a>
+                            </li>
+                        </div>
+                            
                         {% else %}
-                        <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                        <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+                            <a class="nav-item nav-link" id="login" href="/login">Login</a>
+                            <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
                         {% endif %}
             </div>
                 </div>
