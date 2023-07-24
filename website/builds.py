@@ -35,6 +35,11 @@ def builds_page():
     # Store the selected facility in the session for future use
     if selectedFacility:
         session['last_selected_facility'] = selectedFacility
+        
+    else: 
+        selectedFacility=session.get('last_selected_facility')
+    
+        
 
     # Retrieve builds based on selected facility and search input
     builds = BuildsTable.query
@@ -65,6 +70,11 @@ def builds_page():
         elif 'traveler' in request.form:
             flash("Make Traveler", category='success')
             return redirect(url_for('builds.generate_traveler_report'))
+        elif 'buildform' in request.form:
+            session['buildForm'] = request.form.to_dict()
+            return redirect(url_for('builds.submit_form'))
+            
+             
 
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
                            machines=unique_machines, materials=unique_materials)
@@ -84,6 +94,7 @@ def get_build_info(buildid):
     if build:
         # Return the filtered build information as JSON
         build_data = build.to_dict()
+        session['buildid'] = buildid
         return jsonify(build_data)
     else:
         # If build ID is not found, return an empty response with 404 status code
@@ -184,30 +195,121 @@ def new_build():
 @login_required
 def copy_build():
     # Get the selected build ID from the form
-    selected_buildid = int(request.form.get('solidJobsBuildIDInput'))
+    selected_buildid = session.get('buildid')
+    print(selected_buildid)
 
-    # Get the highest BuildIt number from the database
-    highest_buildit = db.session.query(func.max(BuildsTable.BuildIt)).scalar()
 
-    # Increment the BuildIt number by 1 for the new build
-    new_buildit = highest_buildit + 1
+    if selected_buildid:
+        try:
+            selected_buildid = int(selected_buildid)
+        except ValueError:
+            # Handle the case when the 'BuildsID' cannot be converted to an integer
+            flash("Invalid Build ID format.", category='error')
+            return redirect(url_for('builds.builds_page'))
 
-    # Get the existing build record
+        # Get the highest BuildIt number from the database
+        highest_buildit = db.session.query(func.max(BuildsTable.BuildIt)).scalar()
+
+        # Increment the BuildIt number by 1 for the new build
+        new_buildit = highest_buildit + 1
+
+        # Get the existing build record
+        existing_build = BuildsTable.query.filter_by(BuildIt=selected_buildid).first()
+
+        if existing_build:
+            # Create a new record with the same data as the existing build but with a new BuildIt number
+            new_build = BuildsTable(
+                BuildIt=new_buildit,
+                MachineID=MachineID,
+                Material=Material,
+                MinChargeAmount=MinChargeAmount,
+                MaxChargeAmount=MaxChargeAmount,
+                ScaleX=ScaleX,
+                ScaleY=ScaleY,
+                Offset=Offset,
+                Layer=Layer,
+                PlatformTemperature=PlatformTemperature,
+                RecoaterSpeed=RecoaterSpeed,
+                ParameterRev=ParameterRev,
+                DosingBoostAmount=DosingBoostAmount,
+                RecoaterType=RecoaterType,
+                PotentialBuildHeight=PotentialBuildHeight,
+                FacilityName=FacilityName,
+                CreatedBy=current_user.id,
+                CreatedOn=datetime.now()
+                # Include all other columns from the table that need to be copied
+            )
+
+            db.session.add(new_build)
+            db.session.commit()
+
+            # Redirect to the builds page with the new build selected
+            return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))
+
+    # Handle the case when 'BuildsID' is not present in the form
+    flash("No Build ID found in the form.", category='error')
+    return redirect(url_for('builds.builds_page'))
+
+
+from flask import request
+
+@builds.route('/submit-form', methods=['GET', 'POST'])
+@login_required
+def submit_form():
+    # Get the build form data from the session
+    buildform_data = session.get('buildForm')
+    
+    # Get the selected build id
+    selected_buildid = session.get('buildid')
+    
+    # Retrieve the existing build record from the database
     existing_build = BuildsTable.query.filter_by(BuildIt=selected_buildid).first()
 
+    # Update the attributes of the existing build with the new values
     if existing_build:
-        # Create a new record with the same data as the existing build but with a new BuildIt number
-        new_build = BuildsTable(BuildIt=new_buildit, MachineID=existing_build.MachineID,
-                                Material=existing_build.Material, MinCharge=existing_build.MinCharge,
-                                MaxCharge=existing_build.MaxCharge, XScale=existing_build.XScale,
-                                YScale=existing_build.YScale, BeamOffset=existing_build.BeamOffset,
-                                LayerThickness=existing_build.LayerThickness, PlatformTemp=existing_build.PlatformTemp,
-                                # Include all other columns from the table that need to be copied
-                                )
-
-        db.session.add(new_build)
+        existing_build.BuildName = buildform_data.get('buildNameInput')
+        # existing_build.MachineID = buildform_data.get('MachineID')
+        # existing_build.Material = buildform_data.get('Material')
+        # existing_build.ScaleX = buildform_data.get('ScaleX')
+        # existing_build.ScaleY = buildform_data.get('ScaleY')
+        # existing_build.Offset = buildform_data.get('Offset')
+        # existing_build.BuildFinish = buildform_data.get('BuildFinish')
+        # existing_build.CreatedBy = buildform_data.get('CreatedBy')
+        # existing_build.CreatedOn = buildform_data.get('CreatedOn')
+        # existing_build.PlatformWeight = buildform_data.get('PlatformWeight')
+        # existing_build.Layer = buildform_data.get('Layer')
+        # existing_build.BuildStart = buildform_data.get('BuildStart')
+        # existing_build.BuildTime = buildform_data.get('BuildTime')
+        # existing_build.FinishHeight = buildform_data.get('FinishHeight')
+        # existing_build.FinishPlatformWeight = buildform_data.get('FinishPlatformWeight')
+        # existing_build.FeedPowderHeight = buildform_data.get('FeedPowderHeight')
+        # existing_build.EndFeedPowderHeight = buildform_data.get('EndFeedPowderHeight')
+        # existing_build.PotentialBuildHeight = buildform_data.get('PotentialBuildHeight')
+        # existing_build.PlateThickness = buildform_data.get('PlateThickness')
+        # existing_build.MinChargeAmount = buildform_data.get('MinChargeAmount')
+        # existing_build.MaxChargeAmount = buildform_data.get('MaxChargeAmount')
+        # existing_build.DosingBoostAmount = buildform_data.get('DosingBoostAmount')
+        # existing_build.RecoaterSpeed = buildform_data.get('RecoaterSpeed')
+        # existing_build.ParameterRev = buildform_data.get('ParameterRev')
+        # existing_build.PlatformTemperature = buildform_data.get('PlatformTemperature')
+        # existing_build.StartLaserHours = buildform_data.get('StartLaserHours')
+        # existing_build.FinalLaserHours = buildform_data.get('FinalLaserHours')
+        # existing_build.InertTime = buildform_data.get('InertTime')
+        # existing_build.F9FilterSerial = buildform_data.get('F9FilterSerial')
+        # existing_build.H13FilterSerial = buildform_data.get('H13FilterSerial')
+        # existing_build.EndPartPistonHeight = buildform_data.get('EndPartPistonHeight')
+        # existing_build.Breakout = buildform_data.get('Breakout')
+        # existing_build.BuildInterrupts = buildform_data.get('BuildInterrupts')
+        # existing_build.RecoaterType = buildform_data.get('RecoaterType')
+        
+        # db.session.add(existing_build)
+        # Save the changes to the database
         db.session.commit()
 
-    # Redirect to the builds page with the new build selected
-    return redirect(url_for('builds.builds_page', selectedFacility=selectedFacility, selectedBuildID=new_buildit))
+        # Redirect to the builds page or any other page as needed
+        flash("Build information updated successfully.", category='success')
+        return redirect(url_for('builds.builds_page'))
 
+    # Handle the case when the existing build is not found
+    flash("Build not found.", category='error')
+    return redirect(url_for('builds.builds_page'))

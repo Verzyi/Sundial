@@ -179,7 +179,7 @@ content %}
 
       <div class="col-md-6">
         <div id="buildSetupForm" class="collapse">
-          <form action="/submit-form" method="POST">
+          <form id="buildform" method="POST">
             <div class="build-setup-form">
               <h5 class="text-center mb-4">Build Setup</h5>
               <div class="row" class="container">
@@ -201,6 +201,7 @@ content %}
                       type="text"
                       class="form-control text-center"
                       id="buildNameInput"
+                      name="buildNameInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -358,7 +359,7 @@ content %}
                   </div>
                 </div>
               </div>
-              <button class="btn-primary" style="height: 30px; width: 100%">
+              <button class="btn-primary" name ='buildform' style="height: 30px; width: 100%">
                 Submit
               </button>
             </div>
@@ -366,7 +367,7 @@ content %}
         </div>
 
         <div id="buildStartForm" class="collapse">
-          <form action="/submit-form" method="POST">
+          <form id="buildformstart" method="POST">
             <div class="build-start-form">
               <h5 class="text-center mb-4">Build Start</h5>
               <div class="row" class="container">
@@ -389,6 +390,7 @@ content %}
                       type="text"
                       class="form-control text-center"
                       id="plateSerialInput"
+                      name="plateSerialInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -475,7 +477,7 @@ content %}
                   </div>
                 </div>
               </div>
-              <button class="btn-primary" style="height: 30px; width: 100%">
+              <button class="btn-primary" name ='buildform' style="height: 30px; width: 100%">
                 Submit
               </button>
             </div>
@@ -483,7 +485,7 @@ content %}
         </div>
 
         <div id="buildFinishForm" class="collapse">
-          <form action="/submit-form" method="POST">
+          <form action="/submit-form" id="buildform" method="POST">
             <div class="build-finish-form">
               <h5 class="text-center mb-4">Build Finish</h5>
               <div class="row" class="container">
