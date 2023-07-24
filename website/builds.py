@@ -5,7 +5,6 @@ from flask_login import login_user, login_required, current_user
 from datetime import datetime
 from sqlalchemy import func, join, desc
 import socket
-from datetime import datetime
 import pandas as pd
 from math import ceil
 import pdfkit
@@ -29,26 +28,24 @@ from sqlalchemy import distinct
 @builds.route('/builds', methods=['GET', 'POST'])
 @login_required
 def builds_page():
-    if request.method == 'POST':
-        if 'Facility' in request.form:
-            selectedFacility = request.form.get("Facility")
-            session['last_selected_facility'] = selectedFacility
-        
-        elif 'data_viewer' in request.form:
-            flash("Load Data Viewer", category='success')
-            return redirect(url_for('builds.data_viewer'))
-        
-        elif 'traveler' in request.form:
-            flash("Make Traveler", category='success')
-            return redirect(url_for('builds.generate_traveler_report'))
-        
-        
-        
-        
-    selectedFacility = session.get('last_selected_facility')
-    builds = []
-    if selectedFacility is not None:
-        builds = BuildsTable.query.filter_by(FacilityName=selectedFacility).order_by(desc(BuildsTable.BuildIt)).all()
+    # Get the selected facility and search input from the form or query parameters
+    selectedFacility = request.form.get("facilitySelect") or request.args.get("selectedFacility")
+    searchInput = request.form.get("SearchInput")
+
+    # Store the selected facility in the session for future use
+    if selectedFacility:
+        session['last_selected_facility'] = selectedFacility
+
+    # Retrieve builds based on selected facility and search input
+    builds = BuildsTable.query
+    if selectedFacility:
+        builds = builds.filter_by(FacilityName=selectedFacility)
+    if searchInput:
+        builds = builds.filter(or_(
+            BuildsTable.BuildIt.contains(searchInput),
+            BuildsTable.BuildName.contains(searchInput)
+        ))
+    builds = builds.order_by(desc(BuildsTable.BuildIt)).all()
 
     # Fetch all unique machine names and material names
     machines = [build.MachineID for build in builds]
@@ -61,9 +58,21 @@ def builds_page():
     selectedBuildID = request.form.get("solidJobsBuildIDInput")
     selectedBuild = BuildsTable.query.filter_by(BuildIt=selectedBuildID).first()
 
+    if request.method == 'POST':
+        if 'data_viewer' in request.form:
+            flash("Load Data Viewer", category='success')
+            return redirect(url_for('builds.data_viewer'))
+        elif 'traveler' in request.form:
+            flash("Make Traveler", category='success')
+            return redirect(url_for('builds.generate_traveler_report'))
+
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
                            machines=unique_machines, materials=unique_materials)
+        
+        
 
+    return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
+                           machines=unique_machines, materials=unique_materials)
 
 
 
@@ -82,7 +91,7 @@ def get_build_info(buildid):
     
 
 
-@builds.route('/data_viewer')
+@builds.route('/data_viewer', methods=['GET', 'POST'])
 @login_required
 def data_viewer():
     # Fetch all the data from the builds table
@@ -155,16 +164,19 @@ def new_build():
     new_buildit = highest_buildit + 1
 
     # Retrieve the selected facility from the form or session
-    selected_facility = request.form.get("Facility")  # Replace "Facility" with the correct field name from your form
+    selectedFacility = request.form.get("facilitySelect")
+    if not selectedFacility:
+        selectedFacility = session.get('last_selected_facility')
 
     # Create a new record with the BuildIt number and FacilityName
-    new_build = BuildsTable(BuildIt=new_buildit, FacilityName="Austin")
+    new_build = BuildsTable(BuildIt=new_buildit, FacilityName=selectedFacility, CreatedBy=current_user.id, CreatedOn=datetime.now())
 
     db.session.add(new_build)
     db.session.commit()
 
     # Redirect to the builds page with the new build selected
-    return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))
+    return redirect(url_for('builds.builds_page', selectedFacility=selectedFacility, selectedBuildID=new_buildit))
+
 
 
 
@@ -197,4 +209,5 @@ def copy_build():
         db.session.commit()
 
     # Redirect to the builds page with the new build selected
-    return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))
+    return redirect(url_for('builds.builds_page', selectedFacility=selectedFacility, selectedBuildID=new_buildit))
+

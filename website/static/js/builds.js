@@ -1,16 +1,60 @@
+// // Function to update the form action based on the selected facility
+// function updateFormAction(event) {
+//   let form = document.getElementById("facilityForm");
+//   let selectedOption = event.target.value;
+//   form.action = "/builds";
+//   form.method = "POST";
+//   let input = document.createElement("input");
+//   input.type = "hidden";
+//   input.name = "Facility";
+//   input.value = selectedOption;
+//   form.appendChild(input);
+//   form.submit();
+// }
+// JavaScript
 // Function to update the form action based on the selected facility
 function updateFormAction(event) {
+  event.preventDefault(); // Prevent the default form submission behavior
   let form = document.getElementById("facilityForm");
-  let selectedOption = event.target.value;
+  let selectedOption = document.getElementById("facilitySelect").value;
+  let searchInput = document.getElementById("searchInput").value;
+
+  // Set the action URL for the form submission
   form.action = "/builds";
   form.method = "POST";
-  let input = document.createElement("input");
-  input.type = "hidden";
-  input.name = "Facility";
-  input.value = selectedOption;
-  form.appendChild(input);
+
+  // Create hidden input fields to include the facility and search input values
+  let facilityInput = document.createElement("input");
+  facilityInput.type = "hidden";
+  facilityInput.name = "Facility";
+  facilityInput.value = selectedOption;
+  form.appendChild(facilityInput);
+
+  let searchInputField = document.createElement("input");
+  searchInputField.type = "hidden";
+  searchInputField.name = "SearchInput";
+  searchInputField.value = searchInput;
+  form.appendChild(searchInputField);
+
+  // Store the selected facility in local storage
+  localStorage.setItem("selectedFacility", selectedOption);
+
   form.submit();
 }
+
+// Add an event listener to the facility select dropdown
+const facilitySelect = document.getElementById("facilitySelect");
+facilitySelect.addEventListener("change", updateFormAction);
+
+// On page load, set the selected option in the facility dropdown from local storage (if available)
+window.addEventListener("load", function () {
+  const selectedFacility = localStorage.getItem("selectedFacility");
+  if (selectedFacility) {
+    facilitySelect.value = selectedFacility;
+  }
+});
+
+
 
 function showBuildInfo(event) {
   // Check if the clicked element is inside a table row

@@ -16,16 +16,35 @@ content %}
           <div class="row">
             <div id="button-container" class="controlButtons">
               <div id="btn-group" role="group" class="d-flex">
+                <!-- New Build Form -->
                 <form method="POST" action="{{ url_for('builds.new_build') }}">
-                  <button class="btn btn-primary" type="submit">New build</button>
+                  <button class="btn btn-primary" type="submit">
+                    New build
+                  </button>
                 </form>
-          
+
                 <!-- Copy Build Form -->
                 <form method="POST" action="{{ url_for('builds.copy_build') }}">
-                  <input type="hidden" name="solidJobsBuildIDInput" value="{{ current_build.BuildIt }}">
-                  <button class="btn btn-primary" type="submit"style="display: none">Copy</button>
+                  <input
+                    type="hidden"
+                    name="solidJobsBuildIDInput"
+                    value="{{ current_build.BuildIt }}"
+                  />
+                  <button
+                    class="btn btn-primary"
+                    type="submit"
+                    style="display: none"
+                  >
+                    Copy
+                  </button>
                 </form>
-                <form method="POST" target="_blank">
+
+                <!-- Data Viewer Form -->
+                <form
+                  method="POST"
+                  action="{{ url_for('builds.data_viewer') }}"
+                  target="_blank"
+                >
                   <button
                     type="submit"
                     name="data_viewer"
@@ -33,20 +52,11 @@ content %}
                   >
                     Data Viewer
                   </button>
-                <!--</form>
-                <form method="POST" target="_blank">
-                  <button
-                    type="submit"
-                    class="btn btn-primary"
-                    name = "traveler"
-                    style="display: none"
-                  >
-                    Traveler
-                  </button>
-                </form>-->
+                </form>
               </div>
             </div>
           </div>
+
           <div class="column">
             <div class="build-state-buttons">
               <div>
@@ -112,21 +122,21 @@ content %}
       <div class="row">
         <div class="col-md-6">
           <div class="searchBuilds">
-            <form id="facilityForm" action="/builds" method="POST">
+            <!-- HTML -->
+            <form id="facilityForm">
               <div class="dropdown-content">
                 <select
                   style="padding: 5px; margin-bottom: 5px; width: 250px"
                   class="form-select text-center"
-                  id="Facility"
-                  name="Facility"
-                  onchange="updateFormAction(event)"
+                  id="facilitySelect"
+                  name="facilitySelect"
                 >
                   <option value="" disabled selected>Select Facility</option>
                   <option value="Austin">Austin</option>
                   <option value="Belton">Belton</option>
                 </select>
               </div>
-              <input type="submit" value="Submit" style="display: none" />
+              <!-- Remove the input type="submit" as it is not needed -->
             </form>
 
             <input
