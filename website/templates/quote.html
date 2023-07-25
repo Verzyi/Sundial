@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %} Quote {% endblock %}
+{% block content %}
+<h1 class="text-center">Quote Calculator</h1>
+<div class="container mt-5">
+    <form method="POST" action="{{ url_for('quote.quote_page') }}" enctype="multipart/form-data">
+        <!-- File Upload -->
+        <div class="form-group">
+            <label for="fileInput">Select STL Files</label>
+            <input type="file" class="form-control-file" id="fileInput" name="stl_files" accept=".stl" multiple required>
+            <small class="form-text text-muted">Only STL files are allowed.</small>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="form-group">
+            <button type="submit" class="btn btn-primary">Calculate Quote</button>
+        </div>
+    </form>
+</div>
+
+{% if results %}
+<div class="container mt-5">
+    <h2 class="text-center">Quote Results</h2>
+    <table class="table table-bordered mt-3">
+        <thead>
+            <tr>
+                <th>Part Name</th>
+                <th>xExtents</th>
+                <th>yExtents</th>
+                <th>zExtents</th>
+                <th>Volume</th>
+                <th>Surface Area</th>
+                <!-- Add more columns here for additional calculations -->
+            </tr>
+        </thead>
+        <tbody>
+            {% for result in results %}
+            <tr>
+                <td>{{ result['PartName'] }}</td>
+                <td>{{ result['xExtents'] }}</td>
+                <td>{{ result['yExtents'] }}</td>
+                <td>{{ result['zExtents'] }}</td>
+                <td>{{ result['Volume'] }}</td>
+                <td>{{ result['SurfaceArea'] }}</td>
+                <!-- Add more columns here for additional calculations -->
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+{% endblock %}
