@@ -18,88 +18,78 @@
         </div>
         {% if not results.empty %}
         
-        <table class="table table-hover">
-            <thead>
-                <tr class="table-active">
-                    <th scope="col">Line Item</th>
-                    <th scope="col">Part Name</th>
-                    <th scope="col">Order Quantity</th>
-                    <th scope="col">x Extents</th>
-                    <th scope="col">y Extents</th>
-                    <th scope="col">z Extents</th>
-                    <th scope="col">Volume</th>
-                    <th scope="col">Surface Area</th>
-                    <th scope="col">Orientation</th>
-                    <th scope="col">Material</th>
-                    <th scope="col">Build Hours</th>
-                    <th scope="col">Unpack Hours</th>
-                    <th scope="col">Num Builds</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for index, row in results.iterrows() %}
-                <tr>
-                    <td>
-                        <select name="order_qty_{{ index }}" required>
-                            {% for i in range(1, results.shape[0] + 1) %}
-                            <option value="{{ i }}" {% if i == index + 1 %}selected{% endif %}>{{ i }}</option>
-                            {% endfor %}
-                        </select>
-                    </td>
-                    <td>{{ row['PartName'] }}</td>
-                    <td><input type="number" name="order_qty_{{ index }}" value="{{ row['OrderQty'] }}" min="1" required></td>
-                    <td>{{ '%.4f'|format(row['xExtents']) }}</td>
-                    <td>{{ '%.4f'|format(row['yExtents']) }}</td>
-                    <td>{{ '%.4f'|format(row['zExtents']) }}</td>
-                    <td>{{ '%.4f'|format(row['Volume']) }}</td>
-                    <td>{{ '%.4f'|format(row['SurfaceArea']) }}</td>
-                    <td>
-                        <select name="orientation_{{ index }}" required>
-                            <option value="X" {% if row['Orientation'] == 'X' %}selected{% endif %}>X</option>
-                            <option value="Y" {% if row['Orientation'] == 'Y' %}selected{% endif %}>Y</option>
-                            <option value="Z" {% if row['Orientation'] == 'Z' %}selected{% endif %}>Z</option>
-                        </select>
-                    </td>
-                    <td>
-                        <select name="material_{{ index }}" required>
-                            <option value="Aluminum (AlSi10Mg)" {% if row['Material'] == 'Aluminum (AlSi10Mg)' %}selected{% endif %}>Aluminum (AlSi10Mg)</option>
-                            <option value="Titanium Ti64" {% if row['Material'] == 'Titanium Ti64' %}selected{% endif %}>Titanium Ti64</option>
-                            <option value="Stainless Steel 316L" {% if row['Material'] == 'Stainless Steel 316L' %}selected{% endif %}>Stainless Steel 316L</option>
-                            <option value="Stainless Steel 17-4PH" {% if row['Material'] == 'Stainless Steel 17-4PH' %}selected{% endif %}>Stainless Steel 17-4PH</option>
-                            <option value="Nickel Alloy 718" {% if row['Material'] == 'Nickel Alloy 718' %}selected{% endif %}>Nickel Alloy 718</option>
-                            <option value="Nickel Alloy 625" {% if row['Material'] == 'Nickel Alloy 625' %}selected{% endif %}>Nickel Alloy 625</option>
-                            <option value="Cobalt Chrome" {% if row['Material'] == 'Cobalt Chrome' %}selected{% endif %}>Cobalt Chrome</option>
-                        </select>
-                    </td>
-                    <td>
-                        {% if 'update_quote' in request.form %}
-                        <input type="number" name="build_hours_{{ index }}" step="0.01" value="{{ request.form.get('build_hours_' ~ index, row['BuildHours']) }}">
-                        {% else %}
-                        {{ '%.2f'|format(row['BuildHours']) }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if 'update_quote' in request.form %}
-                        <input type="number" name="unpack_hours_{{ index }}" step="0.01" value="{{ request.form.get('unpack_hours_' ~ index, row['UnpackHours']) }}">
-                        {% else %}
-                        {{ '%.2f'|format(row['UnpackHours']) }}
-                        {% endif %}
-                    </td>
-                    <td>
-                        {% if 'update_quote' in request.form %}
-                        <input type="number" name="num_builds_{{ index }}" step="1" value="{{ request.form.get('num_builds_' ~ index, row['NumBuilds']) }}">
-                        {% else %}
-                        {{ '%.0f'|format(row['NumBuilds']) }}
-                        {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        <div class="form-group">
-            <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
-        </div>
+            <table class="table table-hover">
+                <thead>
+                    <tr class="table-active">
+                        <th scope="col">Line Item</th>
+                        <th scope="col">Part Name</th>
+                        <th scope="col">Order Quantity</th>
+                        <th scope="col">x Extents</th>
+                        <th scope="col">y Extents</th>
+                        <th scope="col">z Extents</th>
+                        <th scope="col">Volume</th>
+                        <th scope="col">Surface Area</th>
+                        <th scope="col">Orientation</th>
+                        <th scope="col">Material</th>
+                        <th scope="col">Build Hours</th>
+                        <th scope="col">Unpack Hours</th>
+                        <th scope="col">Num Builds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for index, row in results.iterrows() %}
+                    <tr>
+                        <td>
+                            <select name="order_qty_select_{{ index }}" required>
+                                {% for i in range(1, results.shape[0] + 1) %}
+                                <option value="{{ i }}" {% if i == index + 1 %}selected="selected"{% endif %}>{{ i }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>{{ row['PartName'] }}</td>
+                        <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" required></td>
+                        <td>{{ '%.4f'|format(row['xExtents']) }}</td>
+                        <td>{{ '%.4f'|format(row['yExtents']) }}</td>
+                        <td>{{ '%.4f'|format(row['zExtents']) }}</td>
+                        <td>{{ '%.4f'|format(row['Volume']) }}</td>
+                        <td>{{ '%.4f'|format(row['SurfaceArea']) }}</td>
+                        <td>
+                            <select name="orientation_{{ index }}" required>
+                                <option value="X" {{ 'selected' if row['Orientation'] == 'X' else '' }}>X</option>
+                                <option value="Y" {{ 'selected' if row['Orientation'] == 'Y' else '' }}>Y</option>
+                                <option value="Z" {{ 'selected' if row['Orientation'] == 'Z' else '' }}>Z</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select name="material_{{ index }}" required>
+                                <option value="Aluminum (AlSi10Mg)" {% if row['Material'] == 'Aluminum (AlSi10Mg)' %}selected{% endif %}>Aluminum (AlSi10Mg)</option>
+                                <option value="Titanium Ti64" {% if row['Material'] == 'Titanium Ti64' %}selected{% endif %}>Titanium Ti64</option>
+                                <option value="Stainless Steel 316L" {% if row['Material'] == 'Stainless Steel 316L' %}selected{% endif %}>Stainless Steel 316L</option>
+                                <option value="Stainless Steel 17-4PH" {% if row['Material'] == 'Stainless Steel 17-4PH' %}selected{% endif %}>Stainless Steel 17-4PH</option>
+                                <option value="Nickel Alloy 718" {% if row['Material'] == 'Nickel Alloy 718' %}selected{% endif %}>Nickel Alloy 718</option>
+                                <option value="Nickel Alloy 625" {% if row['Material'] == 'Nickel Alloy 625' %}selected{% endif %}>Nickel Alloy 625</option>
+                                <option value="Cobalt Chrome" {% if row['Material'] == 'Cobalt Chrome' %}selected{% endif %}>Cobalt Chrome</option>
+                            </select>
+                        </td>
+                        <td>
+                            <label>{{ '%.2f'|format(row['BuildHours']) }}</label>
+                        </td>
+                        <td>
+                            <label>{{ '%.2f'|format(row['UnpackHours']) }}</label>
+                        </td>
+                        <td>
+                            {{ '%.0f'|format(row['NumBuilds']) }}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         {% endif %}
     </form>
+    <div class="form-group">
+        <form method="POST" name='update_quote'>
+        <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
+        </form>
+    </div>
 </div>
 {% endblock %}

@@ -23,6 +23,8 @@ def builds_home():
     blends = PowderBlends.query.all()
     return render_template("home.html", user=current_user, blends=blends)
 
+
+
 from sqlalchemy import distinct
 
 @builds.route('/builds', methods=['GET', 'POST'])
