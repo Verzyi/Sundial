@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app
+from flask import Blueprint, render_template, request, flash, redirect, url_for, current_app, session
 from flask_login import login_required, current_user
 import pandas as pd
 from stl.mesh import Mesh
@@ -113,87 +113,101 @@ def calculate_metrics(files):
     return pd.DataFrame(data, columns=col_order)
 
 
-def calculate_metrics_with_user_inputs(files, user_inputs):
+def calculate_metrics(files):
     data = []
     for file in files:
-        file_path = save_temp_file(file)
-        obj = get_mesh(file_path)
+        file_path = save_temp_file(file)  # Save the file to a temporary location
+        obj = get_mesh(file_path)  # Load the STL mesh from the temporary file
         if obj is None:
             print(f"Skipping file: {file.filename} - Error reading STL file.")
-            os.remove(file_path)
-            os.rmdir(os.path.dirname(file_path))
+            os.remove(file_path)  # Remove the temporary file
+            os.rmdir(os.path.dirname(file_path))  # Remove the temporary folder
             continue
 
         x, y, z = get_xyz(obj)
         vol, surface = get_properties(obj)
-        layer_thickness = calculate_layer_thickness(user_inputs[file.filename]["Material"])
-        projected_area = calculate_projected_area(x, y, z, user_inputs[file.filename]["Orientation"])
 
-        build_hours = user_inputs[file.filename].get("BuildHours", 0)
-        unpack_hours = user_inputs[file.filename].get("UnpackHours", 0)
-        num_builds = user_inputs[file.filename].get("NumBuilds", 0)
+        # Perform additional calculations
+        orientation = "X"  # You can modify this based on your requirements
+        material = "Aluminum (AlSi10Mg)"  # You can modify this based on your requirements
+        layer_thickness = calculate_layer_thickness(material)
+        projected_area = calculate_projected_area(x, y, z, orientation)
+        diagonal = calculate_diagonal(x, y, z)
 
+        # Add the calculated values to the data list
         data.append({
-            'LineItem': file.filename,
-            'OrderQty': 1,
             'PartName': os.path.basename(file.filename),
+            'OrderQty': 1,
             'xExtents': x,
             'yExtents': y,
             'zExtents': z,
             'Volume': vol,
             'SurfaceArea': surface,
-            'Orientation': user_inputs[file.filename]["Orientation"],
-            'Material': user_inputs[file.filename]["Material"],
+            'Orientation': orientation,
+            'Material': material,
             'LayerThickness': layer_thickness,
             'ProjectedArea': projected_area,
-            'BuildHours': build_hours,
-            'UnpackHours': unpack_hours,
-            'NumBuilds': num_builds
+            'Diagonal': diagonal,
+            'BuildHours': 0,  # Placeholder value
+            'UnpackHours': 0,  # Placeholder value
+            'NumBuilds': 0  # Placeholder value
         })
+        os.remove(file_path)  # Remove the temporary file
+        os.rmdir(os.path.dirname(file_path))  # Remove the temporary folder
 
-        os.remove(file_path)
-        os.rmdir(os.path.dirname(file_path))
-
-    col_order = ['LineItem', 'PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea',
-                 'Orientation', 'Material', 'LayerThickness', 'ProjectedArea', 'BuildHours', 'UnpackHours', 'NumBuilds']
+    col_order = ['PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
+                 'Material', 'LayerThickness', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds']
     return pd.DataFrame(data, columns=col_order)
 
+def get_user_input(name, index):
+    return request.form.get(f"{name}_{index}", type=float)
 
 @quote.route('/Quote', methods=['GET', 'POST'])
 @login_required
 def quote_page():
     if request.method == 'POST':
-        stl_files = request.files.getlist('stl_files')
-        if not stl_files:
-            flash('No STL files selected.', category='error')
-            return redirect(url_for('quote.quote_page'))
+        if 'makeQuote' in request.form:
+            stl_files = request.files.getlist('stl_files')
+            if not stl_files:
+                flash('No STL files selected.', category='error')
+                return redirect(url_for('quote.quote_page'))
+            else:
+                # Calculate the initial metrics without user inputs
+                results = calculate_metrics(stl_files)
+                results = results.reset_index(drop=True)  # Drop the previous index and reset it
+                session["results"] = results.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
+                return render_template("quote.html", user=current_user, results=results)
 
-        # Calculate the initial metrics without user inputs
-        results = calculate_metrics(stl_files)
+        elif 'update_quote' in request.form:
+            results_data = session.get('results')
+            if results_data is not None and len(results_data) > 0:
+                results = pd.DataFrame.from_records(results_data)  # Convert list of dictionaries back to DataFrame
+                stl_files = request.form.get('selected_files').split(',')  # Retrieve the filenames from the hidden field
+                stl_files = [file for file in stl_files if file]  # Remove any empty elements
+                if not any(stl_files):  # Check if any STL files are selected
+                    flash('Please select one or more files.', category='error')
+                    return redirect(url_for('quote.quote_page'))
 
-        if results is not None and not results.empty:
-            if 'update_quote' in request.form:
                 user_inputs = {}
-                for row in results.iterrows():
-                    line_item = row[1]['LineItem']
+                for index, row in results.iterrows():
+                    line_item = row['PartName']  # Use 'PartName' as the line item
                     user_inputs[line_item] = {
-                        "OrderQty": request.form[f"order_qty_{line_item}"],
-                        "Orientation": request.form[f"orientation_{line_item}"],
-                        "Material": request.form[f"material_{line_item}"],
-                        "BuildHours": request.form[f"build_hours_{line_item}"],
-                        "UnpackHours": request.form[f"unpack_hours_{line_item}"],
-                        "NumBuilds": request.form[f"num_builds_{line_item}"]
+                        "OrderQty": request.form.get(f"order_qty_{index}"),
+                        "Orientation": request.form.get(f"orientation_{index}"),
+                        "Material": request.form.get(f"material_{index}"),
                     }
 
                 # Recalculate metrics with user inputs
                 updated_results = calculate_metrics_with_user_inputs(stl_files, user_inputs)
-                updated_results = pd.merge(results, updated_results, on='LineItem', suffixes=('', '_updated'))
+                updated_results = pd.merge(results, updated_results, on='PartName', suffixes=('', '_updated'))
                 results = updated_results.drop(columns=[col for col in updated_results.columns if '_updated' in col])
+                results = results.reset_index(drop=True)  # Drop the previous index and reset it
+                session["results"] = results.to_dict(orient='records')  # Store updated DataFrame in session
+                return render_template("quote.html", user=current_user, results=results)
 
-            return render_template("quote.html", user=current_user, results=results)
-
-        flash('Error occurred during quote calculation.', category='error')
-        return redirect(url_for('quote.quote_page'))
+            else:
+                flash('Error occurred during quote calculation.', category='error')
+                return redirect(url_for('quote.quote_page'))
 
     # If the request method is GET, render the template with an empty DataFrame for results
     return render_template("quote.html", user=current_user, results=pd.DataFrame())
