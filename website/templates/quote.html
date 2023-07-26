@@ -87,9 +87,15 @@
         {% endif %}
     </form>
     <div class="form-group">
-        <form method="POST" name='update_quote'>
-        <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
-        </form>
+        <!-- Remove the nested form and change the button to a regular button -->
+        <button type="button" class="btn btn-primary" id="updateQuoteBtn">Update Quote</button>
     </div>
 </div>
+
+<!-- Add JavaScript to handle form submission when the button is clicked -->
+<script>
+    document.getElementById('updateQuoteBtn').addEventListener('click', function() {
+        document.querySelector('form').submit();
+    });
+</script>
 {% endblock %}

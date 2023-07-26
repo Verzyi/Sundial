@@ -426,39 +426,3 @@ buildRows.forEach((row) => {
   });
 });
 
-// src="https://code.jquery.com/jquery-3.6.0.min.js"
-
-// // Function to submit the form data to the server
-// function submitFormData() {
-//   // Get the form values using JavaScript (modify this according to your form)
-//   const buildform_data = {
-//     BuildName: $('#buildNameInput').val(),
-//     MachineID: $('#machineInput').val(),
-//     Material: $('#materialInput').val(),
-//     // Get other form values similarly...
-//   };
-
-//   // Send the form data as JSON to the server
-//   $.ajax({
-//     url: '/submit-form',
-//     type: 'POST',
-//     contentType: 'application/json',
-//     data: JSON.stringify(buildform_data),
-//     success: function (response) {
-//       // Handle the success response if needed
-//       console.log(response);
-//       // Redirect to the builds page or any other page as needed
-//       window.location.href = '/builds';
-//     },
-//     error: function (error) {
-//       // Handle the error response if needed
-//       console.error(error);
-//     }
-//   });
-// }
-
-// // Attach an event listener to the "Save Changes" button
-// $('#save-changes-btn').click(function (e) {
-//   e.preventDefault(); // Prevent the default form submission
-//   submitFormData();
-// });
