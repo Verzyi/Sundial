@@ -244,7 +244,7 @@ def searchBatchs():
 
 numbers = []
 weights = []
-batchs = []
+batchs = [] # what is 'batchs' vs 'batches'?
 batchWeights = []
 materials = []
 
