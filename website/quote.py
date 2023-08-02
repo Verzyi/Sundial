@@ -12,14 +12,15 @@ quote = Blueprint('quote', __name__)
 
 # Material information with constants for different materials
 material_info = {
-    "Aluminum (AlSi10Mg)": {"CoeffA": 0.655, "CoeffB": 0.045, "CoeffC": 0.047, "CoeffD": 0.098, "Intercept": -0.471},
-    "Titanium Ti64": {"CoeffA": 1.943, "CoeffB": 0.020, "CoeffC": -0.033, "CoeffD": 0.119, "Intercept": -0.283},
-    "Stainless Steel 316L": {"CoeffA": 1.359, "CoeffB": 0.018, "CoeffC": 0.002, "CoeffD": 0.259, "Intercept": -0.244},
-    "Stainless Steel 17-4PH": {"CoeffA": 1.666, "CoeffB": 0.042, "CoeffC": -0.030, "CoeffD": 0.110, "Intercept": -0.099},
-    "Nickel Alloy 718": {"CoeffA": 1.608, "CoeffB": 0.025, "CoeffD": 0.298},
-    "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006},
-    "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405},
+    "Aluminum (AlSi10Mg)": {"CoeffA": 0.655, "CoeffB": 0.045, "CoeffC": 0.047, "CoeffD": 0.098, "Intercept": -0.471, "LayerThickness": 0.001},
+    "Titanium Ti64": {"CoeffA": 1.943, "CoeffB": 0.020, "CoeffC": -0.033, "CoeffD": 0.119, "Intercept": -0.283, "LayerThickness": 0.001},
+    "Stainless Steel 316L": {"CoeffA": 1.359, "CoeffB": 0.018, "CoeffC": 0.002, "CoeffD": 0.259, "Intercept": -0.244, "LayerThickness": 0.002},
+    "Stainless Steel 17-4PH": {"CoeffA": 1.666, "CoeffB": 0.042, "CoeffC": -0.030, "CoeffD": 0.110, "Intercept": -0.099, "LayerThickness": 0.002},
+    "Nickel Alloy 718": {"CoeffA": 1.608, "CoeffB": 0.025, "CoeffD": 0.298, "LayerThickness": 0.002},
+    "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006, "LayerThickness": 0.002},
+    "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.002},
 }
+
 
 BuildLength = 9.0
 BuildArea = 81.00
@@ -132,29 +133,38 @@ def calculate_metrics(files):
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
     return pd.DataFrame(data, columns=col_order)
 
-
 def calculate_num_builds(row):
     material = row['Material']
-    coeff_a = material_info[material].get("CoeffA", 0)
-    coeff_b = material_info[material].get("CoeffB", 0)
-    coeff_c = material_info[material].get("CoeffC", 0)
-    coeff_d = material_info[material].get("CoeffD", 0)
-    intercept = material_info[material].get("Intercept", 0)
+    coeff_a = material_info.get(material, {}).get("CoeffA", 0)
+    coeff_b = material_info.get(material, {}).get("CoeffB", 0)
+    coeff_c = material_info.get(material, {}).get("CoeffC", 0)
+    coeff_d = material_info.get(material, {}).get("CoeffD", 0)
+    intercept = material_info.get(material, {}).get("Intercept", 0)
 
     # Update user-specific variables based on the user input
     row['ProjectedArea'] = calculate_projected_area(row['NewXExt'], row['NewYExt'], row['NewZExt'], row['Orientation'])
     row['Diagonal'] = calculate_diagonal(row['NewXExt'], row['NewYExt'], row['NewZExt'])
     row['LayerThickness'] = calculate_layer_thickness(material)
 
-    # Calculate NumBuilds based on user input and material-specific constants
     try:
+        # Calculate TFB_RecTime and PB_RecTime based on other values in the row
+        row['TFB_RecTime'] = row['NumFullBuilds'] * row['BuildRecTime']
+        if row['[%BuildRem]'] < row['PackEfficiency']:
+            row['PB_RecTime'] = (row['ProjectedArea'] * row['RemQty']) / (row['BuildArea'] * row['PackEfficiency']) * row['BuildRecTime']
+        else:
+            row['PB_RecTime'] = row['BuildRecTime']
+
+        # Calculate the estimated quantity and number of builds
         estimated_qty = np.exp(coeff_a * np.log(row['OrderQty'] + 1) + coeff_b * row['LayerThickness']) - coeff_c * np.log(row['OrderQty'] + 1) - coeff_d * np.log(row['Diagonal']) + intercept
-        num_builds = np.ceil((row['OrderQty'] * (np.exp(coeff_a * np.log(row['OrderQty'] + 1)) + coeff_b * row['LayerThickness']) - np.exp(coeff_a * np.log(row['OrderQty']) + coeff_b * row['LayerThickness']) - row['TFB_RecTime']) / row['ExpTime'])
+        num_builds = np.ceil(row['NumFullBuilds'] + row['[%BuildRem]'])
+
+        print(num_builds)
 
         return int(num_builds) if not np.isnan(num_builds) and np.isfinite(num_builds) else 0
     except Exception as e:
         print(f"Error calculating NumBuilds: {e}")
         return 0
+
 
 
 @quote.route('/Quote', methods=['GET', 'POST'])
@@ -178,38 +188,45 @@ def quote_page():
                 session["results"] = df.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
                 return render_template("quote.html", user=current_user, results=df)
 
+        # Inside the 'update_quote' section of the 'quote_page' function
         elif 'update_quote' in request.form:
             results_data = session.get('results')
             if results_data is not None and len(results_data) > 0:
-                df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame
+                for index, row in enumerate(results_data):
+                    line_item = row['PartName']  # Get the part name as the line item
+                    row['OrderQty'] = float(request.form.get(f"order_qty_input_{line_item}", 1))  # Use default value 0 if not found
+                    row['Orientation'] = request.form.get(f"orientation_{line_item}", 'X')
+                    row['Material'] = request.form.get(f"material_{line_item}", 'Aluminum (AlSi10Mg)')  # Use default value 'Aluminum (AlSi10Mg)' if not found in session
 
-                user_inputs = {}
-                for index, row in df.iterrows():
-                    line_item = row['PartName']  # Use 'PartName' as the line item
-                    user_inputs[line_item] = {
-                        "OrderQty": request.form.get(f"order_qty_{index}", type=float),
-                        "Orientation": request.form.get(f"orientation_{index}"),
-                        "Material": request.form.get(f"material_{index}"),
-                        "NewXExt": request.form.get(f"new_x_ext_{index}", type=float),
-                        "NewYExt": request.form.get(f"new_y_ext_{index}", type=float),
-                        "NewZExt": request.form.get(f"new_z_ext_{index}", type=float),
-                        "BuildQty": request.form.get(f"build_qty_{index}", type=float),
-                        "NumFullBuilds": request.form.get(f"num_full_builds_{index}", type=float),
-                        "RemQty": request.form.get(f"rem_qty_{index}", type=float),
-                        "[%BuildRem]": request.form.get(f"percent_build_rem_{index}", type=float),
-                        "BuildRecTime": request.form.get(f"build_rec_time_{index}", type=float),
-                        "TFB_RecTime": request.form.get(f"tfb_rec_time_{index}", type=float),
-                        "PB_RecTime": request.form.get(f"pb_rec_time_{index}", type=float),
-                        "ExpTime": request.form.get(f"exp_time_{index}", type=float),
-                    }
+                    # Calculate newXExt, newYExt, and newZExt based on orientation
+                    if row['Orientation'] == 'X':
+                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
+                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
+                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
+                    elif row['Orientation'] == 'Y':
+                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
+                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
+                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
+                    elif row['Orientation'] == 'Z':
+                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
+                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
+                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
 
-                # Update the session with user inputs
-                session["results"] = list(user_inputs.values())
 
-                # Pass the updated DataFrame to the template context
-                df = pd.DataFrame.from_dict(user_inputs, orient='index')
+                                        # Update the values in the results_data list
+                    results_data[index] = row
+                    
+
+
+                # Update the session with modified results_data
+                session["results"] = results_data
+                df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
                 df['NumBuilds'] = df.apply(calculate_num_builds, axis=1)
+
                 return render_template("quote.html", user=current_user, results=df)
+
+
+
 
     # Pass the existing DataFrame in the session to the template context if 'results' is available
     results_data = session.get('results')
