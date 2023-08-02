@@ -16,12 +16,13 @@
         <div class="form-group">
             <button type="submit" name="makeQuote" class="btn btn-primary">Make Quote</button>
         </div>
+    </form>
+    <form method="POST">
         {% if not results.empty %}
         
             <table class="table table-hover">
                 <thead>
                     <tr class="table-active">
-                        <th scope="col">Line Item</th>
                         <th scope="col">Part Name</th>
                         <th scope="col">Order Quantity</th>
                         <th scope="col">x Extents</th>
@@ -39,20 +40,17 @@
                 <tbody>
                     {% for index, row in results.iterrows() %}
                     <tr>
-                        <td>
-                            <select name="order_qty_select_{{ index }}" required>
-                                {% for i in range(1, results.shape[0] + 1) %}
-                                <option value="{{ i }}" {% if i == index + 1 %}selected="selected"{% endif %}>{{ i }}</option>
-                                {% endfor %}
-                            </select>
-                        </td>
+
                         <td>{{ row['PartName'] }}</td>
                         <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" required></td>
                         <td>{{ '%.4f'|format(row['xExtents']) }}</td>
                         <td>{{ '%.4f'|format(row['yExtents']) }}</td>
                         <td>{{ '%.4f'|format(row['zExtents']) }}</td>
+                        <input type="hidden" name="xExtents_{{ index }}" id="xExtents_{{ index }}" value="{{ row['xExtents'] }}">
+                        <input type="hidden" name="yExtents_{{ index }}" id="yExtents_{{ index }}" value="{{ row['yExtents'] }}">
+                        <input type="hidden" name="zExtents_{{ index }}" id="zExtents_{{ index }}" value="{{ row['zExtents'] }}">
                         <td>{{ '%.4f'|format(row['Volume']) }}</td>
-                        <td>{{ '%.4f'|format(row['SurfaceArea']) }}</td>
+                        <td name="SurfaceArea_{{index}}">{{ '%.4f'|format(row['SurfaceArea']) }}</td>
                         <td>
                             <select name="orientation_{{ index }}" required>
                                 <option value="X" {{ 'selected' if row['Orientation'] == 'X' else '' }}>X</option>
@@ -85,17 +83,9 @@
                 </tbody>
             </table>
         {% endif %}
-    </form>
     <div class="form-group">
-        <!-- Remove the nested form and change the button to a regular button -->
-        <button type="button" class="btn btn-primary" id="updateQuoteBtn">Update Quote</button>
+        <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
     </div>
+</form>
 </div>
-
-<!-- Add JavaScript to handle form submission when the button is clicked -->
-<script>
-    document.getElementById('updateQuoteBtn').addEventListener('click', function() {
-        document.querySelector('form').submit();
-    });
-</script>
 {% endblock %}
