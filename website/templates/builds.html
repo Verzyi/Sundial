@@ -178,211 +178,219 @@ content %}
       </div>
 
       <div class="col-md-6">
-          <div id="buildSetupForm" class="collapse">
-            <form id="buildform" method="POST">
-              <div class="build-setup-form">
-                <h5 class="text-center mb-4">Build Setup</h5>
-                <div class="row" class="container">
-                  <div class="col-md-6">
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="BuildID" class="form-label2">Build ID:</label>
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="BuildID"
-                        name="BuildID"
-                        disabled
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="buildNameInput" class="form-label2"
-                        >Build Name:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="buildNameInput"
-                        name="buildNameInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="machineInput" class="form-label2"
-                        >Machine:</label
-                      >
-                      <select class="form-select text-center" id="machineInput" name="machineInput">
-                        <option value="" disabled selected>Select Machine</option>
-                        <!-- Add machine options dynamically -->
-                        {% for machine in machines %}
-                        <option value="{{ machine }}">{{ machine }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="materialInput" class="form-label2"
-                        >Material:</label
-                      >
-                      <select class="form-select text-center" id="materialInput" name="materialInput">
-                        <option value="" disabled selected>
-                          Select Material
-                        </option>
-                        <!-- Add material options dynamically -->
-                        {% for material in materials %}
-                        <option value="{{ material }}">{{ material }}</option>
-                        {% endfor %}
-                      </select>
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="scaleXInput" class="form-label2"
-                        >Scale X:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="scaleXInput"
-                        name="scaleXInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="scaleYInput" class="form-label2"
-                        >Scale Y:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="scaleYInput"
-                        name="scaleYInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="offsetInput" class="form-label2">Offset:</label>
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="offsetInput"
-                        name="offsetInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="layerInput" class="form-label2">Layer:</label>
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="layerInput"
-                        name="layerInput"
-                      />
-                    </div>
+        <div id="buildSetupForm" class="collapse">
+          <form id="buildform" method="POST">
+            <div class="build-setup-form">
+              <h5 class="text-center mb-4">Build Setup</h5>
+              <div class="row" class="container">
+                <div class="col-md-6">
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="BuildID" class="form-label2">Build ID:</label>
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="BuildID"
+                      name="BuildID"
+                      disabled
+                    />
                   </div>
-                  <div class="col-md-6">
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="platformTemperatureInput" class="form-label2"
-                        >Platform Temperature:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="platformTemperatureInput"
-                        name="platformTemperatureInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="potentialBuildHeightInput" class="form-label2"
-                        >Potential Build Height:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="potentialBuildHeightInput"
-                        name="potentialBuildHeightInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="MinChargeAmountInput" class="form-label2"
-                        >Min Charge Amount:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="MinChargeAmountInput"
-                        name="MinChargeAmountInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="MaxChangeAmountInput" class="form-label2"
-                        >Max Change Amount:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="MaxChangeAmountInput"
-                        name="MaxChangeAmountInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="DosingBoostAmountInput" class="form-label2"
-                        >Dosing Boost Amount:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="DosingBoostAmountInput"
-                        name="DosingBoostAmountInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="RecoaterSpeedInput" class="form-label2"
-                        >Recoater Speed:</label
-                      >
-                      <input
-                        type="text"
-                        class="form-control text-center"
-                        id="RecoaterSpeedInput"
-                        name="RecoaterSpeedInput"
-                      />
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label for="ParameterRevInput" class="form-label2"
-                        >Parameter Rev:</label
-                      >
-                      <div class="input-group">
-                        <div class="custom-file">
-                          <input
-                            type="file"
-                            class="custom-file-input"
-                            id="ParameterRevInput"
-                            name="ParameterRevInput"
-                          />
-                        </div>
-                      </div>
-                    </div>
-                    <div class="mb-3 form-label2 text-center">
-                      <label class="form-label2">Recoater Type:</label>
-                      <select
-                        class="form-select text-center"
-                        id="recoaterTypeInput"
-                        name="recoaterTypeInput"
-                      >
-                        <option value="" disabled selected>
-                          Select Recoater type
-                        </option>
-                        <option value="blade">Blade</option>
-                        <option value="brush">Brush</option>
-                        <option value="silicone">Silicone (Clear)</option>
-                        <option value="nbr">NBR (Black)</option>
-                      </select>
-                    </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="buildNameInput" class="form-label2"
+                      >Build Name:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="buildNameInput"
+                      name="buildNameInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="machineInput" class="form-label2"
+                      >Machine:</label
+                    >
+                    <select
+                      class="form-select text-center"
+                      id="machineInput"
+                      name="machineInput"
+                    >
+                      <option value="" disabled selected>Select Machine</option>
+                      <!-- Add machine options dynamically -->
+                      {% for machine in machines %}
+                      <option value="{{ machine }}">{{ machine }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="materialInput" class="form-label2"
+                      >Material:</label
+                    >
+                    <select
+                      class="form-select text-center"
+                      id="materialInput"
+                      name="materialInput"
+                    >
+                      <option value="" disabled selected>
+                        Select Material
+                      </option>
+                      <!-- Add material options dynamically -->
+                      {% for material in materials %}
+                      <option value="{{ material }}">{{ material }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="scaleXInput" class="form-label2"
+                      >Scale X:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="scaleXInput"
+                      name="scaleXInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="scaleYInput" class="form-label2"
+                      >Scale Y:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="scaleYInput"
+                      name="scaleYInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="offsetInput" class="form-label2">Offset:</label>
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="offsetInput"
+                      name="offsetInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="layerInput" class="form-label2">Layer:</label>
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="layerInput"
+                      name="layerInput"
+                    />
                   </div>
                 </div>
-                <button
-                  class="btn-primary"
-                  name="buildform"
-                  style="height: 30px; width: 100%"
-                >
-                  Submit
-                </button>
+                <div class="col-md-6">
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="platformTemperatureInput" class="form-label2"
+                      >Platform Temperature:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="platformTemperatureInput"
+                      name="platformTemperatureInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="potentialBuildHeightInput" class="form-label2"
+                      >Potential Build Height:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="potentialBuildHeightInput"
+                      name="potentialBuildHeightInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="MinChargeAmountInput" class="form-label2"
+                      >Min Charge Amount:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="MinChargeAmountInput"
+                      name="MinChargeAmountInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="MaxChangeAmountInput" class="form-label2"
+                      >Max Change Amount:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="MaxChangeAmountInput"
+                      name="MaxChangeAmountInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="DosingBoostAmountInput" class="form-label2"
+                      >Dosing Boost Amount:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="DosingBoostAmountInput"
+                      name="DosingBoostAmountInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="RecoaterSpeedInput" class="form-label2"
+                      >Recoater Speed:</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control text-center"
+                      id="RecoaterSpeedInput"
+                      name="RecoaterSpeedInput"
+                    />
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label for="ParameterRevInput" class="form-label2"
+                      >Parameter Rev:</label
+                    >
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input
+                          type="file"
+                          class="custom-file-input"
+                          id="ParameterRevInput"
+                          name="ParameterRevInput"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <div class="mb-3 form-label2 text-center">
+                    <label class="form-label2">Recoater Type:</label>
+                    <select
+                      class="form-select text-center"
+                      id="recoaterTypeInput"
+                      name="recoaterTypeInput"
+                    >
+                      <option value="" disabled selected>
+                        Select Recoater type
+                      </option>
+                      <option value="blade">Blade</option>
+                      <option value="brush">Brush</option>
+                      <option value="silicone">Silicone (Clear)</option>
+                      <option value="nbr">NBR (Black)</option>
+                    </select>
+                  </div>
+                </div>
               </div>
-            </form>
-          </div>
-        
+              <button
+                class="btn-primary"
+                name="buildform"
+                style="height: 30px; width: 100%"
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        </div>
+
         <div id="buildStartForm" class="collapse">
           <form id="buildformstart" method="POST">
             <div class="build-start-form">
@@ -650,7 +658,6 @@ content %}
             </div>
           </form>
         </div>
-      </div>
       </div>
     </div>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

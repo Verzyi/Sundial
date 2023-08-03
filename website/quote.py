@@ -86,7 +86,7 @@ def calculate_metrics(files):
         x, y, z = get_xyz(obj)
         vol, surface = get_properties(obj)
 
-        orientation = "X"
+        orientation = "Z"
         material = "Aluminum (AlSi10Mg)"
         projected_area = calculate_projected_area(x, y, z, orientation)
         diagonal = calculate_diagonal(x, y, z)
@@ -112,7 +112,7 @@ def calculate_metrics(files):
             'BuildQty': 0,
             'NumFullBuilds': 0,
             'RemQty': 0,
-            '[%BuildRem]': 0,
+            '%BuildRem': 0,
             'BuildRecTime': 0,
             'TFB_RecTime': 0,
             'PB_RecTime': 0,
@@ -127,7 +127,7 @@ def calculate_metrics(files):
 
     col_order = ['PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
                  'Material', 'LayerThickness', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds',
-                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '[%BuildRem]'
+                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '%BuildRem',
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
     return pd.DataFrame(data, columns=col_order)
 
@@ -158,6 +158,7 @@ def calculate_num_builds(row):
         row['BuildRem'] = row['ProjectedArea'] / row['BuildArea']
         row['NumFullBuilds'] = math.floor(row['OrderQty'] / row['BuildQty'])  # Calculate the number of full builds and round down
         row['NumBuilds'] = row['NumFullBuilds'] + row['BuildRem']
+        row['RemQty'] = row['OrderQty'] % row['BuildQty']
         
         # Calculate NumBuilds and round up to the next whole number
         num_builds = math.ceil(row['NumBuilds']) if not math.isnan(row['NumBuilds']) and math.isfinite(row['NumBuilds']) else 0
@@ -174,12 +175,14 @@ def calculate_num_builds(row):
         print(f"BuildRem: {row['BuildRem']}")
         print(f"NumFullBuilds: {row['NumFullBuilds']}")
         print(f"NumBuilds: {row['NumBuilds']}")
+        print(f"RemQty: {row['RemQty']}")
         print(f"Estimated Qty: {estimated_qty}")
-
-        return int(num_builds)
+        
+        
+        return row
     except Exception as e:
         print(f"Error calculating NumBuilds: {e}")
-        return 0
+        return row
 
 def calculate_exp_time(row):
     material = row['Material']
@@ -196,14 +199,20 @@ def calculate_exp_time(row):
     # If the calculated exp_time is less than or equal to 0, set it to the minimum value 0.1
     if exp_time <= 0:
         exp_time = 0.1
-
+        
+    print(f"exp_time: {exp_time}")
     return exp_time
+
+
+def calculate_P_Rem(row):
+    p_rem = (row['RemQty'] * row['ProjectedArea']) / row['BuildArea'] 
+    return p_rem
 
 def calculate_build_rec_time(row):
     StockHeight = 5 / 25.4  # Convert StockHeight from mm to inches
     LayerTime = 0.00249441933310151
     material = row['Material']
-    row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
+    row['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
     build_rec_time = ((row['NewZExt'] + StockHeight) / row['LayerThickness']) * LayerTime
     return build_rec_time
 
@@ -214,9 +223,25 @@ def calculate_build_hours(row):
     row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
     BuildRecTime = (((row['NewZExt'] + StockHeight) / row['LayerThickness']) * LayerTime)
     return BuildRecTime
+
+def tfb_recTime(row):
+    tfb_recTime = row['NumFullBuilds']*row['BuildRecTime']   
+    print(f"tfb_recTime: {tfb_recTime}") 
+    return tfb_recTime
+
+def pb_recTime(row):
+    if row['%BuildRem'] < row['PackEfficiency']:
+        pb_recTime = (row['ProjectedArea'] * row['RemQty']) / (row['BuildArea'] * row['PackEfficiency']) * row['BuildRecTime']
+    else:
+        pb_recTime = row['BuildRecTime']
+    
+    print(f"pb_recTime: {pb_recTime}")
+    
+    return pb_recTime
+
     
 def calculate_total_build_time(row):
-    total_build_time = row['NumBuilds'] * row['BuildQty'] * row['BuildRecTime']
+    total_build_time = row['NumBuilds'] * row['OrderQty'] * row['BuildRecTime']
     return total_build_time
 
 @quote.route('/Quote', methods=['GET', 'POST'])
@@ -247,7 +272,7 @@ def quote_page():
                 for index, row in enumerate(results_data):
                     line_item = row['PartName']  # Get the part name as the line item
                     row['OrderQty'] = float(request.form.get(f"order_qty_input_{index}", 1))  # Use default value 0 if not found
-                    row['Orientation'] = request.form.get(f"orientation_{index}", 'X')
+                    row['Orientation'] = request.form.get(f"orientation_{index}", 'Z') # Use default value Z if not found
                     row['Material'] = request.form.get(f"material_{index}", 'Aluminum (AlSi10Mg)')  # Use default value 'Aluminum (AlSi10Mg)' if not found in session
                     
 
@@ -272,19 +297,38 @@ def quote_page():
                 df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
                 
                 # Calculate the Numbuilds for each row
-                df['NumBuilds'] = df.apply(calculate_num_builds, axis=1)
+                df = df.apply(calculate_num_builds, axis=1)
+                session["results"] = df.to_dict(orient='records')
+                
+                # Calculate the %rem for each row
+                df['%BuildRem'] = df.apply(calculate_P_Rem, axis=1)
+                session["results"] = df.to_dict(orient='records')
                 
                 # Calculate the BuildRecTime for each row
                 df['BuildRecTime'] = df.apply(calculate_build_rec_time, axis=1)
                 print(f"BuildRecTime: {df['BuildRecTime']}")
+                session["results"] = df.to_dict(orient='records')
 
                 # Calculate the BuildHours for each row (optional if you want to use it separately)
                 df['BuildHours'] = df.apply(calculate_build_hours, axis=1)
                 print(f"BuildHours: {df['BuildHours']}")
+                session["results"] = df.to_dict(orient='records')
                 
                 # Calculate the TotalBuildTime for each row
                 df['TotalBuildTime'] = df.apply(calculate_total_build_time, axis=1)
                 print(f"TotalBuildTime: {df['TotalBuildTime']}")
+                session["results"] = df.to_dict(orient='records')
+                
+                # Calculate the calculate_exp_time for each row
+                df['ExpTime'] = df.apply(calculate_exp_time, axis=1)
+                session["results"] = df.to_dict(orient='records')
+                
+                # Calculate the calculate_exp_time for each row
+                df['TFB_RecTime'] = df.apply(tfb_recTime, axis=1)
+                session["results"] = df.to_dict(orient='records')
+                
+                # Calculate the calculate_exp_time for each row
+                df['PB_RecTime'] = df.apply(pb_recTime, axis=1)
                 session["results"] = df.to_dict(orient='records')
 
                 return render_template("quote.html", user=current_user, results=df)
