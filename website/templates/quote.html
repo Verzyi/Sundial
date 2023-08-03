@@ -53,9 +53,9 @@
                         <td name="SurfaceArea_{{index}}">{{ '%.4f'|format(row['SurfaceArea']) }}</td>
                         <td>
                             <select name="orientation_{{ index }}" required>
-                                <option value="X" {{ 'selected' if row['Orientation'] == 'X' else '' }}>X</option>
-                                <option value="Y" {{ 'selected' if row['Orientation'] == 'Y' else '' }}>Y</option>
-                                <option value="Z" {{ 'selected' if row['Orientation'] == 'Z' else '' }}>Z</option>
+                                <option value="X" {% if row['Orientation'] == 'X' %}selected{% endif %}>X</option>
+                                <option value="Y" {% if row['Orientation'] == 'Y' %}selected{% endif %}>Y</option>
+                                <option value="Z" {% if row['Orientation'] == 'Z' %}selected{% endif %}>Z</option>
                             </select>
                         </td>
                         <td>

@@ -20,11 +20,8 @@ material_info = {
     "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006, "LayerThickness": 0.002},
     "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.002},
 }
-
-
 BuildLength = 9.0
 BuildArea = 81.00
-
 
 def save_temp_file(file):
     temp_folder = tempfile.mkdtemp()  # Create a temporary folder
@@ -120,6 +117,7 @@ def calculate_metrics(files):
             'TFB_RecTime': 0,
             'PB_RecTime': 0,
             'ExpTime': 0,
+            'LayerThickness':0,
             'TotalBuildTime': 0,
             'PackEfficiency': 0.20,  # Set the default value of PackEfficiency to 20%
             'BuildArea': 81  # Set the default value of BuildArea to 81
@@ -128,10 +126,12 @@ def calculate_metrics(files):
         os.rmdir(os.path.dirname(file_path))
 
     col_order = ['PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
-                 'Material', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds',
-                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '[%BuildRem]',
+                 'Material', 'LayerThickness', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds',
+                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '[%BuildRem]'
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
     return pd.DataFrame(data, columns=col_order)
+
+import math
 
 def calculate_num_builds(row):
     material = row['Material']
@@ -142,30 +142,74 @@ def calculate_num_builds(row):
     intercept = material_info.get(material, {}).get("Intercept", 0)
 
     # Update user-specific variables based on the user input
-    row['ProjectedArea'] = calculate_projected_area(row['NewXExt'], row['NewYExt'], row['NewZExt'], row['Orientation'])
+    row['ProjectedArea'] = row['NewXExt'] * row['NewYExt']  # Update ProjectedArea calculation
     row['Diagonal'] = calculate_diagonal(row['NewXExt'], row['NewYExt'], row['NewZExt'])
-    row['LayerThickness'] = calculate_layer_thickness(material)
+    row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
+    
+    build_length = math.sqrt(row['BuildArea'])
+    build_qty = (
+    math.floor(build_length / row['NewXExt']) * math.floor(build_length / row['NewYExt']) +
+    math.floor((build_length % row['NewYExt']) / row['NewXExt']) * math.floor(build_length / row['NewYExt']) +
+    math.floor((build_length % row['NewXExt']) / row['NewYExt']) * math.floor(build_length / row['NewXExt'])
+    )
 
     try:
-        # Calculate TFB_RecTime and PB_RecTime based on other values in the row
-        row['TFB_RecTime'] = row['NumFullBuilds'] * row['BuildRecTime']
-        if row['[%BuildRem]'] < row['PackEfficiency']:
-            row['PB_RecTime'] = (row['ProjectedArea'] * row['RemQty']) / (row['BuildArea'] * row['PackEfficiency']) * row['BuildRecTime']
-        else:
-            row['PB_RecTime'] = row['BuildRecTime']
+        row['BuildQty'] = build_qty
+        row['BuildRem'] = row['ProjectedArea'] / row['BuildArea']
+        row['NumFullBuilds'] = math.floor(row['OrderQty'] / row['BuildQty'])  # Calculate the number of full builds and round down
+        row['NumBuilds'] = row['NumFullBuilds'] + row['BuildRem']
+        
+        # Calculate NumBuilds and round up to the next whole number
+        num_builds = math.ceil(row['NumBuilds']) if not math.isnan(row['NumBuilds']) and math.isfinite(row['NumBuilds']) else 0
 
-        # Calculate the estimated quantity and number of builds
-        estimated_qty = np.exp(coeff_a * np.log(row['OrderQty'] + 1) + coeff_b * row['LayerThickness']) - coeff_c * np.log(row['OrderQty'] + 1) - coeff_d * np.log(row['Diagonal']) + intercept
-        num_builds = np.ceil(row['NumFullBuilds'] + row['[%BuildRem]'])
+        # Calculate the estimated quantity
+        estimated_qty = math.exp(coeff_a * math.log(row['OrderQty'] + 1) + coeff_b * row['LayerThickness']) - coeff_c * math.log(row['OrderQty'] + 1) - coeff_d * row['Diagonal'] + intercept
 
-        print(num_builds)
+        print(f"build_length: {build_length}")
+        print(f"NewXExt: {row['NewXExt']}")
+        print(f"NewYExt: {row['NewYExt']}")
+        print(f"ProjectedArea: {row['ProjectedArea']}")
+        print(f"Diagonal: {row['Diagonal']}")
+        print(f"BuildQty: {row['BuildQty']}")
+        print(f"BuildRem: {row['BuildRem']}")
+        print(f"NumFullBuilds: {row['NumFullBuilds']}")
+        print(f"NumBuilds: {row['NumBuilds']}")
+        print(f"Estimated Qty: {estimated_qty}")
 
-        return int(num_builds) if not np.isnan(num_builds) and np.isfinite(num_builds) else 0
+        return int(num_builds)
     except Exception as e:
         print(f"Error calculating NumBuilds: {e}")
         return 0
 
+def calculate_exp_time(row):
+    material = row['Material']
+    material_coeffs = material_info.get(material, {})
+    coeff_a = material_coeffs.get("CoeffA", 0)
+    coeff_b = material_coeffs.get("CoeffB", 0)
+    coeff_c = material_coeffs.get("CoeffC", 0)
+    coeff_d = material_coeffs.get("CoeffD", 0)
+    intercept = material_coeffs.get("Intercept", 0)
+    row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
 
+    exp_time = coeff_a * row['Volume'] + coeff_b * row['SurfaceArea'] + coeff_c * row['ProjectedArea'] + coeff_d * row['Diagonal'] + intercept
+
+    # If the calculated exp_time is less than or equal to 0, set it to the minimum value 0.1
+    if exp_time <= 0:
+        exp_time = 0.1
+
+    return exp_time
+
+def calculate_build_rec_time(row):
+    StockHeight = 5 / 25.4  # Convert StockHeight from mm to inches
+    LayerTime = 0.002
+    build_rec_time = ((row['NewZExt'] + StockHeight) / row['LayerThickness']) * LayerTime
+    return build_rec_time
+
+
+    
+def calculate_total_build_time(row):
+    total_build_time = row['NumBuilds'] * row['BuildQty'] * row['BuildRecTime']
+    return total_build_time
 
 @quote.route('/Quote', methods=['GET', 'POST'])
 @login_required
@@ -194,26 +238,23 @@ def quote_page():
             if results_data is not None and len(results_data) > 0:
                 for index, row in enumerate(results_data):
                     line_item = row['PartName']  # Get the part name as the line item
-                    row['OrderQty'] = float(request.form.get(f"order_qty_input_{line_item}", 1))  # Use default value 0 if not found
-                    row['Orientation'] = request.form.get(f"orientation_{line_item}", 'X')
-                    row['Material'] = request.form.get(f"material_{line_item}", 'Aluminum (AlSi10Mg)')  # Use default value 'Aluminum (AlSi10Mg)' if not found in session
+                    row['OrderQty'] = float(request.form.get(f"order_qty_input_{index}", 1))  # Use default value 0 if not found
+                    row['Orientation'] = request.form.get(f"orientation_{index}", 'X')
+                    row['Material'] = request.form.get(f"material_{index}", 'Aluminum (AlSi10Mg)')  # Use default value 'Aluminum (AlSi10Mg)' if not found in session
+                    
 
                     # Calculate newXExt, newYExt, and newZExt based on orientation
                     if row['Orientation'] == 'X':
-                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
-                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
-                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
+                        new_x, new_y, new_z = float(request.form.get(f"zExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0)), float(request.form.get(f"xExtents_{index}", 0))
                     elif row['Orientation'] == 'Y':
-                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
-                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
-                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
+                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), float(request.form.get(f"zExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0))
                     elif row['Orientation'] == 'Z':
-                        row['NewZExt'] = float(request.form.get(f"xExtents_{index}", 0))
-                        row['NewYExt'] = float(request.form.get(f"yExtents_{index}", 0))
-                        row['NewXExt'] = float(request.form.get(f"zExtents_{index}", 0))
+                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0)), float(request.form.get(f"zExtents_{index}", 0))
+
+                    row['NewXExt'], row['NewYExt'], row['NewZExt'] = new_x, new_y, new_z
 
 
-                                        # Update the values in the results_data list
+                    # Update the values in the results_data list
                     results_data[index] = row
                     
 
@@ -222,6 +263,7 @@ def quote_page():
                 session["results"] = results_data
                 df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
                 df['NumBuilds'] = df.apply(calculate_num_builds, axis=1)
+                df ['BuildHours'] = df.apply(calculate_build_hours, axis=1)
 
                 return render_template("quote.html", user=current_user, results=df)
 
