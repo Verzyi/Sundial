@@ -12,13 +12,13 @@ quote = Blueprint('quote', __name__)
 
 # Material information with constants for different materials
 material_info = {
-    "Aluminum (AlSi10Mg)": {"CoeffA": 0.655, "CoeffB": 0.045, "CoeffC": 0.047, "CoeffD": 0.098, "Intercept": -0.471, "LayerThickness": 0.001},
-    "Titanium Ti64": {"CoeffA": 1.943, "CoeffB": 0.020, "CoeffC": -0.033, "CoeffD": 0.119, "Intercept": -0.283, "LayerThickness": 0.001},
-    "Stainless Steel 316L": {"CoeffA": 1.359, "CoeffB": 0.018, "CoeffC": 0.002, "CoeffD": 0.259, "Intercept": -0.244, "LayerThickness": 0.002},
-    "Stainless Steel 17-4PH": {"CoeffA": 1.666, "CoeffB": 0.042, "CoeffC": -0.030, "CoeffD": 0.110, "Intercept": -0.099, "LayerThickness": 0.002},
-    "Nickel Alloy 718": {"CoeffA": 1.608, "CoeffB": 0.025, "CoeffD": 0.298, "LayerThickness": 0.002},
-    "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006, "LayerThickness": 0.002},
-    "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.002},
+    "Aluminum (AlSi10Mg)": {"CoeffA": 0.655, "CoeffB": 0.045, "CoeffC": 0.047, "CoeffD": 0.098, "Intercept": -0.471, "LayerThickness": 0.0011811 },
+    "Titanium Ti64": {"CoeffA": 1.943, "CoeffB": 0.020, "CoeffC": -0.033, "CoeffD": 0.119, "Intercept": -0.283, "LayerThickness": 0.0011811 },
+    "Stainless Steel 316L": {"CoeffA": 1.359, "CoeffB": 0.018, "CoeffC": 0.002, "CoeffD": 0.259, "Intercept": -0.244, "LayerThickness": 0.0015748},
+    "Stainless Steel 17-4PH": {"CoeffA": 1.666, "CoeffB": 0.042, "CoeffC": -0.030, "CoeffD": 0.110, "Intercept": -0.099, "LayerThickness": 0.0015748},
+    "Nickel Alloy 718": {"CoeffA": 1.608, "CoeffB": 0.025, "CoeffD": 0.298, "LayerThickness": 0.0015748},
+    "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006, "LayerThickness": 0.0015748},
+    "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.0015748},
 }
 BuildLength = 9.0
 BuildArea = 81.00
@@ -201,11 +201,19 @@ def calculate_exp_time(row):
 
 def calculate_build_rec_time(row):
     StockHeight = 5 / 25.4  # Convert StockHeight from mm to inches
-    LayerTime = 0.002
+    LayerTime = 0.00249441933310151
+    material = row['Material']
+    row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
     build_rec_time = ((row['NewZExt'] + StockHeight) / row['LayerThickness']) * LayerTime
     return build_rec_time
 
-
+def calculate_build_hours(row):
+    StockHeight = 5 / 25.4  # Convert StockHeight from mm to inches
+    LayerTime = 0.00249441933310151
+    material = row['Material']
+    row ['LayerThickness']= material_info.get(material, {}).get("LayerThickness", 0)
+    BuildRecTime = (((row['NewZExt'] + StockHeight) / row['LayerThickness']) * LayerTime)
+    return BuildRecTime
     
 def calculate_total_build_time(row):
     total_build_time = row['NumBuilds'] * row['BuildQty'] * row['BuildRecTime']
@@ -262,8 +270,22 @@ def quote_page():
                 # Update the session with modified results_data
                 session["results"] = results_data
                 df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
+                
+                # Calculate the Numbuilds for each row
                 df['NumBuilds'] = df.apply(calculate_num_builds, axis=1)
-                df ['BuildHours'] = df.apply(calculate_build_hours, axis=1)
+                
+                # Calculate the BuildRecTime for each row
+                df['BuildRecTime'] = df.apply(calculate_build_rec_time, axis=1)
+                print(f"BuildRecTime: {df['BuildRecTime']}")
+
+                # Calculate the BuildHours for each row (optional if you want to use it separately)
+                df['BuildHours'] = df.apply(calculate_build_hours, axis=1)
+                print(f"BuildHours: {df['BuildHours']}")
+                
+                # Calculate the TotalBuildTime for each row
+                df['TotalBuildTime'] = df.apply(calculate_total_build_time, axis=1)
+                print(f"TotalBuildTime: {df['TotalBuildTime']}")
+                session["results"] = df.to_dict(orient='records')
 
                 return render_template("quote.html", user=current_user, results=df)
 
