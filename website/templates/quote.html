@@ -42,7 +42,7 @@
                     <tr>
 
                         <td>{{ row['PartName'] }}</td>
-                        <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" required></td>
+                        <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" step="1" required></td>
                         <td>{{ '%.4f'|format(row['xExtents']) }}</td>
                         <td>{{ '%.4f'|format(row['yExtents']) }}</td>
                         <td>{{ '%.4f'|format(row['zExtents']) }}</td>
