@@ -20,8 +20,6 @@ material_info = {
     "Nickel Alloy 625": {"CoeffA": 1.212, "CoeffB": 0.048, "CoeffD": -0.006, "LayerThickness": 0.0015748},
     "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.0015748},
 }
-BuildLength = 9.0
-BuildArea = 81.00
 
 def save_temp_file(file):
     temp_folder = tempfile.mkdtemp()  # Create a temporary folder
@@ -30,7 +28,6 @@ def save_temp_file(file):
     file.save(file_path)  # Save the file to the temporary folder
     return file_path
 
-
 def get_mesh(file_path):
     try:
         return Mesh.from_file(file_path)
@@ -38,13 +35,11 @@ def get_mesh(file_path):
         print(f"Error reading STL file: {e}")
         return None
 
-
 def get_xyz(obj):
     x_ext = abs(obj.x.max() - obj.x.min())
     y_ext = abs(obj.y.max() - obj.y.min())
     z_ext = abs(obj.z.max() - obj.z.min())
     return x_ext, y_ext, z_ext
-
 
 def get_properties(obj):
     vol, cog, inertia = obj.get_mass_properties()
@@ -52,10 +47,8 @@ def get_properties(obj):
     surface = obj.areas.sum()
     return vol, surface
 
-
 def calculate_layer_thickness(material):
     return material_info[material].get("LayerThickness", 0)
-
 
 def calculate_projected_area(x_extents, y_extents, z_extents, orientation):
     if orientation == "X":
@@ -67,10 +60,8 @@ def calculate_projected_area(x_extents, y_extents, z_extents, orientation):
     else:
         return 0
 
-
 def calculate_diagonal(x_extents, y_extents, z_extents):
     return math.sqrt(x_extents**2 + y_extents**2 + z_extents**2)
-
 
 def calculate_metrics(files):
     data = []
@@ -130,8 +121,6 @@ def calculate_metrics(files):
                  'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '%BuildRem',
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
     return pd.DataFrame(data, columns=col_order)
-
-import math
 
 def calculate_num_builds(row):
     material = row['Material']
@@ -204,7 +193,6 @@ def calculate_exp_time(row):
     print(f"exp_time: {exp_time}")
     return exp_time
 
-
 def calculate_P_Rem(row):
     p_rem = (row['RemQty'] * row['ProjectedArea']) / row['BuildArea'] 
     return p_rem
@@ -227,8 +215,6 @@ def compute_linest(y_values, x_values):
     slope, intercept = np.polyfit(ln_x, ln_y, 1)
     
     return slope, intercept
-
-
 
 def calculate_build_hours(row):
     qty = []
@@ -269,7 +255,6 @@ def calculate_build_hours(row):
     
     return build_hours
 
-
 def part_build_time(row):
     PartBuildTime = row['TotalBuildTime'] / row['OrderQty']   
     return PartBuildTime
@@ -291,8 +276,7 @@ def calculate_UnpackHours(row):
     unpackHours = ((row['NumFullBuilds'] + row['%BuildRem']) / row['OrderQty']) 
     print(f"unpackHours: {unpackHours}")
     return unpackHours
-
-    
+   
 def calculate_total_build_time(row):
     total_build_time = row['TFB_RecTime'] + row['PB_RecTime'] + row['OrderQty'] * row['ExpTime']
     return total_build_time
