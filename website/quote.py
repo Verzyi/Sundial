@@ -97,9 +97,9 @@ def calculate_metrics(files):
             'BuildHours': 0,
             'UnpackHours': 0,
             'NumBuilds': 0,
-            'NewXExt': 0,
-            'NewYExt': 0,
-            'NewZExt': 0,
+            'NewXExt': x,
+            'NewYExt': y,
+            'NewZExt': z,
             'BuildQty': 0,
             'NumFullBuilds': 0,
             'RemQty': 0,
@@ -293,20 +293,27 @@ def quote_page():
             else:
                 # Calculate the initial metrics without user inputs
                 df = calculate_metrics(stl_files)
+                
+                # Calculate the Numbuilds for each row
+                df = df.apply(calculate_num_builds, axis=1)
+                
                 df = df.reset_index(drop=True)  # Drop the previous index and reset it
-                # Set the default value of PackEfficiency to 20% for all rows
-                df['PackEfficiency'] = 0.20  # 20%
+
                 # Set the default small frame machine as the build area 81 = 9x9
                 df['BuildArea'] = 81
 
                 session["results"] = df.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
+                
                 return render_template("quote.html", user=current_user, results=df)
 
         # Inside the 'update_quote' section of the 'quote_page' function
         elif 'update_quote' in request.form:
             results_data = session.get('results')
+            
+            # session["results"] = df.to_dict(orient='records')
             if results_data is not None and len(results_data) > 0:
                 for index, row in enumerate(results_data):
+                    row['PackEfficiency'] = float(request.form.get('packefficiency'))
                     line_item = row['PartName']  # Get the part name as the line item
                     row['OrderQty'] = int(request.form.get(f"order_qty_input_{index}", 1))  # Use default value 0 if not found
                     row['Orientation'] = request.form.get(f"orientation_{index}", 'Z') # Use default value Z if not found

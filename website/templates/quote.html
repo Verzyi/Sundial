@@ -36,6 +36,8 @@
                         <th scope="col">Unpack Hours</th>
                         <th scope="col">Num Builds</th>
                         <th scope="col">Full Plate Qty</th>
+                        <th scope="col">Set Pack Efficiency</th>
+                        <th scope="col">Current Pack Efficiency</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -82,12 +84,20 @@
                         <td>
                             {{ '%.0f'|format(row['BuildQty']) }}
                         </td>
+                        <td>
+                            {{ '%.0f%%'|format(row['PackEfficiency']*100) }}
+                        </td>
+                        <td>
+                            {{ '%.0f%%'|format((row['OrderQty']/row['BuildQty'])*100) }}
+                        </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         {% endif %}
     <div class="form-group">
+        <label for="packefficiency" class="form-label">Pack Efficiency</label>
+        <input type="range" class="form-range" min="0" max=".40" step="0.2" id="packefficiency" name="packefficiency">
         <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
     </div>
 </form>
