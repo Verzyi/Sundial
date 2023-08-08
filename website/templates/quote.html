@@ -35,6 +35,7 @@
                         <th scope="col">Build Hours</th>
                         <th scope="col">Unpack Hours</th>
                         <th scope="col">Num Builds</th>
+                        <th scope="col">Full Plate Qty</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -77,6 +78,9 @@
                         </td>
                         <td>
                             {{ '%.0f'|format(row['NumBuilds']) }}
+                        </td>
+                        <td>
+                            {{ '%.0f'|format(row['BuildQty']) }}
                         </td>
                     </tr>
                     {% endfor %}
