@@ -17,6 +17,8 @@ def login():
             if check_password_hash(user.password, password):
                 flash('Logged in successfully', category='success')
                 login_user(user, remember=True)
+                # current_user.set_ip = request.remote_addr
+                # db.session.commit()
                 return redirect(url_for('blends.home'))
             else:
                 flash('Password incorrect', category='error')
