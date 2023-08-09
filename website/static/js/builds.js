@@ -135,26 +135,32 @@ function fetchBuildInfo(buildId) {
       const build_id = document.getElementById("BuildIt")
       build_id.textContent = data.BuildIt
 
-      // Find the dropdown element
-      const machineInput = document.getElementById("machineInput");
+//       // Find the dropdown element
+//       const machineInputs = document.getElementById("machineInput");
+      
 
-      // Iterate over the options and find the one with a matching value
-      for (let i = 0; i < machineInput.options.length; i++) {
-        if (machineInput.options[i].value === data.MachineID) {
-          // Set the matched option as selected
-          machineInput.options[i].selected = true;
-          break; // Exit the loop since we found the match
-        }
-}
+//       // Iterate over the options and find the one with a matching value
+//       for (let i = 0; i < machineInput.options.length; i++) {
+//         if (machineInput.options[i].value === data.MachineID) {
+//           // Set the matched option as selected
+//           machineInput.options[i].selected = true;
+//           break; // Exit the loop since we found the match
+//         }
+// }
 
-      const blendIDInput = document.getElementById("blendIDInput");
+      const blendIDInput = document.getElementById("BlendIDInput");
       blendIDInput.value = data.BlendID;
 
-      const plateSerialInput = document.getElementById("plateSerialInput");
+      const plateSerialInput = document.getElementById("PlateSerialInput");
       plateSerialInput.value = data.PlateSerial;
 
-      const materialAddedInput = document.getElementById("materialAddedInput");
-      materialAddedInput.value = data.MaterialAdded;
+      const materialAddedInput = document.getElementById("MaterialAddedInput");
+      if (data.MaterialAdded) {
+        materialAddedInput.selectedIndex = 1; // Select the "Yes" option
+      } else {
+        materialAddedInput.selectedIndex = 2; // Select the "No" option
+      }
+      // materialAddedInput.value = data.MaterialAdded;
 
       const buildFinishInput = document.getElementById("buildFinishInput");
       buildFinishInput.value = data.BuildFinish;
@@ -165,74 +171,69 @@ function fetchBuildInfo(buildId) {
       const createdOnInput = document.getElementById("createdOnInput");
       createdOnInput.textContent = data.CreatedOn;
 
-      // const facilityNameInput = document.getElementById("facilityNameInput");
-      // facilityNameInput.value = data.FacilityName;
-
-      // const sjBuildInput = document.getElementById("sjBuildInput");
-      // sjBuildInput.value = data.SJBuild;
-
       const materialInput = document.getElementById("materialInput");
       materialInput.value = data.Material;
+
+      const machineInput = document.getElementById("machineInput");
+      machineInput.value = data.MachineID;
 
       const buildNameInput = document.getElementById("buildNameInput");
       buildNameInput.value = data.BuildName;
 
-      const platformWeightInput = document.getElementById("platformWeightInput");
+      const platformWeightInput = document.getElementById("PlatformWeightInput");
       platformWeightInput.value = data.PlatformWeight;
 
-      const layerInput = document.getElementById("layerInput");
+
+      const layerInput = document.getElementById("LayerInput");
       layerInput.value = data.Layer;
 
       // const heightInput = document.getElementById("heightInput"); //this is for part pistion height
       // heightInput.value = data.Height;
 
-      const offsetInput = document.getElementById("offsetInput");
+      const offsetInput = document.getElementById("OffsetInput");
       offsetInput.value = data.Offset;
 
-      const scaleXInput = document.getElementById("scaleXInput");
+      const scaleXInput = document.getElementById("ScaleXInput");
       scaleXInput.value = data.ScaleX;
 
-      const scaleYInput = document.getElementById("scaleYInput");
+      const scaleYInput = document.getElementById("ScaleYInput");
       scaleYInput.value = data.ScaleY;
 
       // const noteInput = document.getElementById("noteInput");
       // noteInput.value = data.Note;
 
-      const buildStartInput = document.getElementById("buildStartInput");
+      const buildStartInput = document.getElementById("BuildStartInput");
       buildStartInput.value = data.BuildStart;
 
-      const buildTimeInput = document.getElementById("buildTimeInput");
+      const buildTimeInput = document.getElementById("BuildTimeInput");
       buildTimeInput.value = data.BuildTime;
 
-      const finishHeightInput = document.getElementById("finishHeightInput");
+      const finishHeightInput = document.getElementById("FinishHeightInput");
       finishHeightInput.value = data.FinishHeight;
 
-      const finishPlatformWeightInput = document.getElementById("finishPlatformWeightInput");
+      const finishPlatformWeightInput = document.getElementById("FinishPlatformWeightInput");
       finishPlatformWeightInput.value = data.FinishPlatformWeight;
 
       // const certificationBuildInput = document.getElementById("certificationBuildInput");
       // certificationBuildInput.value = data.CertificationBuild;
 
-      const feedPowderHeightInput = document.getElementById("feedPowderHeightInput");
+      const feedPowderHeightInput = document.getElementById("FeedPowderHeightInput");
       feedPowderHeightInput.value = data.FeedPowderHeight;
 
-      const endFeedPowderHeightInput = document.getElementById("endFeedPowderHeightInput");
+      const endFeedPowderHeightInput = document.getElementById("EndFeedPowderHeightInput");
       endFeedPowderHeightInput.value = data.EndFeedPowderHeight;
 
-      const potentialBuildHeightInput = document.getElementById("potentialBuildHeightInput");
+      const potentialBuildHeightInput = document.getElementById("PotentialBuildHeightInput");
       potentialBuildHeightInput.value = data.PotentialBuildHeight;
 
-      // const locationInput = document.getElementById("locationInput");
-      // locationInput.value = data.Location;
-
-      const plateThicknessInput = document.getElementById("plateThicknessInput");
+      const plateThicknessInput = document.getElementById("PlateThicknessInput");
       plateThicknessInput.value = data.PlateThickness;
 
       const minChargeAmountInput = document.getElementById("MinChargeAmountInput");
       minChargeAmountInput.value = data.MinChargeAmount;
 
-      const maxChargeAmountInput = document.getElementById("MaxChangeAmountInput");
-      maxChargeAmountInput.value = data.MaxChargeAmountInput;
+      const maxChargeAmountInput = document.getElementById("MaxChargeAmountInput");
+      maxChargeAmountInput.value = data.MaxChargeAmount;
 
       const dosingBoostAmountInput = document.getElementById("DosingBoostAmountInput");
       dosingBoostAmountInput.value = data.DosingBoostAmount;
@@ -261,41 +262,41 @@ function fetchBuildInfo(buildId) {
       // const maxDateDifferenceInput = document.getElementById("maxDateDifferenceInput");
       // maxDateDifferenceInput.value = data.MaxDateDifference;
 
-      const platformTemperatureInput = document.getElementById("platformTemperatureInput");
+      const platformTemperatureInput = document.getElementById("PlatformTemperatureInput");
       platformTemperatureInput.value = data.PlatformTemperature;
 
-      const startLaserHoursInput = document.getElementById("startLaserHoursInput");
+      const startLaserHoursInput = document.getElementById("StartLaserHoursInput");
       startLaserHoursInput.value = data.StartLaserHours;
 
-      const finalLaserHoursInput = document.getElementById("finalLaserHoursInput");
+      const finalLaserHoursInput = document.getElementById("FinalLaserHoursInput");
       finalLaserHoursInput.value = data.FinalLaserHours;
 
-      const inertTimeInput = document.getElementById("inertTimeInput");
+      const inertTimeInput = document.getElementById("InertTimeInput");
       inertTimeInput.value = data.InertTime;
 
-      const f9FilterSerialInput = document.getElementById("f9FilterSerialInput");
+      const f9FilterSerialInput = document.getElementById("F9FilterSerialInput");
       f9FilterSerialInput.value = data.F9FilterSerial;
 
-      const h13FilterSerialInput = document.getElementById("h13FilterSerialInput");
+      const h13FilterSerialInput = document.getElementById("H13FilterSerialInput");
       h13FilterSerialInput.value = data.H13FilterSerial;
 
       // const filterLightInput = document.getElementById("filterLightInput");
       // filterLightInput.value = data.FilterLight;
 
-      const endPartPistonHeightInput = document.getElementById("endPartPistonHeightInput");
+      const endPartPistonHeightInput = document.getElementById("EndPartPistonHeightInput");
       endPartPistonHeightInput.value = data.EndPartPistonHeight;
 
-      const breakoutInput = document.getElementById("breakoutInput");
+      const breakoutInput = document.getElementById("BreakoutInput");
       breakoutInput.value = data.Breakout;
 
       // const completedWithoutStoppageInput = document.getElementById("completedWithoutStoppageInput");
       // completedWithoutStoppageInput.value = data.CompletedWithoutStoppage;
 
 
-      const buildInterruptsInput = document.getElementById("buildInterruptsInput");
+      const buildInterruptsInput = document.getElementById("BuildInterruptsInput");
       buildInterruptsInput.value = data.BuildInterrupts;
 
-      const recoaterTypeInput = document.getElementById("recoaterTypeInput");
+      const recoaterTypeInput = document.getElementById("RecoaterTypeInput");
       recoaterTypeInput.value = data.RecoaterType;
 
 
@@ -426,3 +427,18 @@ buildRows.forEach((row) => {
   });
 });
 
+function formatPlateSerial(input) {
+  // Remove all non-numeric characters
+  let rawInput = input.value.replace(/[^0-9]/g, '');
+
+  // Insert hyphens at appropriate positions
+  let formattedInput = '';
+  for (let i = 0; i < rawInput.length; i++) {
+    if (i === 2 || i === 4) {
+      formattedInput += '-';
+    }
+    formattedInput += rawInput.charAt(i);
+  }
+
+  input.value = formattedInput;
+}

@@ -101,7 +101,7 @@ content %}
                     name="buildState"
                     id="buildFinishCheckbox"
                     data-toggle="collapse"
-                    data-target="#buildFinishForm"
+                    data-target="#buildformFinshed"
                   />
                   <label
                     class="btn btn-outline-primary"
@@ -179,7 +179,7 @@ content %}
 
       <div class="col-md-6">
         <div id="buildSetupForm" class="collapse">
-          <form id="buildform" method="POST">
+          <form id="buildformSetup" method="POST">
             <div class="build-setup-form">
               <h5 class="text-center mb-4">Build Setup</h5>
               <div class="row" class="container">
@@ -240,67 +240,73 @@ content %}
                     </select>
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="scaleXInput" class="form-label2"
+                    <label for="ScaleXInput" class="form-label2"
                       >Scale X:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="scaleXInput"
-                      name="scaleXInput"
+                      step=".01"
+                      id="ScaleXInput"
+                      name="ScaleXInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="scaleYInput" class="form-label2"
+                    <label for="ScaleYInput" class="form-label2"
                       >Scale Y:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="scaleYInput"
-                      name="scaleYInput"
+                      step=".01"
+                      id="ScaleYInput"
+                      name="ScaleYInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="offsetInput" class="form-label2">Offset:</label>
+                    <label for="OffsetInput" class="form-label2">Offset:</label>
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="offsetInput"
-                      name="offsetInput"
+                      step=".01"
+                      id="OffsetInput"
+                      name="OffsetInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="layerInput" class="form-label2">Layer:</label>
+                    <label for="LayerInput" class="form-label2">Layer:</label>
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="layerInput"
-                      name="layerInput"
+                      step=".01"
+                      id="LayerInput"
+                      name="LayerInput"
                     />
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="platformTemperatureInput" class="form-label2"
+                    <label for="PlatformTemperatureInput" class="form-label2"
                       >Platform Temperature:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="platformTemperatureInput"
-                      name="platformTemperatureInput"
+                      step=".01"
+                      id="PlatformTemperatureInput"
+                      name="PlatformTemperatureInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="potentialBuildHeightInput" class="form-label2"
+                    <label for="PotentialBuildHeightInput" class="form-label2"
                       >Potential Build Height:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="potentialBuildHeightInput"
-                      name="potentialBuildHeightInput"
+                      step=".01"
+                      id="PotentialBuildHeightInput"
+                      name="PotentialBuildHeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -308,21 +314,21 @@ content %}
                       >Min Charge Amount:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
                       id="MinChargeAmountInput"
                       name="MinChargeAmountInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="MaxChangeAmountInput" class="form-label2"
+                    <label for="MaxChargeAmountInput" class="form-label2"
                       >Max Change Amount:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
-                      id="MaxChangeAmountInput"
-                      name="MaxChangeAmountInput"
+                      id="MaxChargeAmountInput"
+                      name="MaxChargeAmountInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -330,7 +336,7 @@ content %}
                       >Dosing Boost Amount:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
                       id="DosingBoostAmountInput"
                       name="DosingBoostAmountInput"
@@ -341,7 +347,7 @@ content %}
                       >Recoater Speed:</label
                     >
                     <input
-                      type="text"
+                      type="number"
                       class="form-control text-center"
                       id="RecoaterSpeedInput"
                       name="RecoaterSpeedInput"
@@ -366,8 +372,8 @@ content %}
                     <label class="form-label2">Recoater Type:</label>
                     <select
                       class="form-select text-center"
-                      id="recoaterTypeInput"
-                      name="recoaterTypeInput"
+                      id="RecoaterTypeInput"
+                      name="RecoaterTypeInput"
                     >
                       <option value="" disabled selected>
                         Select Recoater type
@@ -382,7 +388,7 @@ content %}
               </div>
               <button
                 class="btn-primary"
-                name="buildform"
+                name="buildformSetup"
                 style="height: 30px; width: 100%"
               >
                 Submit
@@ -392,31 +398,33 @@ content %}
         </div>
 
         <div id="buildStartForm" class="collapse">
-          <form id="buildformstart" method="POST">
+          <form id="buildformStart" method="POST">
             <div class="build-start-form">
               <h5 class="text-center mb-4">Build Start</h5>
               <div class="row" class="container">
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="blendIDInput" class="form-label2"
+                    <label for="BlendIDInput" class="form-label2"
                       >Blend ID:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="blendIDInput"
-                      name="blendIDInput"
+                      id="BlendIDInput"
+                      name="BlendIDInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="plateSerialInput" class="form-label2"
+                    <label for="PlateSerialInput" class="form-label2"
                       >Plate Serial:</label
                     >
                     <input
                       type="text"
                       class="form-control text-center"
-                      id="plateSerialInput"
-                      name="plateSerialInput"
+                      oninput="formatPlateSerial(this)"
+                      maxlength="10"
+                      id="PlateSerialInput"
+                      name="PlateSerialInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -426,94 +434,96 @@ content %}
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="plateThicknessInput"
-                      name="plateThicknessInput"
+                      step='0.01'
+                      id="PlateThicknessInput"
+                      name="PlateThicknessInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="platformWeightInput" class="form-label2"
+                    <label for="PlatformWeightInput" class="form-label2"
                       >Plate Weight:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="platformWeightInput"
-                      name="platformWeightInput"
+                      step='0.01'
+                      id="PlatformWeightInput"
+                      name="PlatformWeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="feedPowderHeightInput" class="form-label2"
+                    <label for="FeedPowderHeightInput" class="form-label2"
                       >Feed Powder Height:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="feedPowderHeightInput"
-                      name="feedPowderHeightInput"
+                      id="FeedPowderHeightInput"
+                      name="FeedPowderHeightInput"
                     />
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="inertTimeInput" class="form-label2"
+                    <label for="InertTimeInput" class="form-label2"
                       >Inert Time:</label
                     >
                     <input
                       type="datetime-local"
                       class="form-control text-center"
-                      id="inertTimeInput"
-                      name="inertTimeInput"
+                      id="InertTimeInput"
+                      name="InertTimeInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="f9FilterSerialInput" class="form-label2"
+                    <label for="F9FilterSerialInput" class="form-label2"
                       >F9 Filter Serial:</label
                     >
                     <input
                       type="text"
                       class="form-control text-center"
-                      id="f9FilterSerialInput"
-                      name="f9FilterSerialInput"
+                      id="F9FilterSerialInput"
+                      name="F9FilterSerialInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="h13FilterSerialInput" class="form-label2"
+                    <label for="H13FilterSerialInput" class="form-label2"
                       >H13 Filter Serial:</label
                     >
                     <input
                       type="text"
                       class="form-control text-center"
-                      id="h13FilterSerialInput"
-                      name="h13FilterSerialInput"
+                      id="H13FilterSerialInput"
+                      name="H13FilterSerialInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="startLaserHoursInput" class="form-label2"
+                    <label for="StartLaserHoursInput" class="form-label2"
                       >Start Laser Hours:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="startLaserHoursInput"
-                      name="startLaserHoursInput"
+                      id="StartLaserHoursInput"
+                      name="StartLaserHoursInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="buildStartInput" class="form-label2"
+                    <label for="BuildStartInput" class="form-label2"
                       >Build Start:</label
                     >
                     <input
                       type="datetime-local"
                       class="form-control text-center"
-                      id="buildStartInput"
-                      name="buildStartInput"
+                      id="BuildStartInput"
+                      name="BuildStartInput"
                     />
                   </div>
                 </div>
               </div>
               <button
                 class="btn-primary"
-                name="buildformstart"
+                name="buildformStart"
                 style="height: 30px; width: 100%"
               >
                 Submit
@@ -522,26 +532,26 @@ content %}
           </form>
         </div>
 
-        <div id="buildFinishForm" class="collapse">
-          <form action="/submit-form" id="buildform" method="POST">
+        <div id="buildformFinshed" class="collapse">
+          <form id="buildformFinish" method="POST">
             <div class="build-finish-form">
               <h5 class="text-center mb-4">Build Finish</h5>
               <div class="row" class="container">
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="materialAddedInput" class="form-label2"
+                    <label for="MaterialAddedInput" class="form-label2"
                       >Material Added:</label
                     >
                     <select
                       class="form-select text-center"
-                      id="materialAddedInput"
-                      name="materialAddedInput"
+                      id="MaterialAddedInput"
+                      name="MaterialAddedInput"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Material Added
                       </option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
+                      <option value="yes"{%if current_build.MaterialAdded %} selected {% endif %}>Yes</option>
+                      <option value="no"{%if not current_build.MaterialAdded %} selected {% endif %}>No</option>
                     </select>
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -556,103 +566,107 @@ content %}
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="buildTimeInput" class="form-label2"
+                    <label for="BuildTimeInput" class="form-label2"
                       >Build Time:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="buildTimeInput"
-                      name="buildTimeInput"
+                      id="BuildTimeInput"
+                      name="BuildTimeInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="finalLaserHoursInput" class="form-label2"
+                    <label for="FinalLaserHoursInput" class="form-label2"
                       >Final Laser Hours:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="finalLaserHoursInput"
-                      name="finalLaserHoursInput"
+                      id="FinalLaserHoursInput"
+                      name="FinalLaserHoursInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="finishHeightInput" class="form-label2"
+                    <label for="FinishHeightInput" class="form-label2"
                       >Build Finish Height:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="finishHeightInput"
-                      name="finishHeightInput"
+                      id="FinishHeightInput"
+                      name="FinishHeightInput"
                     />
                   </div>
                 </div>
                 <div class="col-md-6">
                   <div class="mb-3 form-label2 text-center">
-                    <label for="endPartPistonHeightInput" class="form-label2"
+                    <label for="EndPartPistonHeightInput" class="form-label2"
                       >End Part Piston Height:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="endPartPistonHeightInput"
-                      name="endPartPistonHeightInput"
+                      id="EndPartPistonHeightInput"
+                      name="EndPartPistonHeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="endFeedPowderHeightInput" class="form-label2"
+                    <label for="EndFeedPowderHeightInput" class="form-label2"
                       >End Feed Powder Height:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="endFeedPowderHeightInput"
-                      name="endFeedPowderHeightInput"
+                      id="EndFeedPowderHeightInput"
+                      name="EndFeedPowderHeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="breakoutInput" class="form-label2"
+                    <label for="BreakoutInput" class="form-label2"
                       >Breakout:</label
                     >
                     <input
                       type="datetime-local"
                       class="form-control text-center"
-                      id="breakoutInput"
-                      name="breakoutInput"
+                      id="BreakoutInput"
+                      name="BreakoutInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="finishPlatformWeightInput" class="form-label2"
+                    <label for="FinishPlatformWeightInput" class="form-label2"
                       >Finish Platform Weight:</label
                     >
                     <input
                       type="number"
                       class="form-control text-center"
-                      id="finishPlatformWeightInput"
-                      name="finishPlatformWeightInput"
+                      id="FinishPlatformWeightInput"
+                      name="FinishPlatformWeightInput"
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center">
-                    <label for="buildInterruptsInput" class="form-label2"
+                    <label for="BuildInterruptsInput" class="form-label2"
                       >Build Interrupts:</label
                     >
                     <select
                       class="form-select text-center"
-                      id="buildInterruptsInput"
-                      name="buildInterruptsInput"
+                      id="BuildInterruptsInput"
+                      name="BuildInterruptsInput"
                     >
-                      <option value="" disabled selected>
+                      <option value="" disabled>
                         Select Build Interrupts
                       </option>
-                      <option value="yes">Yes</option>
-                      <option value="no">No</option>
+                      <option value="yes"{%if current_build.BuildInterrupts %} selected {% endif %}>Yes</option>
+                      <option value="no"{%if not current_build.BuildInterrupts %} selected {% endif %}>No</option>
                     </select>
                   </div>
                 </div>
               </div>
-              <button class="btn-primary" style="height: 30px; width: 100%">
+              <button 
+              class="btn-primary" 
+              style="height: 30px; width: 100%"
+              name="buildformFinish"
+              >
                 Submit
               </button>
             </div>
