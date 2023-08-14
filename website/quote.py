@@ -335,52 +335,54 @@ def quote_page():
                     results_data[index] = row
                     
 
+                if row["BuildQty"] <= 0:
+                    flash('Error with file.', category='error')
+                else:
+                    # Update the session with modified results_data
+                    session["results"] = results_data
+                    df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
+                    
+                    # Calculate the Numbuilds for each row
+                    df = df.apply(calculate_num_builds, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the %rem for each row
+                    df['%BuildRem'] = df.apply(calculate_P_Rem, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the BuildRecTime for each row
+                    df['BuildRecTime'] = df.apply(calculate_build_rec_time, axis=1)
+                    print(f"BuildRecTime: {df['BuildRecTime']}")
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the calculate_exp_time for each row
+                    df['ExpTime'] = df.apply(calculate_exp_time, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the tfb_recTime for each row
+                    df['TFB_RecTime'] = df.apply(tfb_recTime, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the pb_recTime for each row
+                    df['PB_RecTime'] = df.apply(pb_recTime, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the Unpack Hours for each row
+                    df['UnpackHours'] = df.apply(calculate_UnpackHours, axis=1)
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the BuildHours for each row (optional if you want to use it separately)
+                    df['BuildHours'] = df.apply(calculate_build_hours, axis=1)
+                    print(f"BuildHours: {df['BuildHours']}")
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the TotalBuildTime for each row
+                    df['TotalBuildTime'] = df.apply(calculate_total_build_time, axis=1)
+                    print(f"TotalBuildTime: {df['TotalBuildTime']}")
+                    session["results"] = df.to_dict(orient='records')
+                    
 
-                # Update the session with modified results_data
-                session["results"] = results_data
-                df = pd.DataFrame(results_data)  # Convert list of dictionaries back to DataFrame with modified values
-                
-                # Calculate the Numbuilds for each row
-                df = df.apply(calculate_num_builds, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the %rem for each row
-                df['%BuildRem'] = df.apply(calculate_P_Rem, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the BuildRecTime for each row
-                df['BuildRecTime'] = df.apply(calculate_build_rec_time, axis=1)
-                print(f"BuildRecTime: {df['BuildRecTime']}")
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the calculate_exp_time for each row
-                df['ExpTime'] = df.apply(calculate_exp_time, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the tfb_recTime for each row
-                df['TFB_RecTime'] = df.apply(tfb_recTime, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the pb_recTime for each row
-                df['PB_RecTime'] = df.apply(pb_recTime, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the Unpack Hours for each row
-                df['UnpackHours'] = df.apply(calculate_UnpackHours, axis=1)
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the BuildHours for each row (optional if you want to use it separately)
-                df['BuildHours'] = df.apply(calculate_build_hours, axis=1)
-                print(f"BuildHours: {df['BuildHours']}")
-                session["results"] = df.to_dict(orient='records')
-                
-                # Calculate the TotalBuildTime for each row
-                df['TotalBuildTime'] = df.apply(calculate_total_build_time, axis=1)
-                print(f"TotalBuildTime: {df['TotalBuildTime']}")
-                session["results"] = df.to_dict(orient='records')
-                
-
-                return render_template("quote.html", user=current_user, results=df)
+                    return render_template("quote.html", user=current_user, results=df)
 
 
 
