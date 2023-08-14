@@ -44,16 +44,16 @@
                     {% for index, row in results.iterrows() %}
                     <tr>
 
-                        <td>{{ row['PartName'] }}</td>
+                        <td><label>{{ row['PartName'] }}</label></td>
                         <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" step="1" required></td>
-                        <td>{{ '%.4f'|format(row['xExtents']) }}</td>
-                        <td>{{ '%.4f'|format(row['yExtents']) }}</td>
-                        <td>{{ '%.4f'|format(row['zExtents']) }}</td>
+                        <td><label>{{ '%.4f'|format(row['xExtents']) }}</label></td>
+                        <td><label>{{ '%.4f'|format(row['yExtents']) }}</label></td>
+                        <td><label>{{ '%.4f'|format(row['zExtents']) }}</label></td>
                         <input type="hidden" name="xExtents_{{ index }}" id="xExtents_{{ index }}" value="{{ row['xExtents'] }}">
                         <input type="hidden" name="yExtents_{{ index }}" id="yExtents_{{ index }}" value="{{ row['yExtents'] }}">
                         <input type="hidden" name="zExtents_{{ index }}" id="zExtents_{{ index }}" value="{{ row['zExtents'] }}">
-                        <td>{{ '%.4f'|format(row['Volume']) }}</td>
-                        <td name="SurfaceArea_{{index}}">{{ '%.4f'|format(row['SurfaceArea']) }}</td>
+                        <td><label>{{ '%.4f'|format(row['Volume']) }}</label></td>
+                        <td name="SurfaceArea_{{index}}"><label>{{ '%.4f'|format(row['SurfaceArea']) }}</label></td>
                         <td>
                             <select name="orientation_{{ index }}" required>
                                 <option value="X" {% if row['Orientation'] == 'X' %}selected{% endif %}>X</option>
@@ -79,27 +79,32 @@
                             <label>{{ '%.2f'|format(row['UnpackHours']) }}</label>
                         </td>
                         <td>
-                            {{ '%.0f'|format(row['NumBuilds']) }}
+                            <label>{{ '%.0f'|format(row['NumBuilds']) }}</label>
                         </td>
                         <td>
-                            {{ '%.0f'|format(row['BuildQty']) }}
+                            <label>{{ '%.0f'|format(row['BuildQty']) }}</label>
                         </td>
                         <td>
-                            {{ '%.0f%%'|format(row['PackEfficiency']*100) }}
+                            <label>{{ '%.0f%%'|format(row['PackEfficiency']*100) }}</label>
                         </td>
                         <td>
-                            {{ '%.0f%%'|format((row['OrderQty']/row['BuildQty'])*100) }}
+                            {% if (row['OrderQty']/row['BuildQty'])*100 > 100 %}
+                            <label>{{ '%+.0f%%'|format(100) }}</label>
+                            {% else %}
+                            <label>{{ '%.0f%%'|format((row['OrderQty']/row['BuildQty'])*100) }}</label>
+                            {% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
-        {% endif %}
+        
     <div class="form-group">
         <label for="packefficiency" class="form-label">Pack Efficiency</label>
         <input type="range" class="form-range" min="0" max=".40" step="0.2" id="packefficiency" name="packefficiency">
         <button type="submit" class="btn btn-primary" name="update_quote">Update Quote</button>
     </div>
+    {% endif %}
 </form>
 </div>
 {% endblock %}

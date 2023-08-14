@@ -550,8 +550,8 @@ content %}
                       <option value="" disabled>
                         Select Material Added
                       </option>
-                      <option value="yes"{%if current_build.MaterialAdded %} selected {% endif %}>Yes</option>
-                      <option value="no"{%if not current_build.MaterialAdded %} selected {% endif %}>No</option>
+                      <option value="yes"{%if current_build.MaterialAdded==True %} selected {% endif %}>Yes</option>
+                      <option value="no"{%if current_build.MaterialAdded == False %} selected {% endif %}>No</option>
                     </select>
                   </div>
                   <div class="mb-3 form-label2 text-center">
