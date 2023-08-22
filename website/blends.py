@@ -134,7 +134,7 @@ def searchBlends():
                 return redirect(url_for('blends.BlendTraceback', blend=blend_number, lvl=0, limit=10))
 
         elif 'Report' in request.form:
-            flash("Making Trace", category='success')
+            flash("Making Report", category='success')
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
@@ -557,6 +557,7 @@ def batch_history():
 def BlendReport():
     blend = request.args.get('blend')
     blend = int(blend)
+    
 
     # import `powder_blend_calc`
     calcTable = "Powder_Blend_Calc"
