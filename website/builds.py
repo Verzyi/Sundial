@@ -373,12 +373,24 @@ def finish_form():
     # Update the attributes of the existing build with the new values
     if existing_build:
         
-        existing_build.Breakout = buildform_data.get('BreakoutInput')    
+        existing_build.Breakout = buildform_data.get('BreakoutInput') 
         
-        # Convert "yes" and "no" strings to boolean values
-        # print(buildform_data.get('MaterialAddedInput') == 'yes')
-        existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput') == 'yes'
-        existing_build.BuildInterrupts = buildform_data.get('BuildInterrupts') == 'yes'
+        existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput') == 'True'
+        print("Material Added Input:", existing_build.MaterialAdded)
+
+        # existing_build.MaterialAdded = material_added_input == True
+        
+        existing_build.BuildInterrupts = buildform_data.get('BuildInterruptsInput') == 'True'
+        print("Build Interrupts Input:", existing_build.BuildInterrupts)
+        
+
+        # existing_build.BuildInterrupts = build_interrupts_input == True
+        
+        
+        
+        
+
+
         
         # Populate data from buildFinishForm
         finish_form_float_attributes = ['FinishHeight', 'EndPartPistonHeight', 'EndFeedPowderHeight', 'BuildTime', 'FinalLaserHours','FinishPlatformWeight']
@@ -389,8 +401,6 @@ def finish_form():
                 value = 0  # Default value in case of ValueError
             setattr(existing_build, attr, value)
         
-            
-        existing_build.BuildFinish = buildform_data.get('buildFinishInput')
         
         db.session.commit()
 

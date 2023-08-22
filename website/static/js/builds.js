@@ -155,11 +155,20 @@ function fetchBuildInfo(buildId) {
       plateSerialInput.value = data.PlateSerial;
 
       const materialAddedInput = document.getElementById("MaterialAddedInput");
-      if (data.MaterialAdded) {
-        materialAddedInput.selectedIndex = 1; // Select the "Yes" option
-      } else {
-        materialAddedInput.selectedIndex = 2; // Select the "No" option
-      }
+      materialAddedInput.value = data.MaterialAdded;
+
+      console.log("Material Added Input:", data.MaterialAdded);
+
+      // if (data.MaterialAdded) {
+      //   materialAddedInput.selectedIndex = 1; // Select the "Yes" option
+      //   console.log("Setting selected index to Yes");
+      // } else if(data.MaterialAdded == False) {
+      //   materialAddedInput.selectedIndex = 2; // Select the "No" option
+      //   console.log("Setting selected index to No");
+      // } else{
+      //   materialAddedInput.selectedIndex = 0; // Select the "No" option
+      //   console.log("Setting selected index to blank");
+      // }
       // materialAddedInput.value = data.MaterialAdded;
 
       const buildFinishInput = document.getElementById("buildFinishInput");
