@@ -557,7 +557,6 @@ def batch_history():
 def BlendReport():
     blend = request.args.get('blend')
     blend = int(blend)
-    
 
     # import `powder_blend_calc`
     calcTable = "Powder_Blend_Calc"
