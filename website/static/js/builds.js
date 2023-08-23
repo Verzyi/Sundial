@@ -1,14 +1,18 @@
 function updateFormAction(event) {
-  event.preventDefault(); // Prevent the default form submission behavior
-  let form = document.getElementById("facilityForm");
+  event.preventDefault();
+
   let selectedOption = document.getElementById("facilitySelect").value;
+
+  if (!selectedOption) {
+    return; // Don't submit the form if no facility is selected
+  }
+
+  let form = document.getElementById("facilityForm");
   let searchInput = document.getElementById("searchInput").value;
 
-  // Set the action URL for the form submission
   form.action = "/builds";
   form.method = "POST";
 
-  // Create hidden input fields to include the facility and search input values
   let facilityInput = document.createElement("input");
   facilityInput.type = "hidden";
   facilityInput.name = "Facility";
@@ -21,11 +25,40 @@ function updateFormAction(event) {
   searchInputField.value = searchInput;
   form.appendChild(searchInputField);
 
-  // Store the selected facility in local storage
   localStorage.setItem("selectedFacility", selectedOption);
 
   form.submit();
 }
+
+function populateSearchTable(data) {
+  const tableBody = document.getElementById("searchTableBody");
+  tableBody.innerHTML = ""; // Clear existing table rows
+
+  let selectedOption = document.getElementById("facilitySelect").value;
+
+  if (!selectedOption) {
+    return; // Don't populate the table if no facility is selected
+  }
+
+  // Populate the table with data based on the selected facility
+  for (let item of data) {
+    let row = tableBody.insertRow();
+    // Create and append table cells here...
+  }
+}
+
+function logout() {
+  // ... your logout logic here ...
+
+  // Clear the selected facility from local storage
+  localStorage.removeItem("selectedFacility");
+}
+const logoutButton = document.getElementById("logOut"); // replace with the actual ID of your logout button
+
+logoutButton.addEventListener("click", function() {
+    logout(); // Call the logout function when the button is clicked
+    // Perform any other logout-related actions
+});
 
 // Add an event listener to the facility select dropdown
 const facilitySelect = document.getElementById("facilitySelect");
@@ -178,7 +211,15 @@ function fetchBuildInfo(buildId) {
       createdByInput.textContent = data.CreatedBy;
 
       const createdOnInput = document.getElementById("createdOnInput");
-      createdOnInput.textContent = data.CreatedOn;
+      const datetimeString = data.CreatedOn;
+      // Parse the datetime string into a Date object
+      const datetime = new Date(datetimeString);
+
+      // Format the date as "M D Y"
+      const options = { year: 'numeric', month: 'short', day: 'numeric' };
+      const formattedDate = datetime.toLocaleDateString('en-US', options);
+
+      createdOnInput.textContent = formattedDate;
 
       const materialInput = document.getElementById("materialInput");
       materialInput.value = data.Material;

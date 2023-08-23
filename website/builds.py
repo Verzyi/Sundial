@@ -85,12 +85,12 @@ def builds_page():
              
 
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
-                           machines=unique_machines, materials=unique_materials)
+                           machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
         
         
 
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
-                           machines=unique_machines, materials=unique_materials)
+                           machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
 
 
 

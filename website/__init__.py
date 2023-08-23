@@ -32,7 +32,7 @@ def create_app():
         return Users.query.get(int(id))
 
     # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = False
+    app.config['DEBUG_TB_ENABLED'] = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
     
