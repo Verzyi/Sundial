@@ -154,23 +154,25 @@ content %}
                     <th style="border: 1px solid #ffffff">Build Name</th>
                   </tr>
                 </thead>
-                <tbody>
-                  {% for build in buildsInfo %}
-                  <tr
-                    class="table-active"
-                    data-buildid="{{ build.BuildIt }}"
-                    data-layer="{{ build.Layer }}"
-                    onclick="showBuildInfo(event)"
-                  >
-                    <td style="border: 1px solid #ffffff">
-                      {{ build.BuildIt }}
-                    </td>
-                    <td style="border: 1px solid #ffffff">
-                      {{ build.BuildName }}
-                    </td>
-                  </tr>
-                  {% endfor %}
-                </tbody>
+                {% if selectedFacility %}
+                  <tbody>
+                    {% for build in buildsInfo %}
+                    <tr
+                      class="table-active"
+                      data-buildid="{{ build.BuildIt }}"
+                      data-layer="{{ build.Layer }}"
+                      onclick="showBuildInfo(event)"
+                    >
+                      <td style="border: 1px solid #ffffff">
+                        {{ build.BuildIt }}
+                      </td>
+                      <td style="border: 1px solid #ffffff">
+                        {{ build.BuildName }}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                {% endif %}
               </table>
             </div>
           </div>
