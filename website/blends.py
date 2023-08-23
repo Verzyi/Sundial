@@ -344,7 +344,7 @@ def create_blend():
 
                         new_blend = PowderBlends(
                             BlendID=last_blend_id + 1,
-                            BlendDate=datetime.now().strftime("%m/%d/%Y %H:%M").lstrip("0").replace(" 0", " "),
+                            BlendDate=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),#.lstrip("0").replace(" 0", " "),
                             BlendCreatedBy=current_user.id,
                             MaterialID=material_id,
                             TotalWeight=blendWeight
@@ -799,7 +799,7 @@ def inventory():
 
         # Check if blend_date is not None before converting to datetime.date object
         if blend_date is not None:
-            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date() if blend_date is not None else None
+            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
 
         # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
         if (

@@ -21,28 +21,6 @@ def create_app():
     app.config['SECRET_KEY'] = 'jflkdsjfalksjfdsa jfsdlkjfdsljfa'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
-
-    # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = True
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    toolbar = DebugToolbarExtension(app)
-    
-
-    from .blends import blends
-    from .auth import auth
-    from .builds import builds
-    from .views import views
-    from .quote import quote
-
-    app.register_blueprint(blends, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(builds, url_prefix='/')
-    app.register_blueprint(quote, url_prefix='/')
-    app.register_blueprint(views, url_prefix='/')
-
-    from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-
-    create_database(app)
     
     # Login info
     login_manager = LoginManager()
@@ -52,6 +30,29 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return Users.query.get(int(id))
+
+    # Debug Toolbar Configuration
+    app.config['DEBUG_TB_ENABLED'] = False
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    toolbar = DebugToolbarExtension(app)
+    
+    from .auth import auth
+    from .blends import blends
+    from .builds import builds
+    from .views import views
+    from .quote import quote
+
+    app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(blends, url_prefix='/')
+    app.register_blueprint(builds, url_prefix='/')
+    app.register_blueprint(quote, url_prefix='/')
+    app.register_blueprint(views, url_prefix='/')
+
+    from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+
+    create_database(app)
+    
+ 
 
    # Custom AdminIndexView to restrict access
     class RestrictedAdminIndexView(AdminIndexView):
