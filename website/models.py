@@ -133,9 +133,9 @@ class BuildsTable(db.Model):
     ThermalSensorTest = db.Column(db.Boolean)
     LaserFocus = db.Column(db.Boolean)
     PowderBed = db.Column(db.Boolean)
-    PowderLevel = db.Column(db.Boolean)
+    PowderLevel = db.Column(db.Integer)
     SieveLife = db.Column(db.Integer)
-    FilterPressureDrop = db.Column(db.Integer)
+    FilterPressureDrop = db.Column(db.Float)
     Platform = db.Column(db.String)
     BuildType = db.Column(db.String)
     

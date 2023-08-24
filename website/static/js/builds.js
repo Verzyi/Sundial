@@ -168,18 +168,6 @@ function fetchBuildInfo(buildId) {
       const build_id = document.getElementById("BuildIt")
       build_id.textContent = data.BuildIt
 
-//       // Find the dropdown element
-//       const machineInputs = document.getElementById("machineInput");
-      
-
-//       // Iterate over the options and find the one with a matching value
-//       for (let i = 0; i < machineInput.options.length; i++) {
-//         if (machineInput.options[i].value === data.MachineID) {
-//           // Set the matched option as selected
-//           machineInput.options[i].selected = true;
-//           break; // Exit the loop since we found the match
-//         }
-// }
 
       const blendIDInput = document.getElementById("BlendIDInput");
       blendIDInput.value = data.BlendID;
@@ -226,6 +214,83 @@ function fetchBuildInfo(buildId) {
 
       const machineInput = document.getElementById("machineInput");
       machineInput.value = data.MachineID;
+
+      
+      const machineTableCell = document.getElementById("machineTableCell");
+
+      if (data.MachineID == "Velo") {
+        // Do something specific for "Velo"
+        console.log("Selected machine is Velo");
+        // Get all elements with the class 'EOS'
+        const eosElements = document.querySelectorAll('.EOS');
+        // Loop through each element and hide it
+        eosElements.forEach(element => {
+          element.style.display = 'none';          
+        });
+
+        // Get all elements with the class 'Velo'
+        const veloElements = document.querySelectorAll('.Velo');
+        // Loop through each element and hide it
+        veloElements.forEach(element => {
+          element.style.display = 'block';
+        });
+      
+
+      }else {
+        // Get all elements with the class 'EOS'
+        const eosElements = document.querySelectorAll('.EOS');
+
+        // Loop through each element and hide it
+        eosElements.forEach(element => {
+          element.style.display = 'block';
+        });
+        // Get all elements with the class 'Velo'
+        const veloElements = document.querySelectorAll('.Velo');
+        // Loop through each element and hide it
+        veloElements.forEach(element => {
+          element.style.display = 'none';
+        });
+      }
+
+      console.log(data.MachineID); // Check if this is not null
+      
+
+      machineInput.addEventListener("change", function () {
+
+      if (machineInput.value === "Velo") {
+        // Do something specific for "Velo"
+        console.log("Selected machine is Velo");
+        // Get all elements with the class 'EOS'
+        const eosElements = document.querySelectorAll('.EOS');
+        // Loop through each element and hide it
+        eosElements.forEach(element => {
+          element.style.display = 'none';          
+        });
+
+        // Get all elements with the class 'Velo'
+        const veloElements = document.querySelectorAll('.Velo');
+        // Loop through each element and hide it
+        veloElements.forEach(element => {
+          element.style.display = 'block';
+        });
+      
+
+      }else {
+        // Get all elements with the class 'EOS'
+        const eosElements = document.querySelectorAll('.EOS');
+
+        // Loop through each element and hide it
+        eosElements.forEach(element => {
+          element.style.display = 'block';
+        });
+        // Get all elements with the class 'Velo'
+        const veloElements = document.querySelectorAll('.Velo');
+        // Loop through each element and hide it
+        veloElements.forEach(element => {
+          element.style.display = 'block';
+        });
+      }
+      });
 
       const buildNameInput = document.getElementById("buildNameInput");
       buildNameInput.value = data.BuildName;
@@ -343,14 +408,40 @@ function fetchBuildInfo(buildId) {
       // completedWithoutStoppageInput.value = data.CompletedWithoutStoppage;
 
 
-      const buildInterruptsInput = document.getElementById("BuildInterruptsInput");
-      buildInterruptsInput.value = data.BuildInterrupts;
+      // const buildInterruptsInput = document.getElementById("BuildInterruptsInput");
+      // buildInterruptsInput.value = data.BuildInterrupts;
 
       const recoaterTypeInput = document.getElementById("RecoaterTypeInput");
       recoaterTypeInput.value = data.RecoaterType;
 
 
-      //here is all the velo items 
+
+
+      
+      
+
+
+      // Here is all the velo items 
+      const inSpec = document.getElementById("InSpec");
+
+      if (data.BeamStabilityTestPerformed || data.LaserAlignmentTestPerformed || data.ThermalSensorTest) {
+        inSpec.value = true; // Assign the boolean value true
+      } else{
+        inSpec.value = false; // Assign the boolean value false
+      }
+
+      const powderLevel = document.getElementById("PowderLevelInput");
+      powderLevel.value = data.PowderLevel;
+
+      const sieveLife = document.getElementById("SieveLifeInput");
+      sieveLife.value = data.SieveLife;
+
+      const filterPressure = document.getElementById("FilterPressureInput");
+      filterPressure.value = data.FilterPressureDrop;
+
+
+
+
       /*
       const veloFlowSoftwareRevInput = document.getElementById("veloFlowSoftwareRevInput");
       veloFlowSoftwareRevInput.value = data.VeloFlowSoftwareRev;

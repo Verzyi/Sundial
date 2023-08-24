@@ -241,7 +241,7 @@ content %}
                       {% endfor %}
                     </select>
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="ScaleXInput" class="form-label2"
                       >Scale X:</label
                     >
@@ -253,7 +253,7 @@ content %}
                       name="ScaleXInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="ScaleYInput" class="form-label2"
                       >Scale Y:</label
                     >
@@ -265,7 +265,7 @@ content %}
                       name="ScaleYInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="OffsetInput" class="form-label2">Offset:</label>
                     <input
                       type="number"
@@ -275,7 +275,7 @@ content %}
                       name="OffsetInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="LayerInput" class="form-label2">Layer:</label>
                     <input
                       type="number"
@@ -287,7 +287,7 @@ content %}
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="PlatformTemperatureInput" class="form-label2"
                       >Platform Temperature:</label
                     >
@@ -311,7 +311,7 @@ content %}
                       name="PotentialBuildHeightInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="MinChargeAmountInput" class="form-label2"
                       >Min Charge Amount:</label
                     >
@@ -322,7 +322,7 @@ content %}
                       name="MinChargeAmountInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="MaxChargeAmountInput" class="form-label2"
                       >Max Change Amount:</label
                     >
@@ -333,7 +333,7 @@ content %}
                       name="MaxChargeAmountInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="DosingBoostAmountInput" class="form-label2"
                       >Dosing Boost Amount:</label
                     >
@@ -344,7 +344,7 @@ content %}
                       name="DosingBoostAmountInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="RecoaterSpeedInput" class="form-label2"
                       >Recoater Speed:</label
                     >
@@ -355,7 +355,7 @@ content %}
                       name="RecoaterSpeedInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="ParameterRevInput" class="form-label2"
                       >Parameter Rev:</label
                     >
@@ -370,7 +370,7 @@ content %}
                       </div>
                     </div>
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label class="form-label2">Recoater Type:</label>
                     <select
                       class="form-select text-center"
@@ -453,7 +453,25 @@ content %}
                       name="PlatformWeightInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  
+                  <div class="mb-3 form-label2 text-center Velo">
+                    <label for="InSpec" class="form-label2"
+                      >Machine in Spec:</label
+                    >
+                    <select
+                      class="form-select text-center"
+                      id="InSpec"
+                      name="InSpec"
+                    >
+                      <option value="" disabled>
+                        Machine in Spec
+                      </option>
+                      <option value="True" {% if MaterialAdded == True %} selected {% endif %}>Yes</option>
+                      <option value="False" {% if MaterialAdded == False %} selected {% endif %}>No</option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="FeedPowderHeightInput" class="form-label2"
                       >Feed Powder Height:</label
                     >
@@ -477,7 +495,45 @@ content %}
                       name="InertTimeInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                    <div class="mb-3 form-label2 text-center Velo">
+                      <label for="PowderLevelInput" class="form-label2"
+                        >Powder Level:</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control text-center"
+                        id="PowderLevelInput"
+                        name="PowderLevelInput"
+                      />
+                    </div>
+
+                    <div class="mb-3 form-label2 text-center Velo">
+                      <label for="SieveLifeInput" class="form-label2"
+                        >Sieve Life (layers remaining):</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control text-center"
+                        id="SieveLifeInput"
+                        name="SieveLifeInput"
+                      />
+                    </div>
+
+                    <div class="mb-3 form-label2 text-center Velo">
+                      <label for="FilterPressureInput" class="form-label2"
+                        >filter Pressure Drop (kPa):</label
+                      >
+                      <input
+                        type="number"
+                        class="form-control text-center"
+                        id="FilterPressureInput"
+                        step = "0.01"
+                        name="FilterPressureInput"
+                      />
+                    </div>
+
+
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="F9FilterSerialInput" class="form-label2"
                       >F9 Filter Serial:</label
                     >
@@ -488,7 +544,7 @@ content %}
                       name="F9FilterSerialInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="H13FilterSerialInput" class="form-label2"
                       >H13 Filter Serial:</label
                     >
@@ -499,7 +555,7 @@ content %}
                       name="H13FilterSerialInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="StartLaserHoursInput" class="form-label2"
                       >Start Laser Hours:</label
                     >
@@ -578,7 +634,7 @@ content %}
                       name="BuildTimeInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="FinalLaserHoursInput" class="form-label2"
                       >Final Laser Hours:</label
                     >
@@ -589,7 +645,7 @@ content %}
                       name="FinalLaserHoursInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="FinishHeightInput" class="form-label2"
                       >Build Finish Height:</label
                     >
@@ -602,7 +658,7 @@ content %}
                   </div>
                 </div>
                 <div class="col-md-6">
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="EndPartPistonHeightInput" class="form-label2"
                       >End Part Piston Height:</label
                     >
@@ -613,7 +669,7 @@ content %}
                       name="EndPartPistonHeightInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="EndFeedPowderHeightInput" class="form-label2"
                       >End Feed Powder Height:</label
                     >
@@ -646,7 +702,7 @@ content %}
                       name="FinishPlatformWeightInput"
                     />
                   </div>
-                  <div class="mb-3 form-label2 text-center">
+                  <div class="mb-3 form-label2 text-center EOS">
                     <label for="buildInterruptsInput" class="form-label2"
                       >Build Interrupts:</label
                     >

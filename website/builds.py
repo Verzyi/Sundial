@@ -325,8 +325,18 @@ def start_form():
         existing_build.H13FilterSerial = buildform_data.get('H13FilterSerialInput')    
         existing_build.BuildStart = buildform_data.get('BuildStartInput')
         
+        # existing_build.Inspec = buildform_data.get('InSpec')  == 'True'
+        # print("Build Inspec Input:", existing_build.BuildInterrupts)
+        
+        # existing_build.PowderLevel = buildform_data.get('PowderLevel')
+
+        
+        # existing_build.SieveLife = buildform_data.get('SieveLife')
+        
+        # existing_build.FilterPressureDrop = buildform_data.get('FilterPressureDrop')
+        
         # Populate data from buildStartForm (float attributes)
-        start_form_float_attributes = ['PlateThickness', 'PlatformWeight', 'FeedPowderHeight', 'StartLaserHours']
+        start_form_float_attributes = ['PlateThickness', 'PlatformWeight', 'FeedPowderHeight', 'StartLaserHours', 'PowderLevel', 'SieveLife', 'FilterPressure']
         for attr in start_form_float_attributes:
             try:
                 value = float(buildform_data.get(f'{attr}Input', 55))  # Use 0 as default if conversion fails
@@ -386,7 +396,8 @@ def finish_form():
 
         # existing_build.BuildInterrupts = build_interrupts_input == True
         
-        
+        existing_build.Inspec = buildform_data.get('InSpec')  == 'True'
+        print("Build Interrupts Input:", existing_build.BuildInterrupts)
         
         
 
