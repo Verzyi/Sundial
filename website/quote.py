@@ -110,6 +110,7 @@ def calculate_metrics(files):
             'ExpTime': 0,
             'LayerThickness':0,
             'TotalBuildTime': 0,
+            'LeadTime': 0,
             'PackEfficiency': 0.20,  # Set the default value of PackEfficiency to 20%
             'BuildArea': 81  # Set the default value of BuildArea to 81
         })
@@ -118,7 +119,7 @@ def calculate_metrics(files):
 
     col_order = ['PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
                  'Material', 'LayerThickness', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds',
-                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '%BuildRem',
+                 'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '%BuildRem', 'LeadTime',
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
     return pd.DataFrame(data, columns=col_order)
 
@@ -276,6 +277,10 @@ def calculate_UnpackHours(row):
     unpackHours = ((row['NumFullBuilds'] + row['%BuildRem']) / row['OrderQty']) 
     print(f"unpackHours: {unpackHours}")
     return unpackHours
+
+def calculate_lead_time(row):   
+    lead_time = row['TFB_RecTime'] + row['BuildRecTime'] + row['OrderQty'] * row['ExpTime']
+    return lead_time
    
 def calculate_total_build_time(row):
     total_build_time = row['TFB_RecTime'] + row['PB_RecTime'] + row['OrderQty'] * row['ExpTime']
@@ -313,7 +318,8 @@ def quote_page():
             # session["results"] = df.to_dict(orient='records')
             if results_data is not None and len(results_data) > 0:
                 for index, row in enumerate(results_data):
-                    row['PackEfficiency'] = float(request.form.get('packefficiency'))
+                    # row['PackEfficiency'] = float(request.form.get('packefficiency'))
+                    # row['PackEfficiency'] = 0
                     line_item = row['PartName']  # Get the part name as the line item
                     row['OrderQty'] = int(request.form.get(f"order_qty_input_{index}", 1))  # Use default value 0 if not found
                     row['Orientation'] = request.form.get(f"orientation_{index}", 'Z') # Use default value Z if not found
@@ -377,9 +383,17 @@ def quote_page():
                     session["results"] = df.to_dict(orient='records')
                     
                     # Calculate the TotalBuildTime for each row
+                    df['LeadTime'] = df.apply(calculate_lead_time, axis=1)
+                    print(f"LeadTime: {df['LeadTime']}")
+                    session["results"] = df.to_dict(orient='records')
+                    
+                    # Calculate the TotalBuildTime for each row
                     df['TotalBuildTime'] = df.apply(calculate_total_build_time, axis=1)
                     print(f"TotalBuildTime: {df['TotalBuildTime']}")
                     session["results"] = df.to_dict(orient='records')
+                    
+                    
+                    
                     
 
                     return render_template("quote.html", user=current_user, results=df)
