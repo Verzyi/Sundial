@@ -175,23 +175,6 @@ function fetchBuildInfo(buildId) {
       const plateSerialInput = document.getElementById("PlateSerialInput");
       plateSerialInput.value = data.PlateSerial;
 
-      const materialAddedInput = document.getElementById("MaterialAddedInput");
-      materialAddedInput.value = data.MaterialAdded;
-
-      console.log("Material Added Input:", data.MaterialAdded);
-
-      // if (data.MaterialAdded) {
-      //   materialAddedInput.selectedIndex = 1; // Select the "Yes" option
-      //   console.log("Setting selected index to Yes");
-      // } else if(data.MaterialAdded == False) {
-      //   materialAddedInput.selectedIndex = 2; // Select the "No" option
-      //   console.log("Setting selected index to No");
-      // } else{
-      //   materialAddedInput.selectedIndex = 0; // Select the "No" option
-      //   console.log("Setting selected index to blank");
-      // }
-      // materialAddedInput.value = data.MaterialAdded;
-
       const buildFinishInput = document.getElementById("buildFinishInput");
       buildFinishInput.value = data.BuildFinish;
 
@@ -407,9 +390,11 @@ function fetchBuildInfo(buildId) {
       // const completedWithoutStoppageInput = document.getElementById("completedWithoutStoppageInput");
       // completedWithoutStoppageInput.value = data.CompletedWithoutStoppage;
 
+      const materialAddedInput = document.getElementById("MaterialAddedInput");
+      materialAddedInput.value = data.MaterialAdded;
 
-      // const buildInterruptsInput = document.getElementById("BuildInterruptsInput");
-      // buildInterruptsInput.value = data.BuildInterrupts;
+      const buildInterruptsInput = document.getElementById("BuildInterruptsInput");
+      buildInterruptsInput.value = data.BuildInterrupts;
 
       const recoaterTypeInput = document.getElementById("RecoaterTypeInput");
       recoaterTypeInput.value = data.RecoaterType;
@@ -424,10 +409,10 @@ function fetchBuildInfo(buildId) {
       // Here is all the velo items 
       const inSpec = document.getElementById("InSpec");
 
-      if (data.BeamStabilityTestPerformed || data.LaserAlignmentTestPerformed || data.ThermalSensorTest) {
-        inSpec.value = true; // Assign the boolean value true
+      if (data.BeamStabilityTestPerformed =="True" && data.LaserAlignmentTestPerformed =="True" && data.ThermalSensorTest =="True" && data.LaserFocus =="True") {
+        inSpec.value = "True"; // Assign the boolean value true
       } else{
-        inSpec.value = false; // Assign the boolean value false
+        inSpec.value = "False"; // Assign the boolean value false
       }
 
       const powderLevel = document.getElementById("PowderLevelInput");

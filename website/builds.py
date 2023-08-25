@@ -325,15 +325,17 @@ def start_form():
         existing_build.H13FilterSerial = buildform_data.get('H13FilterSerialInput')    
         existing_build.BuildStart = buildform_data.get('BuildStartInput')
         
-        # existing_build.Inspec = buildform_data.get('InSpec')  == 'True'
-        # print("Build Inspec Input:", existing_build.BuildInterrupts)
         
-        # existing_build.PowderLevel = buildform_data.get('PowderLevel')
+        Inspec = buildform_data.get('InSpec')
+        
+        existing_build.BeamStabilityTestPerformed = Inspec
+        existing_build.LaserAlignmentTestPerformed = Inspec
+        existing_build.ThermalSensorTest = Inspec
+        existing_build.LaserFocus = Inspec
+        
+        
+        print("Build Inspec Input:", existing_build.BuildInterrupts)
 
-        
-        # existing_build.SieveLife = buildform_data.get('SieveLife')
-        
-        # existing_build.FilterPressureDrop = buildform_data.get('FilterPressureDrop')
         
         # Populate data from buildStartForm (float attributes)
         start_form_float_attributes = ['PlateThickness', 'PlatformWeight', 'FeedPowderHeight', 'StartLaserHours', 'PowderLevel', 'SieveLife', 'FilterPressure']
@@ -385,24 +387,14 @@ def finish_form():
         
         existing_build.Breakout = buildform_data.get('BreakoutInput') 
         
-        existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput') == 'True'
+        existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput')
         print("Material Added Input:", existing_build.MaterialAdded)
 
-        # existing_build.MaterialAdded = material_added_input == True
-        
-        existing_build.BuildInterrupts = buildform_data.get('BuildInterruptsInput') == 'True'
-        print("Build Interrupts Input:", existing_build.BuildInterrupts)
-        
-
-        # existing_build.BuildInterrupts = build_interrupts_input == True
-        
-        existing_build.Inspec = buildform_data.get('InSpec')  == 'True'
+        existing_build.BuildInterrupts = buildform_data.get('BuildInterruptsInput')
         print("Build Interrupts Input:", existing_build.BuildInterrupts)
         
         
 
-
-        
         # Populate data from buildFinishForm
         finish_form_float_attributes = ['FinishHeight', 'EndPartPistonHeight', 'EndFeedPowderHeight', 'BuildTime', 'FinalLaserHours','FinishPlatformWeight']
         for attr in finish_form_float_attributes:

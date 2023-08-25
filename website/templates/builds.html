@@ -466,8 +466,8 @@ content %}
                       <option value="" disabled>
                         Machine in Spec
                       </option>
-                      <option value="True" {% if MaterialAdded == True %} selected {% endif %}>Yes</option>
-                      <option value="False" {% if MaterialAdded == False %} selected {% endif %}>No</option>
+                      <option value="True" {% if inSpec == True %} selected {% endif %}>Yes</option>
+                      <option value="False" {% if inSpec == False %} selected {% endif %}>No</option>
                     </select>
                   </div>
 
@@ -608,8 +608,8 @@ content %}
                       <option value="" disabled>
                         Select Material Added
                       </option>
-                      <option value="True" {% if MaterialAdded == True %} selected {% endif %}>Yes</option>
-                      <option value="False" {% if MaterialAdded == False %} selected {% endif %}>No</option>
+                      <option value="True" {% if MaterialAddedInput == True %} selected {% endif %}>Yes</option>
+                      <option value="False" {% if MaterialAddedInput == False %} selected {% endif %}>No</option>
                     </select>
                   </div>
                   <div class="mb-3 form-label2 text-center">
@@ -703,18 +703,18 @@ content %}
                     />
                   </div>
                   <div class="mb-3 form-label2 text-center EOS">
-                    <label for="buildInterruptsInput" class="form-label2"
+                    <label for="BuildInterruptsInput" class="form-label2"
                       >Build Interrupts:</label
                     >
                     <select
                     class="form-select text-center"
-                    id="buildInterruptsInput"
-                    name="buildInterruptsInput" >
+                    id="BuildInterruptsInput"
+                    name="BuildInterruptsInput" >
                     <option value="" disabled>
                       Select Build Interrupts
                     </option>
-                    <option value="True"{% if BuildInterrupt == True %} selected {% endif %}>Yes</option>
-                    <option value="False"{% if BuildInterrupt == False %} selected {% endif %}>No</option>
+                    <option value="True"{% if buildInterruptsInput == True %} selected {% endif %}>Yes</option>
+                    <option value="False"{% if buildInterruptsInput == False %} selected {% endif %}>No</option>
                   </select>
                   </div>
                 </div>
