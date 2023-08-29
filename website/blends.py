@@ -671,6 +671,8 @@ def BlendReport():
     blend_breakdown['Percent'] = blend_breakdown['Percent'].map(
         '{:.1f}%'.format)
     blend_breakdown.fillna(value='---', inplace=True)
+    
+    footer_html = f'<div>Report generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</div>'
 
     print("Blend Summary:")
     print(blend_summary)
@@ -678,11 +680,14 @@ def BlendReport():
     print(majority_batch)
     print("\nBlend Breakdown:")
     print(blend_breakdown)
+    print("\nReport Generated:")
+    print(footer_html)
 
     rendered = render_template('Blend_Report.html',
                                blend_summary=blend_summary,
                                majority_batch=majority_batch,
-                               blend_breakdown=blend_breakdown)
+                               blend_breakdown=blend_breakdown,
+                               footer=footer_html)
     pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
 
     response = make_response(pdf)
