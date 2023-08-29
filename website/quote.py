@@ -7,6 +7,8 @@ import os
 import tempfile
 import math
 from stl.mesh import Mesh
+import matplotlib.pyplot as plt
+from mpl_toolkits import mplot3d
 
 quote = Blueprint('quote', __name__)
 
@@ -21,12 +23,39 @@ material_info = {
     "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.0015748},
 }
 
+import numpy as np
+import trimesh
+import matplotlib.pyplot as plt
+import trimesh
+
+def generate_isometric_image(obj, output_image_path):
+    # Create a new figure
+    figure = plt.figure()
+    axes = figure.add_subplot(111, projection='3d')
+
+    # Simplify the mesh using quadratic decimation
+    simplified_mesh = obj.simplify_quadratic_decimation(target_percent=0.1)  # Adjust the target_percent as needed
+
+    # Add the simplified STL mesh to the plot
+    axes.add_collection3d(mplot3d.art3d.Poly3DCollection(simplified_mesh.vectors, facecolors='gray', edgecolors='gray', linewidths=0.05))
+
+    # Set plot limits and view angle
+    axes.auto_scale_xyz(simplified_mesh.vertices[:, 0], simplified_mesh.vertices[:, 1], simplified_mesh.vertices[:, 2])
+    axes.view_init(elev=20, azim=-45)
+
+    # Save the plot as an image
+    plt.savefig(output_image_path)
+    plt.close()
+    return output_image_path
+
+
 def save_temp_file(file):
     temp_folder = tempfile.mkdtemp()  # Create a temporary folder
     filename = secure_filename(file.filename)
     file_path = os.path.join(temp_folder, filename)
     file.save(file_path)  # Save the file to the temporary folder
     return file_path
+
 
 def get_mesh(file_path):
     try:
@@ -73,7 +102,11 @@ def calculate_metrics(files):
             os.remove(file_path)
             os.rmdir(os.path.dirname(file_path))
             continue
-
+        
+        # image = generate_isometric_image(obj, file_path+'_img.png')
+        image = 'test'
+        
+        
         x, y, z = get_xyz(obj)
         vol, surface = get_properties(obj)
 
@@ -83,6 +116,7 @@ def calculate_metrics(files):
         diagonal = calculate_diagonal(x, y, z)
 
         data.append({
+            'IsometricImage':image,
             'PartName': os.path.basename(file.filename),
             'OrderQty': 1,
             'xExtents': x,
@@ -117,7 +151,7 @@ def calculate_metrics(files):
         os.remove(file_path)
         os.rmdir(os.path.dirname(file_path))
 
-    col_order = ['PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
+    col_order = ['IsometricImage','PartName', 'OrderQty', 'xExtents', 'yExtents', 'zExtents', 'Volume', 'SurfaceArea', 'Orientation',
                  'Material', 'LayerThickness', 'ProjectedArea', 'Diagonal', 'BuildHours', 'UnpackHours', 'NumBuilds',
                  'NewXExt', 'NewYExt', 'NewZExt', 'BuildQty', 'NumFullBuilds', 'RemQty', '%BuildRem', 'LeadTime',
                  'BuildRecTime', 'TFB_RecTime', 'PB_RecTime', 'ExpTime', 'TotalBuildTime', 'PackEfficiency', 'BuildArea']
@@ -299,6 +333,8 @@ def quote_page():
                 # Calculate the initial metrics without user inputs
                 df = calculate_metrics(stl_files)
                 
+                # display_stl(stl_files)
+                
                 # Calculate the Numbuilds for each row
                 df = df.apply(calculate_num_builds, axis=1)
                 
@@ -309,6 +345,9 @@ def quote_page():
 
                 session["results"] = df.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
                 
+
+                
+
                 return render_template("quote.html", user=current_user, results=df)
 
         # Inside the 'update_quote' section of the 'quote_page' function
@@ -339,6 +378,8 @@ def quote_page():
 
                     # Update the values in the results_data list
                     results_data[index] = row
+                    
+                    
                     
 
                 if row["BuildQty"] <= 0:

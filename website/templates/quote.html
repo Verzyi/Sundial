@@ -23,6 +23,7 @@
             <table class="table table-hover">
                 <thead>
                     <tr class="table-active">
+                        <th scope="col">Isometric View</th>
                         <th scope="col">Part Name</th>
                         <th scope="col">Order Quantity</th>
                         <th scope="col">x Extents</th>
@@ -44,7 +45,7 @@
                 <tbody>
                     {% for index, row in results.iterrows() %}
                     <tr>
-
+                        <td><img src="{{ row['IsometricImage'] }}" alt="Isometric View" width="150"></td>
                         <td><label>{{ row['PartName'] }}</label></td>
                         <td><input type="number" name="order_qty_input_{{ index }}" value="{{ row['OrderQty'] }}" min="1" step="1" required></td>
                         <td {% if row['xExtents'] > 9 %}style="background-color: red;"{% endif %}><label>{{ '%.2f'|format(row['xExtents']) }}</label></td>
