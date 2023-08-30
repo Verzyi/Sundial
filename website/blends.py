@@ -115,7 +115,7 @@ def searchBlends():
                             .join(MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID) \
                             .filter(PowderBlends.BlendID == blendNumber)\
                             .all()
-
+                        
                         if search:
                             flash("Found blend number: " +
                                   str(blendNumber), category='success')
@@ -159,7 +159,7 @@ def searchBlends():
                     if search:
                         for blend, material_name in search:
                             weight = blend.TotalWeight
-                            date = blend.BlendDate
+                            date = blend.BlendDate.split(" ")[0]
                             material = material_name
                             qty = request.form.get("qty")
                             # Print the sticker
@@ -225,7 +225,7 @@ def searchBatchs():
                     for batch, material_name, supplier_product in batches:
                         blend_number = batch.BatchID
                         weight = batch.VirginQty
-                        date = batch.BatchTimeStamp
+                        date = batch.BatchTimeStamp.split(" ")[0]
                         material = material_name
 
                         # Print the sticker
@@ -480,7 +480,7 @@ def create_batch():
                     BatchID=int(last_batch_id + 1),
                     BatchCreatedBy=current_user.id,
                     BatchTimeStamp=str(
-                        datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
+                    datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
                     BatchFacilityID=int(4),
                     VirginPO=int(poNumber),
                     VirginLot=str(vlot),
