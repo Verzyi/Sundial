@@ -2,9 +2,12 @@ from flask import Blueprint, Flask, redirect, url_for, request, render_template,
 from .models import Users
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
-from flask_login import login_user, login_required, logout_user, current_user
+from flask_bcrypt import Bcrypt 
+from flask_login import login_user, login_required, logout_user, current_user, LoginManager, UserMixin
 
 auth = Blueprint('auth', __name__)
+bcrypt = Bcrypt() 
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -59,11 +62,12 @@ def signup():
         elif len(password1) < 6:
             flash('Password must be greater than 6 characters.', category='error')
         else:
+            hashed_password = bcrypt.generate_password_hash(password1).decode('utf-8')
             new_user = Users(
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=generate_password_hash(password1, method='scrypt')
+                password=hashed_password
             )
             db.session.add(new_user)
             db.session.commit()

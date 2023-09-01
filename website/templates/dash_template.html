@@ -1,0 +1,16 @@
+{% extends "base.html" %} {% block title %}Dash{% endblock %} {%block content %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dash Visualization</title>
+    <link rel="stylesheet" href="https://codepen.io/chriddyp/pen/bWLwgP.css">
+</head>
+<body>
+    <h1>Dash Visualization</h1>
+    <div id="dash-container">
+        <iframe src="{{ url_for('dash.dash_view') }}" width="100%" height="800"></iframe>
+    </div>
+</body>
+</html>
+
+{% endblock %}

@@ -32,7 +32,8 @@ class InventoryVirginBatch(db.Model):
     ProductID = db.Column(db.Integer)
     VirginPO = db.Column(db.Integer)
     VirginLot = db.Column(db.String)
-    VirginQty = db.Column(db.Float)
+    VirginWeight = db.Column(db.Float)
+    CurrentWeight = db.Column(db.Float)
     
 
 class MaterialsTable(db.Model):

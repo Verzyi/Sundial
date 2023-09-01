@@ -126,7 +126,7 @@
             <td>{{ supplier_product }}</td>
             <td>{{ batch.VirginLot }}</td>
             <td>{{ batch.VirginPO }}</td>
-            <td>{{ batch.VirginQty|round(2) }}</td>
+            <td>{{ batch.VirginWeight|round(2) }}</td>
             {% set date, time = batch.BatchTimeStamp.split(' ') %}
             <td>{{ date}}</td>
             <td>{{ batch.BatchCreatedBy }}</td>

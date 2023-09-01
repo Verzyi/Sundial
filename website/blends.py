@@ -224,7 +224,7 @@ def searchBatchs():
                 if batches:
                     for batch, material_name, supplier_product in batches:
                         blend_number = batch.BatchID
-                        weight = batch.VirginQty
+                        weight = batch.VirginWeight
                         date = batch.BatchTimeStamp.split(" ")[0]
                         material = material_name
 
@@ -304,7 +304,7 @@ def create_blend():
                                 BatchID=blendNumber).scalar()
 
                             if search:
-                                batchWeight = search.VirginQty
+                                batchWeight = search.VirginWeight
 
                                 if float(batchWeight) < float(weight):
                                     flash("Batch cannot exceed the available weight (" +
@@ -484,7 +484,7 @@ def create_batch():
                     BatchFacilityID=int(4),
                     VirginPO=int(poNumber),
                     VirginLot=str(vlot),
-                    VirginQty=float(weight),
+                    VirginWeight=float(weight),
                     ProductID=int(product_id)
                 )
                 flash(product_id, category='success')

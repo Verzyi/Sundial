@@ -7,6 +7,7 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 
+
 db = SQLAlchemy()
 DB_NAME = "database.db"
 
@@ -42,6 +43,7 @@ def create_app():
     from .views import views
     from .quote import quote
     from .scale import scale
+    from .dash_blueprint import dash_blueprint
 
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(blends, url_prefix='/')
@@ -49,6 +51,7 @@ def create_app():
     app.register_blueprint(quote, url_prefix='/')
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(scale, url_prefix='/')
+    app.register_blueprint(dash_blueprint, url_prefix='/')
 
     from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 
