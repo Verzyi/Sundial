@@ -9,6 +9,7 @@ import pandas as pd
 from math import ceil
 import pdfkit
 from pdfkit.api import configuration
+from sqlalchemy import distinct
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -23,9 +24,6 @@ def builds_home():
     blends = PowderBlends.query.all()
     return render_template("home.html", user=current_user, blends=blends)
 
-
-
-from sqlalchemy import distinct
 
 @builds.route('/builds', methods=['GET', 'POST'])
 @login_required
