@@ -1,4 +1,4 @@
-from flask import Flask, redirect, url_for, flash
+from flask import Flask, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
 import os
 from flask_login import LoginManager, current_user
@@ -6,7 +6,7 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
-
+from .dashboard import dashboard
 
 db = SQLAlchemy()
 DB_NAME = "database.db"
@@ -22,6 +22,35 @@ def create_app():
     app.config['SECRET_KEY'] = 'jflkdsjfalksjfdsa jfsdlkjfdsljfa'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
+
+    # Debug Toolbar Configuration
+    app.config['DEBUG_TB_ENABLED'] = True
+    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
+    toolbar = DebugToolbarExtension(app)
+    
+
+    from .blends import blends
+    from .auth import auth
+    from .builds import builds
+    from .quote import quote
+    from .views import views
+    from .dashapp import dashapp_bp
+
+    app.register_blueprint(blends, url_prefix='/')
+    app.register_blueprint(auth, url_prefix='/')
+    app.register_blueprint(builds, url_prefix='/')
+    app.register_blueprint(quote, url_prefix='/')
+    app.register_blueprint(views, url_prefix='/')
+    app.register_blueprint(dashapp_bp, url_prefix='/')
+    
+    # def register_blueprints(app):
+    # for module_name in ('base', 'home', 'DashExample', 'setting'):
+    #     module = import_module('app.{}.routes'.format(module_name))
+    #     app.register_blueprint(module.blueprint)
+
+    from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+
+    create_database(app)
     
     # Login info
     login_manager = LoginManager()
@@ -31,33 +60,6 @@ def create_app():
     @login_manager.user_loader
     def load_user(id):
         return Users.query.get(int(id))
-
-    # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = True
-    app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    toolbar = DebugToolbarExtension(app)
-    
-    from .auth import auth
-    from .blends import blends
-    from .builds import builds
-    from .views import views
-    from .quote import quote
-    from .scale import scale
-    from .dash_blueprint import dash_blueprint
-
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(blends, url_prefix='/')
-    app.register_blueprint(builds, url_prefix='/')
-    app.register_blueprint(quote, url_prefix='/')
-    app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(scale, url_prefix='/')
-    app.register_blueprint(dash_blueprint, url_prefix='/')
-
-    from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-
-    create_database(app)
-    
- 
 
    # Custom AdminIndexView to restrict access
     class RestrictedAdminIndexView(AdminIndexView):
@@ -120,5 +122,7 @@ def create_app():
             return current_user.is_authenticated and current_user.id == 1
 
     admin.add_view(RestrictedBuildsModelView(BuildsTable, db.session, category=builds_category.name))
+
+    app = dashboard.init_dashboard(app)
 
     return app

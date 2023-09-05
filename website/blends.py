@@ -31,7 +31,6 @@ def home():
 @blends.route('/blend', methods=['GET', 'POST'])
 @login_required
 def blend():
-
     return render_template("blend.html", user=current_user)
 
 
