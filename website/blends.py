@@ -753,9 +753,9 @@ def BlendTraceback(blend, lvl, limit):
     return cleaned_tracebacks
 
 
-@blends.route('/inventory', methods=['GET', 'POST'])
+@blends.route('/BlendInventory', methods=['GET', 'POST'])
 @login_required
-def inventory():
+def Blend_Inventory():
     # Import necessary libraries
     import datetime
     from sqlalchemy import func
@@ -803,7 +803,7 @@ def inventory():
 
         # Check if blend_date is not None before converting to datetime.date object
         if blend_date is not None:
-            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
+            blend_date = datetime.datetime.strptime(blend_date, '%m/%d/%Y %H:%M').date()
 
         # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
         if (
@@ -844,7 +844,107 @@ def inventory():
         filtered_data = result_data
 
     return render_template(
-        "inventory.html",
+        "blend_inventory.html",
+        user=current_user,
+        inventory_data=filtered_data,
+        material_names=material_names,
+        total_weight=total_weight,
+        selected_material=selected_material
+    )
+
+
+@blends.route('/BatchInventory', methods=['GET', 'POST'])
+@login_required
+def Batch_Inventory():
+    # Import necessary libraries
+    import datetime
+    from sqlalchemy import func
+    from sqlalchemy.orm import aliased
+
+    # Define aliases for the tables
+    PowderBlendsAlias = aliased(PowderBlends)
+    MaterialsTableAlias = aliased(MaterialsTable)
+
+    # Retrieve the blend inventory data
+    query = db.session.query(
+        PowderBlendsAlias.BlendID,
+        MaterialsTableAlias.MaterialName,
+        PowderBlendsAlias.CurrentWeight,
+        PowderBlendsAlias.BlendDate
+    ).join(
+        MaterialsTableAlias, PowderBlendsAlias.MaterialID == MaterialsTableAlias.MaterialID
+    ).order_by(MaterialsTableAlias.MaterialName)
+
+    # Fetch the blend inventory data
+    inventory_data = query.all()
+
+    # Create a list to store the result data
+    result_data = []
+
+    # Variables for subtotal calculation
+    current_material = None
+    subtotal_weight = 0
+
+    # Set to store blend IDs
+    blend_ids_set = set()
+
+    # Iterate over the inventory data
+    for blend_id, material_name, total_weight, blend_date in inventory_data:
+        # Check if the material has changed
+        if material_name != current_material:
+            # Add subtotal row for previous material
+            if current_material is not None:
+                subtotal_row = ("Subtotal", current_material, subtotal_weight)
+                result_data.append(subtotal_row)
+
+            # Update current material and reset subtotal weight
+            current_material = material_name
+            subtotal_weight = 0
+
+        # Check if blend_date is not None before converting to datetime.date object
+        if blend_date is not None:
+            blend_date = datetime.datetime.strptime(blend_date, '%m/%d/%Y %H:%M').date()
+
+        # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
+        if (
+            blend_date is not None
+            and blend_date > datetime.date(2021, 8, 1)
+            and total_weight is not None
+            and total_weight > 20
+            and blend_id not in blend_ids_set
+        ):
+            blend_row = (blend_id, material_name, total_weight)
+            result_data.append(blend_row)
+
+            # Update subtotal weight
+            if total_weight is not None:
+                subtotal_weight += total_weight
+
+            # Add blend ID to set
+            blend_ids_set.add(blend_id)
+
+    # Add final subtotal row for the last material
+    if current_material is not None:
+        subtotal_row = ("Subtotal", current_material, round(subtotal_weight, 2))
+        result_data.append(subtotal_row)
+
+
+    # Calculate total weight
+    total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
+
+    # Get distinct material names
+    material_names = sorted(set(row[1] for row in result_data))
+    
+
+    # Filter by selected material name
+    selected_material = request.form.get('material') or request.args.get('material')
+    if selected_material and selected_material != "All Materials":
+        filtered_data = [row for row in result_data if row[1] == selected_material]
+    else:
+        filtered_data = result_data
+
+    return render_template(
+        "batch_inventory.html",
         user=current_user,
         inventory_data=filtered_data,
         material_names=material_names,
