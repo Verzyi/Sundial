@@ -54,7 +54,7 @@ class DatabaseAppender:
 # Example usage:
 appender = DatabaseAppender("MLSBuilds_20230711_Clean.csv", "builds_table")
 appender.append_to_database()
-appender = DatabaseAppender("InventoryVirginBatch_20230713_1236.csv", "inventory_virgin_batch")
+appender = DatabaseAppender("InventoryVirginBatch_20230901_1444.csv", "inventory_virgin_batch")
 appender.append_to_database()
 appender = DatabaseAppender("PowderMaterial_20230711.csv", "materials_table")
 appender.append_to_database()

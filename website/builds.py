@@ -70,19 +70,25 @@ def builds_page():
         elif 'traveler' in request.form:
             flash("Make Traveler", category='success')
             return redirect(url_for('builds.generate_traveler_report'))
-        elif 'buildform' in request.form:
-            session['buildForm'] = request.form.to_dict()
-            return redirect(url_for('builds.submit_form'))
+        elif 'buildformSetup' in request.form:
+            session['buildformSetup'] = request.form.to_dict()
+            return redirect(url_for('builds.setup_form'))
+        elif 'buildformStart' in request.form:
+            session['buildformStart'] = request.form.to_dict()
+            return redirect(url_for('builds.start_form'))
+        elif 'buildformFinish' in request.form:
+            session['buildformFinish'] = request.form.to_dict()
+            return redirect(url_for('builds.finish_form'))
             
              
 
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
-                           machines=unique_machines, materials=unique_materials)
+                           machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
         
         
 
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
-                           machines=unique_machines, materials=unique_materials)
+                           machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
 
 
 
@@ -253,11 +259,11 @@ def copy_build():
 
 from flask import request
 
-@builds.route('/submit-form', methods=['GET', 'POST'])
+@builds.route('/setup-form', methods=['GET', 'POST'])
 @login_required
-def submit_form():
+def setup_form():
     # Get the build form data from the session
-    buildform_data = session.get('buildForm')
+    buildform_data = session.get('buildformSetup')
     
     # Get the selected build id
     selected_buildid = session.get('buildid')
@@ -269,71 +275,141 @@ def submit_form():
     if existing_build:
         # Populate data from buildSetup
         existing_build.BuildName = buildform_data.get('buildNameInput')
+        existing_build.MachineID = buildform_data.get('machineInput')
         existing_build.Material = buildform_data.get('materialInput')
-        existing_build.ScaleX = buildform_data.get('scaleXInput')
-        existing_build.ScaleY = buildform_data.get('scaleYInput')
-        existing_build.Offset = buildform_data.get('offsetInput')
-        existing_build.BuildFinish = buildform_data.get('buildFinishInput')
-        existing_build.CreatedBy = buildform_data.get('buildNameInput')
-        existing_build.CreatedOn = buildform_data.get('buildDateInput')
-        existing_build.PlatformWeight = buildform_data.get('platformWeightInput')
-        existing_build.Layer = buildform_data.get('layerInput')
-        existing_build.BuildStart = buildform_data.get('buildStartInput')
-        existing_build.BuildTime = buildform_data.get('buildTimeInput')
-        existing_build.FinishHeight = buildform_data.get('finishHeightInput')
-        existing_build.FinishPlatformWeight = buildform_data.get('finishPlatformWeightInput')
-        existing_build.FeedPowderHeight = buildform_data.get('feedPowderHeightInput')
-        existing_build.EndFeedPowderHeight = buildform_data.get('endFeedPowderHeightInput')
-        existing_build.PotentialBuildHeight = buildform_data.get('potentialBuildHeightInput')
-        existing_build.PlateThickness = buildform_data.get('plateThicknessInput')
-        existing_build.MinChargeAmount = buildform_data.get('minChargeAmountInput')
-        existing_build.MaxChargeAmount = buildform_data.get('maxChargeAmountInput')
-        existing_build.DosingBoostAmount = buildform_data.get('dosingBoostAmountInput')
-        existing_build.RecoaterSpeed = buildform_data.get('recoaterSpeedInput')
         existing_build.ParameterRev = buildform_data.get('parameterRevInput')
-        existing_build.PlatformTemperature = buildform_data.get('platformTemperatureInput')
-        existing_build.StartLaserHours = buildform_data.get('startLaserHoursInput')
-        existing_build.FinalLaserHours = buildform_data.get('finalLaserHoursInput')
-        existing_build.InertTime = buildform_data.get('inertTimeInput')
-        existing_build.F9FilterSerial = buildform_data.get('f9FilterSerialInput')
-        existing_build.H13FilterSerial = buildform_data.get('h13FilterSerialInput')
-        existing_build.EndPartPistonHeight = buildform_data.get('endPartPistonHeightInput')
-        existing_build.Breakout = buildform_data.get('breakoutInput')
-        existing_build.BuildInterrupts = buildform_data.get('buildInterruptsInput')
         existing_build.RecoaterType = buildform_data.get('recoaterTypeInput')
-
-        # Populate data from buildStartForm
-        existing_build.BlendID = buildform_data.get('blendIDInput')
-        existing_build.PlateSerial = buildform_data.get('plateSerialInput')
-        existing_build.PlateThickness = buildform_data.get('plateThicknessInput')
-        existing_build.PlatformWeight = buildform_data.get('platformWeightInput')
-        existing_build.FeedPowderHeight = buildform_data.get('feedPowderHeightInput')
-        existing_build.InertTime = buildform_data.get('inertTimeInput')
-        existing_build.F9FilterSerial = buildform_data.get('f9FilterSerialInput')
-        existing_build.H13FilterSerial = buildform_data.get('h13FilterSerialInput')
-        existing_build.StartLaserHours = buildform_data.get('startLaserHoursInput')
-        existing_build.BuildStart = buildform_data.get('buildStartInput')
-
-        # Populate data from buildFinishForm
-        existing_build.MaterialAdded = buildform_data.get('materialAddedInput')
-        existing_build.BuildFinish = buildform_data.get('buildFinishInput')
-        existing_build.BuildTime = buildform_data.get('buildTimeInput')
-        existing_build.FinalLaserHours = buildform_data.get('finalLaserHoursInput')
-        existing_build.FinishHeight = buildform_data.get('finishHeightInput')
-        existing_build.EndPartPistonHeight = buildform_data.get('endPartPistonHeightInput')
-        existing_build.EndFeedPowderHeight = buildform_data.get('endFeedPowderHeightInput')
-        existing_build.Breakout = buildform_data.get('breakoutInput')
-        existing_build.FinishPlatformWeight = buildform_data.get('finishPlatformWeightInput')
-        existing_build.BuildInterrupts = buildform_data.get('buildInterruptsInput')
+        
+        # Iterate through the attributes that might have float values
+        float_attributes = ['ScaleX', 'ScaleY', 'Offset', 'Layer' , 'PlatformTemperature', 'PotentialBuildHeight',
+                            'MinChargeAmount', 'MaxChargeAmount', 'DosingBoostAmount', 'RecoaterSpeed']
+        for attr in float_attributes:
+            try:
+                value = float(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
+            except ValueError:
+                value = 0  # Default value in case of ValueError
+            setattr(existing_build, attr, value)
         
         # db.session.add(existing_build)
         # Save the changes to the database
         db.session.commit()
 
         # Redirect to the builds page or any other page as needed
-        flash("Build information updated successfully.", category='success')
+        flash("Build Setup information updated successfully.", category='success')
         return redirect(url_for('builds.builds_page'))
 
     # Handle the case when the existing build is not found
     flash("Build not found.", category='error')
     return redirect(url_for('builds.builds_page'))
+
+
+@builds.route('/start-form', methods=['GET', 'POST'])
+@login_required
+def start_form():
+    # Get the build form data from the session
+    buildform_data = session.get('buildformStart')
+    
+    # Get the selected build id
+    selected_buildid = session.get('buildid')
+    
+    # Retrieve the existing build record from the database
+    existing_build = BuildsTable.query.filter_by(BuildIt=selected_buildid).first()
+
+    # Update the attributes of the existing build with the new values
+    if existing_build:
+        #Populate data from buildStart
+        existing_build.InertTime = buildform_data.get('InertTimeInput')
+        existing_build.F9FilterSerial = buildform_data.get('F9FilterSerialInput')
+        existing_build.H13FilterSerial = buildform_data.get('H13FilterSerialInput')    
+        existing_build.BuildStart = buildform_data.get('BuildStartInput')
+        
+        
+        Inspec = buildform_data.get('InSpec')
+        
+        existing_build.BeamStabilityTestPerformed = Inspec
+        existing_build.LaserAlignmentTestPerformed = Inspec
+        existing_build.ThermalSensorTest = Inspec
+        existing_build.LaserFocus = Inspec
+        
+        
+        print("Build Inspec Input:", existing_build.BuildInterrupts)
+
+        
+        # Populate data from buildStartForm (float attributes)
+        start_form_float_attributes = ['PlateThickness', 'PlatformWeight', 'FeedPowderHeight', 'StartLaserHours', 'PowderLevel', 'SieveLife', 'FilterPressure']
+        for attr in start_form_float_attributes:
+            try:
+                value = float(buildform_data.get(f'{attr}Input', 55))  # Use 0 as default if conversion fails
+            except ValueError:
+                print("error")
+                value = 0  # Default value in case of ValueError
+            setattr(existing_build, attr, value)
+        
+        # Populate data from buildStartForm (integer attributes)
+        integer_attributes = ['BlendID', 'PlateSerial']
+        for attr in integer_attributes:
+            try:
+                value = int(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
+            except ValueError:
+                value = 0  # Default value in case of ValueError
+            setattr(existing_build, attr, value)
+            
+        
+        db.session.commit()
+
+        # Redirect to the builds page or any other page as needed
+        flash("Build Start information updated successfully.", category='success')
+        return redirect(url_for('builds.builds_page'))
+
+    # Handle the case when the existing build is not found
+    flash("Build not found.", category='error')
+    return redirect(url_for('builds.builds_page'))
+
+            
+            
+            
+@builds.route('/finish-form', methods=['GET', 'POST'])
+@login_required
+def finish_form():
+    # Get the build form data from the session
+    buildform_data = session.get('buildformFinish')
+    
+    # Get the selected build id
+    selected_buildid = session.get('buildid')
+    
+    # Retrieve the existing build record from the database
+    existing_build = BuildsTable.query.filter_by(BuildIt=selected_buildid).first()
+
+    # Update the attributes of the existing build with the new values
+    if existing_build:
+        
+        existing_build.Breakout = buildform_data.get('BreakoutInput') 
+        
+        existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput')
+        print("Material Added Input:", existing_build.MaterialAdded)
+
+        existing_build.BuildInterrupts = buildform_data.get('BuildInterruptsInput')
+        print("Build Interrupts Input:", existing_build.BuildInterrupts)
+        
+        
+
+        # Populate data from buildFinishForm
+        finish_form_float_attributes = ['FinishHeight', 'EndPartPistonHeight', 'EndFeedPowderHeight', 'BuildTime', 'FinalLaserHours','FinishPlatformWeight']
+        for attr in finish_form_float_attributes:
+            try:
+                value = float(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
+            except ValueError:
+                value = 0  # Default value in case of ValueError
+            setattr(existing_build, attr, value)
+        
+        
+        db.session.commit()
+
+        # Redirect to the builds page or any other page as needed
+        flash("Build Finished information updated successfully.", category='success')
+        return redirect(url_for('builds.builds_page'))
+
+    # Handle the case when the existing build is not found
+    flash("Build not found.", category='error')
+    return redirect(url_for('builds.builds_page'))
+

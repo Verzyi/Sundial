@@ -153,7 +153,8 @@
             <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
             <td>{{ blend.TotalWeight }}</td>
             <td>{{ material_name }}</td>
-            <td>{{ blend.BlendDate }}</td>
+            {% set date, time = blend.BlendDate.split(' ') %}
+            <td>{{ date }}</td>
             <td>{{blend.BlendCreatedBy}}</td>
           </tr>
           {% endfor %} {% endif %}

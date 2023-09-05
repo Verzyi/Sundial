@@ -114,7 +114,7 @@ def searchBlends():
                             .join(MaterialsTable, PowderBlends.MaterialID == MaterialsTable.MaterialID) \
                             .filter(PowderBlends.BlendID == blendNumber)\
                             .all()
-
+                        
                         if search:
                             flash("Found blend number: " +
                                   str(blendNumber), category='success')
@@ -133,7 +133,7 @@ def searchBlends():
                 return redirect(url_for('blends.BlendTraceback', blend=blend_number, lvl=0, limit=10))
 
         elif 'Report' in request.form:
-            flash("Making Trace", category='success')
+            flash("Making Report", category='success')
             # Retrieve the blend number from session
             blend_number = session.get('last_blend_number')
             if blend_number:
@@ -158,7 +158,7 @@ def searchBlends():
                     if search:
                         for blend, material_name in search:
                             weight = blend.TotalWeight
-                            date = blend.BlendDate
+                            date = blend.BlendDate.split(" ")[0]
                             material = material_name
                             qty = request.form.get("qty")
                             # Print the sticker
@@ -223,8 +223,8 @@ def searchBatchs():
                 if batches:
                     for batch, material_name, supplier_product in batches:
                         blend_number = batch.BatchID
-                        weight = batch.VirginQty
-                        date = batch.BatchTimeStamp
+                        weight = batch.VirginWeight
+                        date = batch.BatchTimeStamp.split(" ")[0]
                         material = material_name
 
                         # Print the sticker
@@ -303,7 +303,7 @@ def create_blend():
                                 BatchID=blendNumber).scalar()
 
                             if search:
-                                batchWeight = search.VirginQty
+                                batchWeight = search.VirginWeight
 
                                 if float(batchWeight) < float(weight):
                                     flash("Batch cannot exceed the available weight (" +
@@ -343,7 +343,7 @@ def create_blend():
 
                         new_blend = PowderBlends(
                             BlendID=last_blend_id + 1,
-                            BlendDate=datetime.now().strftime("%m/%d/%Y %H:%M").lstrip("0").replace(" 0", " "),
+                            BlendDate=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),#.lstrip("0").replace(" 0", " "),
                             BlendCreatedBy=current_user.id,
                             MaterialID=material_id,
                             TotalWeight=blendWeight
@@ -479,11 +479,11 @@ def create_batch():
                     BatchID=int(last_batch_id + 1),
                     BatchCreatedBy=current_user.id,
                     BatchTimeStamp=str(
-                        datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
+                    datetime.now().strftime("%m/%d/%Y %I:%M:%S %p")),
                     BatchFacilityID=int(4),
                     VirginPO=int(poNumber),
                     VirginLot=str(vlot),
-                    VirginQty=float(weight),
+                    VirginWeight=float(weight),
                     ProductID=int(product_id)
                 )
                 flash(product_id, category='success')
@@ -670,6 +670,8 @@ def BlendReport():
     blend_breakdown['Percent'] = blend_breakdown['Percent'].map(
         '{:.1f}%'.format)
     blend_breakdown.fillna(value='---', inplace=True)
+    
+    footer_html = f'<div>Report generated on: {datetime.now().strftime("%Y-%m-%d %H:%M:%S")}</div>'
 
     print("Blend Summary:")
     print(blend_summary)
@@ -677,11 +679,14 @@ def BlendReport():
     print(majority_batch)
     print("\nBlend Breakdown:")
     print(blend_breakdown)
+    print("\nReport Generated:")
+    print(footer_html)
 
     rendered = render_template('Blend_Report.html',
                                blend_summary=blend_summary,
                                majority_batch=majority_batch,
-                               blend_breakdown=blend_breakdown)
+                               blend_breakdown=blend_breakdown,
+                               footer=footer_html)
     pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
 
     response = make_response(pdf)
@@ -798,7 +803,7 @@ def inventory():
 
         # Check if blend_date is not None before converting to datetime.date object
         if blend_date is not None:
-            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date() if blend_date is not None else None
+            blend_date = datetime.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
 
         # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
         if (
