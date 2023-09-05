@@ -2,7 +2,7 @@ from flask import Blueprint, Flask, redirect, url_for, request, render_template,
 from .models import Users
 from werkzeug.security import generate_password_hash, check_password_hash
 from . import db
-from flask_bcrypt import Bcrypt 
+from flask_bcrypt import Bcrypt, check_password_hash 
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager, UserMixin
 
 auth = Blueprint('auth', __name__)
