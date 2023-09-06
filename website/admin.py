@@ -1,7 +1,7 @@
 from flask import Blueprint
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+from .models import Users, PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
 
 admin_bp = Blueprint('admin', __name__, url_prefix='/admin')

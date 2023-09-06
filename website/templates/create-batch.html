@@ -1,0 +1,162 @@
+{% extends "base.html" %} {% block title %} Create Batch {% endblock %} {% block
+content %}
+<h1 class="text-center">Blend System - Create Batch</h1>
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/search-blend'"
+      />
+      <label class="btn btn-outline-primary" for="Search">Search</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="New"
+        autocomplete="off"
+        onclick="window.location.href = '/create-blend'"
+      />
+      <label class="btn btn-outline-primary" for="New">Create Blend</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="createBatch"
+        autocomplete="off"
+        checked
+        onclick="window.location.href = '/create-batch'"
+      />
+      <label class="btn btn-outline-primary" for="createBatch"
+        >Create Batch</label
+      >
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="History"
+        autocomplete="off"
+        onclick="window.location.href = '/history-blend'"
+      />
+      <label class="btn btn-outline-primary" for="History">History</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Inventory"
+        autocomplete="off"
+        onclick="window.location.href = '/inventory'"
+      />
+      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+    </div>
+  </div>
+
+  <div class="container-fluid">
+    <form id="createBlendForm" method="POST" class="mt-4">
+      <div id="blendFields" class="mb-3">
+        <!-- Form fields for PO Number, Virgin Lot, Weight -->
+        <label for="poNumber" class="form-label">PO Number</label>
+        <input type="number" class="form-control" name="poNumber" id="poNumber" placeholder="0">
+
+        <label for="vLotNumber" class="form-label">Virgin Lot</label>
+        <input type="text" class="form-control" name="vLot" id="vLot" placeholder="0">
+
+        <label for="weight" class="form-label">Weight (kg)</label>
+        <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
+      </div>
+
+      <div class="d-grid">
+        <div class="form-group">
+          <select
+            name="alloy"
+            class="form-select"
+            id="alloy"
+            style="text-align: center"
+            onchange="updateProductDropdown()"
+          >
+            <option value="" disabled selected>Select Material</option>
+            {% for alloy in alloy_names %}
+            <option value="{{ alloy }}">{{ alloy }}</option>
+            {% endfor %}
+          </select>
+          <br>
+          <select
+            name="product"
+            class="form-select"
+            id="product"
+            style="text-align: center"
+          >
+            <option value="" disabled selected>Select Product</option>
+          </select>
+        </div>
+
+        <div class="d-grid">
+          <!-- Submit button -->
+          <button type="submit" id="createButton" class="btn btn-primary" name="create">Create Batch</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- Display the blend results here -->
+    <div class="table-responsive mt-4">
+      <table class="table table-hover">
+        <!-- Table headers -->
+        <thead>
+          <tr style="font-size: 20px">
+            <th scope="col">PO Number</th>
+            <th scope="col">Virgin Lot Number</th>
+            <th scope="col">Weight (kg)</th>
+            <th scope="col">Material</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Loop through the blendNumber results -->
+          {% if blendNumber %}
+          {% for blend in blendNumber %}
+          <tr class="table-active">
+            <td>{{ blend.PowderBlendID }}</td>
+            <td>{{ blend.AddedWeight }}</td>
+            <td>{{ blend.OldPowderBlendID }}</td>
+            <td>{{ blend.AddedWeight }}</td>
+            <td>{{ blend.PowderInventoryBatchID }}</td>
+          </tr>
+          {% endfor %}
+          {% endif %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+<script>
+  function updateProductDropdown() {
+    var alloyDropdown = document.getElementById("alloy");
+    var productDropdown = document.getElementById("product");
+    var selectedMaterial = alloyDropdown.value;
+
+    // Clear existing options
+    productDropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
+
+    // Filter products based on selected material
+    var products = {{ material_products | tojson }};
+    var filteredProducts = products[selectedMaterial];
+
+    // Add filtered products to the dropdown
+    if (filteredProducts) {
+      for (var i = 0; i < filteredProducts.length; i++) {
+        var option = document.createElement("option");
+        option.value = filteredProducts[i];
+        option.text = filteredProducts[i];
+        productDropdown.appendChild(option);
+      }
+    }
+  }
+</script>
+{% endblock %}
