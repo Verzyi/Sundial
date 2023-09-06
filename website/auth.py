@@ -66,7 +66,8 @@ def signup():
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=hashed_password
+                password=hashed_password,
+                role="User"
             )
             db.session.add(new_user)
             db.session.commit()

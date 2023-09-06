@@ -23,11 +23,15 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
     db.init_app(app)
 
+    
+    
+
     # Debug Toolbar Configuration
     app.config['DEBUG_TB_ENABLED'] = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
-    toolbar = DebugToolbarExtension(app)
     
+    toolbar = DebugToolbarExtension(app)
+       
 
     from .blends import blends
     from .auth import auth
@@ -43,11 +47,6 @@ def create_app():
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(dashapp_bp, url_prefix='/')
     
-    # def register_blueprints(app):
-    # for module_name in ('base', 'home', 'DashExample', 'setting'):
-    #     module = import_module('app.{}.routes'.format(module_name))
-    #     app.register_blueprint(module.blueprint)
-
     from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 
     create_database(app)
@@ -61,13 +60,22 @@ def create_app():
     def load_user(id):
         return Users.query.get(int(id))
 
+    @app.before_request
+    def check_user_role():
+        if current_user.is_authenticated:
+            # print("Current User:", current_user.role)
+            if current_user.role != "Admin":
+                app.config['DEBUG_TB_ENABLED'] = False
+            else:
+                app.config['DEBUG_TB_ENABLED'] = True
+
    # Custom AdminIndexView to restrict access
     class RestrictedAdminIndexView(AdminIndexView):
         def is_accessible(self):
-            return current_user.is_authenticated and current_user.id == 1
+            return current_user.is_authenticated and current_user.id == 1 or current_user.role == "Admin"
 
         def inaccessible_callback(self, name, **kwargs):
-            if not current_user.is_authenticated or current_user.id != 1:
+            if not current_user.is_authenticated or current_user.id != 1 or current_user.role != "Admin":
                 flash("Access denied.", category='error')
                 return redirect(url_for('blends.home'))
 
@@ -99,7 +107,10 @@ def create_app():
         column_searchable_list = ['email', 'first_name', 'last_name']
 
         def is_accessible(self):
-            return current_user.is_authenticated and current_user.id == 1
+            if current_user.is_authenticated:
+                return current_user.id == 1 or current_user.role == "Admin"
+            else:
+                return False
 
     admin.add_view(RestrictedUsersAdminView(Users, db.session, category=users_category.name))
 
@@ -108,7 +119,10 @@ def create_app():
         column_searchable_list = ['BlendID', 'BlendDate', 'BlendCreatedBy']
 
         def is_accessible(self):
-            return current_user.is_authenticated and current_user.id == 1
+            if current_user.is_authenticated:
+                return current_user.id == 1 or current_user.role == "Admin"
+            else:
+                return False
 
     admin.add_view(RestrictedBlendModelView(PowderBlends, db.session, category=blends_category.name))
     admin.add_view(ModelView(MaterialsTable, db.session, category=blends_category.name))
@@ -119,7 +133,10 @@ def create_app():
     # Build
     class RestrictedBuildsModelView(ModelView):
         def is_accessible(self):
-            return current_user.is_authenticated and current_user.id == 1
+            if current_user.is_authenticated:
+                return current_user.id == 1 or current_user.role == "Admin"
+            else:
+                return False
 
     admin.add_view(RestrictedBuildsModelView(BuildsTable, db.session, category=builds_category.name))
 
