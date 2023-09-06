@@ -4,12 +4,8 @@ from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from werkzeug.security import generate_password_hash, check_password_hash
-<<<<<<< HEAD
-
 from .models import Users, PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-=======
 from flask_bcrypt import Bcrypt, check_password_hash 
->>>>>>> fix-stuff
 from . import db
 
 # Create a Blueprint for your views

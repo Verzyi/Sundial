@@ -729,15 +729,11 @@ def BlendTrace(blend, lvl, limit):
 
 @blends.route('/BlendInventory', methods=['GET', 'POST'])
 @login_required
-<<<<<<< HEAD
-def Inventory():
-=======
 def Blend_Inventory():
     # Import necessary libraries
     import datetime
     from sqlalchemy import func
     from sqlalchemy.orm import aliased
->>>>>>> fix-stuff
 
     # Define aliases for the tables
     PowderBlendsAlias = aliased(PowderBlends)
@@ -822,9 +818,6 @@ def Blend_Inventory():
         filtered_data = result_data
 
     return render_template(
-<<<<<<< HEAD
-        'inventory.html',
-=======
         "blend_inventory.html",
         user=current_user,
         inventory_data=filtered_data,
@@ -919,7 +912,6 @@ def Batch_Inventory():
 
     return render_template(
         "batch_inventory.html",
->>>>>>> fix-stuff
         user=current_user,
         inventory_query=filtered_data,
         alloy_names=alloy_names,
