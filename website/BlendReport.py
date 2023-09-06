@@ -1,3 +1,6 @@
+from . import db
+from .models import PowderBlends, PowderBlendParts, PowderBlendCalc, InventoryVirginBatch, MaterialProducts, MaterialAlloys
+
 def generate_report(blend_id='7334'):
     # Get the blend information
     blend = PowderBlends.query.get(blend_id)
@@ -11,14 +14,14 @@ def generate_report(blend_id='7334'):
     batch_ids = [part.PartBatchID for part in blend_parts]
     virgin_batches = InventoryVirginBatch.query.filter(InventoryVirginBatch.BatchID.in_(batch_ids)).all()
 
-    # Get the materials information
-    material_ids = [blend.MaterialID for blend in blend_parts]
-    materials = MaterialsTable.query.filter(MaterialsTable.MaterialID.in_(material_ids)).all()
+    # Get the material information
+    alloy_ids = [blend.AlloyID for blend in blend_parts]
+    alloys = MaterialProducts.query.filter(MaterialProducts.AlloyID.in_(alloy_ids)).all()
 
     # Process the data and create the required variables for the report
     blend_summary = {
         'Blend': blend.BlendID,
-        'Material': materials[0].MaterialName if materials else '',
+        'Material': alloys[0].MaterialName if alloys else '',
         'Total Weight (kg)': blend.TotalWeight,
         'Avg. Sieve Count': 0,
         'Max. Sieve Count': 0
@@ -49,7 +52,7 @@ def generate_report(blend_id='7334'):
     # Generate the breakdown information
     for part in blend_parts:
         batch = next((b for b in virgin_batches if b.BatchID == part.PartBatchID), None)
-        material = next((m for m in materials if m.MaterialID == part.MaterialID), None)
+        material = next((m for m in alloys if m.AlloyID == part.AlloyID), None)
 
         if batch and material:
             breakdown_entry = {

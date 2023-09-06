@@ -5,7 +5,7 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+from .models import Users, PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 from . import db
 
 # Create a Blueprint for your views
@@ -15,7 +15,7 @@ views = Blueprint('views', __name__)
 @login_required
 def builds_home():
     blends = PowderBlends.query.all()
-    return render_template("home.html", user=current_user)
+    return render_template('home.html', user=current_user)
 
 
 @views.route('/Settings', methods=['GET', 'POST'])

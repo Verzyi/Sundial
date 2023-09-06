@@ -1,11 +1,7 @@
 from . import db 
 from flask_login import UserMixin
-from sqlalchemy.sql import func
-from sqlalchemy import func
+from sqlalchemy import func, ForeignKeyConstraint
 from datetime import datetime
-from sqlalchemy import ForeignKeyConstraint
-
-
 
 
 class Users(db.Model, UserMixin):
@@ -36,20 +32,31 @@ class InventoryVirginBatch(db.Model):
     CurrentWeight = db.Column(db.Float)
     
 
-class MaterialsTable(db.Model):
+class MaterialProducts(db.Model):
+    SupplierProduct = db.Column(db.String)
+    ProductID = db.Column(db.Integer, primary_key=True, unique=True)
+    AlloyID = db.Column(db.Integer)
+
+
+class MaterialAlloys(db.Model):
+    Alloy = db.Column(db.String)
     MaterialName = db.Column(db.String(50))
-    SupplierProduct = db.Column(db.String, primary_key=True, unique=True)
     MaterialID = db.Column(db.Integer)
-    ProductID = db.Column(db.Integer)    
+    AlloyName = db.Column(db.String(50))
+    AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
 
 
 class PowderBlends(db.Model):
     BlendID	= db.Column(db.Integer, primary_key=True, unique=True )
     BlendDate = db.Column(db.String)
     BlendCreatedBy	= db.Column(db.Integer)
-    MaterialID	=db.Column(db.Integer)
+    AlloyID	=db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
     CurrentWeight = db.Column(db.Float)
+    
+__table_args__ = (
+        ForeignKeyConstraint(['BlendID', 'PartID'], ['PowderBlends.BlendID', 'PowderBlendParts.PartID']),
+    )
 
 
 class PowderBlendCalc(db.Model):
@@ -59,10 +66,6 @@ class PowderBlendCalc(db.Model):
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
     
-    
-__table_args__ = (
-        ForeignKeyConstraint(['BlendID', 'PartID'], ['PowderBlends.BlendID', 'PowderBlendParts.PartID']),
-    )
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)
@@ -143,80 +146,80 @@ class BuildsTable(db.Model):
     def to_dict(self):
         # Return a dictionary representation of the object's data
         return {
-            "BuildIt": self.BuildIt,
-            "CreatedBy": self.CreatedBy,
-            "CreatedOn": self.CreatedOn,
-            "FacilityName": self.FacilityName,
-            "SJBuild": self.SJBuild,
-            "Material": self.Material,
-            "MachineID": self.MachineID,
-            "BuildName": self.BuildName,
-            "PlatformWeight": self.PlatformWeight,
-            "Layer": self.Layer,
-            "Height": self.Height,
-            "Offset": self.Offset,
-            "ScaleX": self.ScaleX,
-            "ScaleY": self.ScaleY,
-            "Note": self.Note,
-            "BuildStart": self.BuildStart,
-            "BuildFinish": self.BuildFinish,
-            "BuildTime": self.BuildTime,
-            "FinishHeight": self.FinishHeight,
-            "FinishPlatformWeight": self.FinishPlatformWeight,
-            "BlendID": self.BlendID,
-            "CertificationBuild": self.CertificationBuild,
-            "FeedPowderHeight": self.FeedPowderHeight,
-            "EndFeedPowderHeight": self.EndFeedPowderHeight,
-            "PotentialBuildHeight": self.PotentialBuildHeight,
-            "Location": self.Location,
-            "PlateThickness": self.PlateThickness,
-            "PlateSerial": self.PlateSerial,
-            "MinChargeAmount": self.MinChargeAmount,
-            "MaxChargeAmount": self.MaxChargeAmount,
-            "DosingBoostAmount": self.DosingBoostAmount,
-            "RecoaterSpeed": self.RecoaterSpeed,
-            "ParameterRev": self.ParameterRev,
-            "MeasuredLaserPower": self.MeasuredLaserPower,
-            "GasFlow": self.GasFlow,
-            "MaterialAdded": self.MaterialAdded,
-            "InitialDosingFactor": self.InitialDosingFactor,
-            "MaxFinishHeight": self.MaxFinishHeight,
-            "MaxBuildTime": self.MaxBuildTime,
-            "MaxDateDifference": self.MaxDateDifference,
-            "PlatformTemperature": self.PlatformTemperature,
-            "StartLaserHours": self.StartLaserHours,
-            "FinalLaserHours": self.FinalLaserHours,
-            "InertTime": self.InertTime,
-            "F9FilterSerial": self.F9FilterSerial,
-            "H13FilterSerial": self.H13FilterSerial,
-            "FilterLight": self.FilterLight,
-            "EndPartPistonHeight": self.EndPartPistonHeight,
-            "Breakout": self.Breakout,
-            "CompletedWithoutStoppage": self.CompletedWithoutStoppage,
-            "Humidity": self.Humidity,
-            "BuildInterrupts": self.BuildInterrupts,
-            "RecoaterType": self.RecoaterType,
-            "VeloFlowSoftwareRev": self.VeloFlowSoftwareRev,
-            "VeloFlowSoftwareBase": self.VeloFlowSoftwareBase,
-            "VeloFlowBuildTimeEstimation": self.VeloFlowBuildTimeEstimation,
-            "VeloFlowBuildTimeEstimationCore": self.VeloFlowBuildTimeEstimationCore,
-            "VeloFlowBuildTimeEstimationSkin": self.VeloFlowBuildTimeEstimationSkin,
-            "VeloFlowBuildTimeEstimationSupport": self.VeloFlowBuildTimeEstimationSupport,
-            "VeloFlowBuildTimeEstimationRecoater": self.VeloFlowBuildTimeEstimationRecoater,
-            "VeloPrintSWRev": self.VeloPrintSWRev,
-            "SieveChange": self.SieveChange,
-            "LayerCount": self.LayerCount,
-            "FilterChange": self.FilterChange,
-            "BeamStabilityTestPerformed": self.BeamStabilityTestPerformed,
-            "LaserAlignmentTestPerformed": self.LaserAlignmentTestPerformed,
-            "ThermalSensorTest": self.ThermalSensorTest,
-            "LaserFocus": self.LaserFocus,
-            "PowderBed": self.PowderBed,
-            "PowderLevel": self.PowderLevel,
-            "SieveLife": self.SieveLife,
-            "FilterPressureDrop": self.FilterPressureDrop,
-            "Platform": self.Platform,
-            "BuildType": self.BuildType,
+            'BuildIt': self.BuildIt,
+            'CreatedBy': self.CreatedBy,
+            'CreatedOn': self.CreatedOn,
+            'FacilityName': self.FacilityName,
+            'SJBuild': self.SJBuild,
+            'Material': self.Material,
+            'MachineID': self.MachineID,
+            'BuildName': self.BuildName,
+            'PlatformWeight': self.PlatformWeight,
+            'Layer': self.Layer,
+            'Height': self.Height,
+            'Offset': self.Offset,
+            'ScaleX': self.ScaleX,
+            'ScaleY': self.ScaleY,
+            'Note': self.Note,
+            'BuildStart': self.BuildStart,
+            'BuildFinish': self.BuildFinish,
+            'BuildTime': self.BuildTime,
+            'FinishHeight': self.FinishHeight,
+            'FinishPlatformWeight': self.FinishPlatformWeight,
+            'BlendID': self.BlendID,
+            'CertificationBuild': self.CertificationBuild,
+            'FeedPowderHeight': self.FeedPowderHeight,
+            'EndFeedPowderHeight': self.EndFeedPowderHeight,
+            'PotentialBuildHeight': self.PotentialBuildHeight,
+            'Location': self.Location,
+            'PlateThickness': self.PlateThickness,
+            'PlateSerial': self.PlateSerial,
+            'MinChargeAmount': self.MinChargeAmount,
+            'MaxChargeAmount': self.MaxChargeAmount,
+            'DosingBoostAmount': self.DosingBoostAmount,
+            'RecoaterSpeed': self.RecoaterSpeed,
+            'ParameterRev': self.ParameterRev,
+            'MeasuredLaserPower': self.MeasuredLaserPower,
+            'GasFlow': self.GasFlow,
+            'MaterialAdded': self.MaterialAdded,
+            'InitialDosingFactor': self.InitialDosingFactor,
+            'MaxFinishHeight': self.MaxFinishHeight,
+            'MaxBuildTime': self.MaxBuildTime,
+            'MaxDateDifference': self.MaxDateDifference,
+            'PlatformTemperature': self.PlatformTemperature,
+            'StartLaserHours': self.StartLaserHours,
+            'FinalLaserHours': self.FinalLaserHours,
+            'InertTime': self.InertTime,
+            'F9FilterSerial': self.F9FilterSerial,
+            'H13FilterSerial': self.H13FilterSerial,
+            'FilterLight': self.FilterLight,
+            'EndPartPistonHeight': self.EndPartPistonHeight,
+            'Breakout': self.Breakout,
+            'CompletedWithoutStoppage': self.CompletedWithoutStoppage,
+            'Humidity': self.Humidity,
+            'BuildInterrupts': self.BuildInterrupts,
+            'RecoaterType': self.RecoaterType,
+            'VeloFlowSoftwareRev': self.VeloFlowSoftwareRev,
+            'VeloFlowSoftwareBase': self.VeloFlowSoftwareBase,
+            'VeloFlowBuildTimeEstimation': self.VeloFlowBuildTimeEstimation,
+            'VeloFlowBuildTimeEstimationCore': self.VeloFlowBuildTimeEstimationCore,
+            'VeloFlowBuildTimeEstimationSkin': self.VeloFlowBuildTimeEstimationSkin,
+            'VeloFlowBuildTimeEstimationSupport': self.VeloFlowBuildTimeEstimationSupport,
+            'VeloFlowBuildTimeEstimationRecoater': self.VeloFlowBuildTimeEstimationRecoater,
+            'VeloPrintSWRev': self.VeloPrintSWRev,
+            'SieveChange': self.SieveChange,
+            'LayerCount': self.LayerCount,
+            'FilterChange': self.FilterChange,
+            'BeamStabilityTestPerformed': self.BeamStabilityTestPerformed,
+            'LaserAlignmentTestPerformed': self.LaserAlignmentTestPerformed,
+            'ThermalSensorTest': self.ThermalSensorTest,
+            'LaserFocus': self.LaserFocus,
+            'PowderBed': self.PowderBed,
+            'PowderLevel': self.PowderLevel,
+            'SieveLife': self.SieveLife,
+            'FilterPressureDrop': self.FilterPressureDrop,
+            'Platform': self.Platform,
+            'BuildType': self.BuildType,
             # Add other attributes as needed
         }
 

@@ -1,6 +1,6 @@
+import os
 from flask import Flask, redirect, url_for, flash, request
 from flask_sqlalchemy import SQLAlchemy
-import os
 from flask_login import LoginManager, current_user
 from flask_debugtoolbar import DebugToolbarExtension
 from flask_admin import Admin, AdminIndexView
@@ -9,13 +9,13 @@ from flask_admin.menu import MenuCategory
 from .dashboard import dashboard
 
 db = SQLAlchemy()
-DB_NAME = "database.db"
+DB_NAME = 'database.db'
 
 def create_database(app):
-    if not os.path.exists("website/" + DB_NAME):
+    if not os.path.exists('website/' + DB_NAME):
         with app.app_context():
             db.create_all()
-            print("Database Created!")
+            print('Database Created!')
 
 def create_app():
     app = Flask(__name__)
@@ -48,7 +48,7 @@ def create_app():
     #     module = import_module('app.{}.routes'.format(module_name))
     #     app.register_blueprint(module.blueprint)
 
-    from .models import Users, PowderBlends, MaterialsTable, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+    from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
 
     create_database(app)
     
@@ -111,7 +111,8 @@ def create_app():
             return current_user.is_authenticated and current_user.id == 1
 
     admin.add_view(RestrictedBlendModelView(PowderBlends, db.session, category=blends_category.name))
-    admin.add_view(ModelView(MaterialsTable, db.session, category=blends_category.name))
+    admin.add_view(ModelView(MaterialAlloys, db.session, category=blends_category.name))
+    admin.add_view(ModelView(MaterialProducts, db.session, category=blends_category.name))
     admin.add_view(ModelView(InventoryVirginBatch, db.session, category=blends_category.name))
     admin.add_view(ModelView(PowderBlendParts, db.session, category=blends_category.name))
     admin.add_view(ModelView(PowderBlendCalc, db.session, category=blends_category.name))

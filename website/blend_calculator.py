@@ -1,5 +1,5 @@
 from . import db
-from .models import PowderBlends, PowderBlendParts, PowderBlendCalc
+from .models import PowderBlends, PowderBlendCalc
 
 
 class BlendDatabaseUpdater:
@@ -51,4 +51,4 @@ class BlendDatabaseUpdater:
             self.db.session.add(new_row)
 
         self.db.session.commit()
-        print("Blend calculations updated successfully.")
+        print('Blend calculations updated successfully.')
