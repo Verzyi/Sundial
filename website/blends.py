@@ -862,20 +862,26 @@ def Batch_Inventory():
     from sqlalchemy.orm import aliased
 
     # Define aliases for the tables
-    PowderBlendsAlias = aliased(PowderBlends)
+    InventoryVirginBatchAlias = aliased(InventoryVirginBatch)
     MaterialsTableAlias = aliased(MaterialsTable)
 
-    # Retrieve the blend inventory data
-    query = db.session.query(
-        PowderBlendsAlias.BlendID,
-        MaterialsTableAlias.MaterialName,
-        PowderBlendsAlias.CurrentWeight,
-        PowderBlendsAlias.BlendDate
-    ).join(
-        MaterialsTableAlias, PowderBlendsAlias.MaterialID == MaterialsTableAlias.MaterialID
-    ).order_by(MaterialsTableAlias.MaterialName)
+    # Initialize batch_id_set as an empty set
+    batch_id_set = set()
 
-    # Fetch the blend inventory data
+    # Retrieve the blend inventory data where CurrentWeight > 5
+    query = db.session.query(
+        InventoryVirginBatchAlias.BatchID,
+        MaterialsTableAlias.MaterialName,
+        MaterialsTableAlias.SupplierProduct,  # Include SupplierProduct in the query
+        InventoryVirginBatchAlias.CurrentWeight,
+        InventoryVirginBatchAlias.BatchTimeStamp    
+    ).join(
+        MaterialsTableAlias, InventoryVirginBatchAlias.ProductID == MaterialsTableAlias.ProductID
+    ).filter(
+        InventoryVirginBatchAlias.CurrentWeight > 5  # Add the filter condition
+    ).order_by(MaterialsTableAlias.MaterialName)
+    
+    # Fetch the batch inventory data
     inventory_data = query.all()
 
     # Create a list to store the result data
@@ -885,56 +891,43 @@ def Batch_Inventory():
     current_material = None
     subtotal_weight = 0
 
-    # Set to store blend IDs
-    blend_ids_set = set()
-
     # Iterate over the inventory data
-    for blend_id, material_name, total_weight, blend_date in inventory_data:
+    for batch_id, material_name, supplier_product, current_weight, batch_date in inventory_data:
         # Check if the material has changed
         if material_name != current_material:
             # Add subtotal row for previous material
             if current_material is not None:
-                subtotal_row = ("Subtotal", current_material, subtotal_weight)
+                subtotal_row = ("Subtotal", current_material, supplier_product, subtotal_weight)
                 result_data.append(subtotal_row)
 
             # Update current material and reset subtotal weight
             current_material = material_name
             subtotal_weight = 0
 
-        # Check if blend_date is not None before converting to datetime.date object
-        if blend_date is not None:
-            blend_date = datetime.datetime.strptime(blend_date, '%m/%d/%Y %H:%M').date()
+        # Check if batch_date is not None before converting to datetime.date object
+        if batch_date is not None:
+            batch_date = datetime.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
 
-        # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
-        if (
-            blend_date is not None
-            and blend_date > datetime.date(2021, 8, 1)
-            and total_weight is not None
-            and total_weight > 20
-            and blend_id not in blend_ids_set
-        ):
-            blend_row = (blend_id, material_name, total_weight)
-            result_data.append(blend_row)
+            batch_row = (batch_id, material_name, supplier_product, current_weight)
+            result_data.append(batch_row)
 
             # Update subtotal weight
-            if total_weight is not None:
-                subtotal_weight += total_weight
+            if current_weight is not None:
+                subtotal_weight += current_weight
 
-            # Add blend ID to set
-            blend_ids_set.add(blend_id)
+            # Add batch ID to set
+            batch_id_set.add(batch_id)
 
     # Add final subtotal row for the last material
     if current_material is not None:
-        subtotal_row = ("Subtotal", current_material, round(subtotal_weight, 2))
+        subtotal_row = ("Subtotal", current_material, supplier_product, round(subtotal_weight, 2))
         result_data.append(subtotal_row)
 
-
     # Calculate total weight
-    total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
+    total_weight = sum(row[3] for row in result_data if isinstance(row[3], (int, float)))
 
     # Get distinct material names
     material_names = sorted(set(row[1] for row in result_data))
-    
 
     # Filter by selected material name
     selected_material = request.form.get('material') or request.args.get('material')

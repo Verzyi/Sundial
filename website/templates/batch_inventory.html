@@ -59,12 +59,12 @@
   </div>
   <div class="container">
     <form
-      action="{{ url_for('blends.blend_history') }}"
+      action="{{ url_for('blends.Batch_Inventory') }}"
       method="POST"
       class="mt-4"
     >
     <div class="container">
-      <form action="{{ url_for('blends.blend_history') }}" method="POST" class="mt-4">
+      <form action="{{ url_for('blends.Batch_Inventory') }}" method="POST" class="mt-4">
         <div class="d-grid">
       <label class="btn btn-outline-primary" for="swtich" >Switch to Virgin Blend Inventory</label>
       <input type="radio"
@@ -85,45 +85,48 @@
         style="text-align: center"
         onchange="this.form.submit()"
       >
-        <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
-        {% for material in material_names %}
-          <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
-        {% endfor %}
-      </select>
     </div>
-  </form>
+          <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
+          {% for material in material_names %}
+            <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
+          {% endfor %}
+        </select>
+      </div>
+    </form>
 
-  <div class="table-responsive mt-4">
-    <table class="table table-hover">
-      <!-- Table headers -->
-      <thead>
-        <tr>
-          <th>Blend ID</th>
-          <th>Material</th>
-          <th>Current Weight (kg)</th>
-        </tr>
-      </thead>
-      <tbody>
-      {% for blend_id, material_name, current_weight in inventory_data %}
-        {% if blend_id == 'Subtotal' %}
+    <div class="table-responsive mt-4">
+      <table class="table table-hover">
+        <!-- Table headers -->
+        <thead>
+          <tr>
+            <th>Batch ID</th>
+            <th>Material</th>
+            <th>Supplier Product </th>
+            <th>Current Weight (kg)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for batch_id, material_name, supplier_product, current_weight in inventory_data %}
+        {% if batch_id == 'Subtotal' %}
           <tr class="table-active">
-            <td><span style="color: red;">{{ blend_id }}</td>
+            <td><span style="color: red;">{{ batch_id }}</td>
             <td><span style="color: red;">{{ material_name }}</td>
+            <td><span style="color: red;"></td>
             <td><span style="color: red;">{{ "%.2f" % current_weight }}</span></td>
           </tr>
         {% else %}
           <tr class="table-active">
-            <td>{{ blend_id }}</td>
+            <td>{{ batch_id }}</td>
             <td>{{ material_name }}</td>
+            <td>{{ supplier_product }}</td>
             <td>{{ "%.2f" % current_weight }}</td>
           </tr>
         {% endif %}
       {% endfor %}
-      </tbody>
-    </table>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="text-end mt-3">Total Weight: {{ total_weight }}</p>
   </div>
-
-  <p class="text-end mt-3">Total Weight: {{ total_weight }}</p>
-
-</div>
 {% endblock %}
