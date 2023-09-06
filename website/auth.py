@@ -11,8 +11,6 @@ bcrypt = Bcrypt()
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
-    logout_user()
-    session.clear()
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -37,6 +35,7 @@ def login():
 def logout():
     logout_user()
     session.clear()
+    session['_remember'] = 'clear'
     return redirect(url_for('auth.login'))
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
@@ -67,7 +66,8 @@ def signup():
                 email=email,
                 first_name=first_name,
                 last_name=last_name,
-                password=hashed_password
+                password=hashed_password,
+                role="User"
             )
             db.session.add(new_user)
             db.session.commit()

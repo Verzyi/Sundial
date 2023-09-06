@@ -1,7 +1,7 @@
 {% extends "blend.html" %}
 {% block title %}Inventory{% endblock %}
 {% block content %}
-<h1 class="text-center">Blend System - Inventory</h1>
+<h1 class="text-center">Blend System - Blend Inventory</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -52,13 +52,31 @@
         id="Inventory"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/inventory'"
+        onclick="window.location.href = '/BlendInventory'"
       />
       <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
     </div>
   </div>
+  <div class="container">
+    <form
+      action="{{ url_for('blends.Blend_Inventory') }}"
+      method="POST"
+      class="mt-4"
+    >
+    <div class="container">
+      <form action="{{ url_for('blends.Blend_Inventory') }}" method="POST" class="mt-4">
+        <div class="d-grid">
+      <label class="btn btn-outline-primary" for="swtich" >Switch to Virgin Batch Inventory</label>
+      <input type="radio"
+      class="btn-check"
+      name="btnradio"
+      id="swtich"
+      autocomplete="off"
+      onclick="window.location.href = '/BatchInventory'"
+      ></input>
+        </div>
 
-  <form action="{{ url_for('blends.inventory') }}" method="POST" class="mt-4">
+  <form action="{{ url_for('blends.Blend_Inventory') }}" method="POST" class="mt-4">
     <div class="form-group">
       <select
         name="material"
