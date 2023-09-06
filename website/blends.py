@@ -727,9 +727,17 @@ def BlendTrace(blend, lvl, limit):
     return cleaned_tracebacks
 
 
-@blends.route('/inventory', methods=['GET', 'POST'])
+@blends.route('/BlendInventory', methods=['GET', 'POST'])
 @login_required
+<<<<<<< HEAD
 def Inventory():
+=======
+def Blend_Inventory():
+    # Import necessary libraries
+    import datetime
+    from sqlalchemy import func
+    from sqlalchemy.orm import aliased
+>>>>>>> fix-stuff
 
     # Define aliases for the tables
     PowderBlendsAlias = aliased(PowderBlends)
@@ -814,7 +822,104 @@ def Inventory():
         filtered_data = result_data
 
     return render_template(
+<<<<<<< HEAD
         'inventory.html',
+=======
+        "blend_inventory.html",
+        user=current_user,
+        inventory_data=filtered_data,
+        material_names=material_names,
+        total_weight=total_weight,
+        selected_material=selected_material
+    )
+
+
+@blends.route('/BatchInventory', methods=['GET', 'POST'])
+@login_required
+def Batch_Inventory():
+    # Import necessary libraries
+    import datetime
+    from sqlalchemy import func
+    from sqlalchemy.orm import aliased
+
+    # Define aliases for the tables
+    InventoryVirginBatchAlias = aliased(InventoryVirginBatch)
+    MaterialsTableAlias = aliased(MaterialsTable)
+
+    # Initialize batch_id_set as an empty set
+    batch_id_set = set()
+
+    # Retrieve the blend inventory data where CurrentWeight > 5
+    query = db.session.query(
+        InventoryVirginBatchAlias.BatchID,
+        MaterialsTableAlias.MaterialName,
+        MaterialsTableAlias.SupplierProduct,  # Include SupplierProduct in the query
+        InventoryVirginBatchAlias.CurrentWeight,
+        InventoryVirginBatchAlias.BatchTimeStamp    
+    ).join(
+        MaterialsTableAlias, InventoryVirginBatchAlias.ProductID == MaterialsTableAlias.ProductID
+    ).filter(
+        InventoryVirginBatchAlias.CurrentWeight > 5  # Add the filter condition
+    ).order_by(MaterialsTableAlias.MaterialName)
+    
+    # Fetch the batch inventory data
+    inventory_data = query.all()
+
+    # Create a list to store the result data
+    result_data = []
+
+    # Variables for subtotal calculation
+    current_material = None
+    subtotal_weight = 0
+
+    # Iterate over the inventory data
+    for batch_id, material_name, supplier_product, current_weight, batch_date in inventory_data:
+        # Check if the material has changed
+        if material_name != current_material:
+            # Add subtotal row for previous material
+            if current_material is not None:
+                subtotal_row = ("Subtotal", current_material, supplier_product, subtotal_weight)
+                result_data.append(subtotal_row)
+
+            # Update current material and reset subtotal weight
+            current_material = material_name
+            subtotal_weight = 0
+
+        # Check if batch_date is not None before converting to datetime.date object
+        if batch_date is not None:
+            batch_date = datetime.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
+
+            batch_row = (batch_id, material_name, supplier_product, current_weight)
+            result_data.append(batch_row)
+
+            # Update subtotal weight
+            if current_weight is not None:
+                subtotal_weight += current_weight
+
+            # Add batch ID to set
+            batch_id_set.add(batch_id)
+
+    # Add final subtotal row for the last material
+    if current_material is not None:
+        subtotal_row = ("Subtotal", current_material, supplier_product, round(subtotal_weight, 2))
+        result_data.append(subtotal_row)
+
+    # Calculate total weight
+    total_weight = sum(row[3] for row in result_data if isinstance(row[3], (int, float)))
+
+    # Get distinct material names
+    material_names = sorted(set(row[1] for row in result_data))
+
+    # Filter by selected material name
+    selected_material = request.form.get('material') or request.args.get('material')
+    if selected_material and selected_material != "All Materials":
+        filtered_data = [row for row in result_data if row[1] == selected_material]
+    else:
+        filtered_data = result_data
+
+    return render_template(
+        "batch_inventory.html",
+>>>>>>> fix-stuff
         user=current_user,
         inventory_query=filtered_data,
         alloy_names=alloy_names,
