@@ -10,34 +10,34 @@
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="Search"
+          id="search"
           autocomplete="off"
           onclick="window.location.href = '/search-blend'"
         />
-        <label class="btn btn-outline-primary" for="Search">Search</label>
+        <label class="btn btn-outline-primary" for="search">Search</label>
 
         <!-- "Create Blend" button -->
         <input
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="New"
+          id="create-blend"
           autocomplete="off"
           checked
           onclick="window.location.href = '/create-blend'"
         />
-        <label class="btn btn-outline-primary" for="New">Create Blend</label>
+        <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
         <!-- "Create Batch" button -->
         <input
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="createBatch"
+          id="create-batch"
           autocomplete="off"
           onclick="window.location.href = '/create-batch'"
         />
-        <label class="btn btn-outline-primary" for="createBatch"
+        <label class="btn btn-outline-primary" for="create-batch"
           >Create Batch</label
         >
 
@@ -46,22 +46,22 @@
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="History"
+          id="history"
           autocomplete="off"
           onclick="window.location.href = '/history-blend'"
         />
-        <label class="btn btn-outline-primary" for="History">History</label>
+        <label class="btn btn-outline-primary" for="history">History</label>
 
         <!-- "Inventory" button -->
         <input
           type="radio"
           class="btn-check"
           name="btnradio"
-          id="Inventory"
+          id="inventory"
           autocomplete="off"
-          onclick="window.location.href = '/BlendInventory'"
+          onclick="window.location.href = '/inventory-blend'"
         />
-        <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+        <label class="btn btn-outline-primary" for="inventory">Inventory</label>
       </div>
     </div>
   </div>
@@ -81,23 +81,26 @@
               type="radio"
               class="btn-check"
               name="option"
-              id="Blend"
+              id="btn_blend"
               value="Blend"
               autocomplete="off"
-              checked
             />
-            <label class="btn btn-outline-primary" style="width:120px;" for="Blend">Blend</label>
+            <label class="btn btn-outline-primary" style="width:120px;" for="btn_blend">
+              Blend
+            </label>
 
         <!-- "Virgin Batch" button -->
             <input
               type="radio"
               class="btn-check"
               name="option"
-              id="Batch"
+              id="btn_batch"
               value="Batch"
               autocomplete="off"
             />
-            <label class="btn btn-outline-primary" style="width:120px;" for="Batch">Virgin Batch</label>
+            <label class="btn btn-outline-primary" style="width:120px;" for="btn_batch">
+              Virgin Batch
+            </label>
           </div>
         </div>
 
@@ -112,13 +115,13 @@
             placeholder="0"
           />
 
-          <label for="weight" class="form-label">Weight (kg)</label>
+          <label for="added_weight" class="form-label">Weight (kg)</label>
           <input
             type="number"
             step="0.01"
             class="form-control"
-            name="weight"
-            id="weight"
+            name="added_weight"
+            id="added_weight"
             placeholder="0"
           />
         </div>
@@ -134,7 +137,7 @@
         </div>
         <div class="form-group mt-4">
           <label for="total" id="weightTotal"
-            >Total Weight: {{ totalWeight }} kg</label
+            >Total Blend Weight: {{ total_weight }} kg</label
           >
         </div>
         <div class="d-grid">
@@ -159,11 +162,11 @@
               </tr>
             </thead>
             <tbody>
-              {% for i in range(blends|length) %}
+              {% for i in range(blend_list|length) %}
               <tr class="table-active">
-                <td>Old Blend {{ blends[i] }}</td>
+                <td>Blend {{ blend_list[i] }}</td>
                 <td>{{ alloy_list[i] }}</td>
-                <td>{{ blendWeights[i] }}</td>
+                <td>{{ blend_part_weights[i] }}</td>
                 <td>
                   <button
                     type="submit"
@@ -176,10 +179,10 @@
               </tr>
               {% endfor %} 
               {% for i in range(batch_list|length) %}
-              <tr style='font-style: italic;' class="table-active">
-                <td>Old Batch {{ batch_list[i] }}</td>
+              <tr class="table-active table-secondary">
+                <td>Batch {{ batch_list[i] }}</td>
                 <td>{{ alloy_list[i] }}</td>
-                <td>{{ batchWeights[i] }}</td>
+                <td>{{ batch_weights[i] }}</td>
                 <td>
                   <button
                     type="submit"

@@ -27,7 +27,6 @@ def create_app():
     app.config['DEBUG_TB_ENABLED'] = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
-    
 
     from .blends import blends
     from .auth import auth
@@ -90,8 +89,8 @@ def create_app():
 
     # Users
     class RestrictedUsersAdminView(ModelView):
+        column_display_pk = True
         column_searchable_list = ['email', 'first_name', 'last_name']
-
         def is_accessible(self):
             if current_user.is_authenticated:
                 return current_user.id == 1 or current_user.role == "Admin"
@@ -102,23 +101,29 @@ def create_app():
 
     # Blend
     class RestrictedBlendModelView(ModelView):
+        column_display_pk = True
         column_searchable_list = ['BlendID', 'BlendDate', 'BlendCreatedBy']
-
         def is_accessible(self):
             if current_user.is_authenticated:
                 return current_user.id == 1 or current_user.role == "Admin"
             else:
                 return False
-
     admin.add_view(RestrictedBlendModelView(PowderBlends, db.session, category=blends_category.name))
-    admin.add_view(ModelView(MaterialAlloys, db.session, category=blends_category.name))
-    admin.add_view(ModelView(MaterialProducts, db.session, category=blends_category.name))
-    admin.add_view(ModelView(InventoryVirginBatch, db.session, category=blends_category.name))
-    admin.add_view(ModelView(PowderBlendParts, db.session, category=blends_category.name))
-    admin.add_view(ModelView(PowderBlendCalc, db.session, category=blends_category.name))
+
+    # Batch
+    class RestrictedBatchModelView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['BatchID', 'ProductID', 'BatchCreatedBy']
+        def is_accessible(self):
+            if current_user.is_authenticated:
+                return current_user.id == 1 or current_user.role == "Admin"
+            else:
+                return False
+    admin.add_view(RestrictedBatchModelView(InventoryVirginBatch, db.session, category=blends_category.name))
 
     # Build
     class RestrictedBuildsModelView(ModelView):
+        column_display_pk = True
         def is_accessible(self):
             if current_user.is_authenticated:
                 return current_user.id == 1 or current_user.role == "Admin"
@@ -126,6 +131,11 @@ def create_app():
                 return False
 
     admin.add_view(RestrictedBuildsModelView(BuildsTable, db.session, category=builds_category.name))
+
+    admin.add_view(ModelView(MaterialAlloys, db.session, category=blends_category.name))
+    admin.add_view(ModelView(MaterialProducts, db.session, category=blends_category.name))
+    admin.add_view(ModelView(PowderBlendParts, db.session, category=blends_category.name))
+    admin.add_view(ModelView(PowderBlendCalc, db.session, category=blends_category.name))
 
     app = dashboard.init_dashboard(app)
 

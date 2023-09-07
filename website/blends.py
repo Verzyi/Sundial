@@ -226,12 +226,11 @@ def SearchBatch():
     return render_template('search-batch.html', user=current_user, batch=batch_query)
 
 
-numbers = []
-weights = []
+blend_list = []
+blend_part_weights = []
 batch_list = [] 
-batchWeights = []
+batch_weights = []
 alloy_list = []
-
 
 @blends.route('/create-blend', methods=['GET', 'POST'])
 @login_required
@@ -240,37 +239,36 @@ def CreateBlend():
     if request.method == 'POST':
         batch_blend_id = request.form.get('batch_blend_id')
         if 'add' in request.form:
-            weight = request.form.get('weight')
-            if batch_blend_id is not None and weight is not None and batch_blend_id != "" and weight != "":
-                if float(weight) > 1:
-                    radioOption = request.form.get('option')
-                    if radioOption == 'Blend':
-                        if batch_blend_id in numbers:
+            added_weight = request.form.get('added_weight')
+            if batch_blend_id is not None and added_weight is not None and batch_blend_id != "" and added_weight != "":
+                if float(added_weight) > 1:
+                    radio_option = request.form.get('option')
+                    if radio_option == 'Blend':
+                        if batch_blend_id in blend_list:
                             flash(f'Blend {batch_blend_id} has already been added.',
                                   category='error')
                         else:
-                            blend_query = PowderBlends.query.filter_by(BlendID=batch_blend_id).first()
-
+                            blend_query = PowderBlends.query.filter_by(
+                                BlendID=batch_blend_id).first()
                             if blend_query:
-                                blendWeight = blend_query.CurrentWeight
+                                blend_part_weight = blend_query.CurrentWeight
                                 alloy_id = blend_query.AlloyID
                                 query = db.session.query(MaterialAlloys.AlloyName) \
                                     .join(PowderBlends, MaterialAlloys.AlloyID == PowderBlends.AlloyID) \
                                         .filter(PowderBlends.AlloyID == alloy_id)
                                 alloy = query.first()[0]
 
-                                if float(blendWeight) < float(weight):
-                                    flash(f'Blend cannot exceed the available weight ({blendWeight} kg)', category='error')
+                                if float(blend_part_weight) < float(added_weight):
+                                    flash(f'Blend cannot exceed the available weight ({blend_part_weight} kg)', category='error')
                                 else:
                                     flash(f'Blend {batch_blend_id} added',category='success')
-                                    numbers.append(batch_blend_id)
-                                    weights.append(weight)
+                                    blend_list.append(batch_blend_id)
+                                    blend_part_weights.append(added_weight)
                                     alloy_list.append(alloy)
                                     session['alloy_name'] = alloy
                             else:
                                 flash(f'Blend {batch_blend_id} does not exist.', category='error')
-
-                    elif radioOption == 'Batch':
+                    elif radio_option == 'Batch':
                         if batch_blend_id in batch_list:
                             flash(f'Batch {batch_blend_id} has already been added.',
                                   category='error')
@@ -279,15 +277,15 @@ def CreateBlend():
                                 BatchID=batch_blend_id).scalar()
 
                             if batch_query:
-                                batchWeight = batch_query.CurrentWeight
+                                batch_weight = batch_query.CurrentWeight
 
-                                if float(batchWeight) < float(weight):
-                                    flash(f'Batch cannot exceed the available weight ({batchWeight} kg)', category='error')
+                                if float(batch_weight) < float(added_weight):
+                                    flash(f'Batch cannot exceed the available weight ({batch_weight} kg)', category='error')
                                 else:
                                     flash(f'Batch {batch_blend_id} added.',
                                           category='success')
                                     batch_list.append(batch_blend_id)
-                                    batchWeights.append(weight)
+                                    batch_weights.append(added_weight)
                                     product_id = batch_query.ProductID
                                     query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName) \
                                         .join(MaterialProducts, InventoryVirginBatch.ProductID == MaterialProducts.ProductID) \
@@ -307,10 +305,10 @@ def CreateBlend():
 
                 if alloy:
                     alloy_id = alloy.AlloyID
-                    blendWeight = sum(
-                        [float(w) for w in weights] + [float(w) for w in batchWeights])
+                    total_weight = sum(
+                        [float(w) for w in blend_part_weights] + [float(w) for w in batch_weights])
 
-                    if blendWeight > 0:
+                    if total_weight > 0:
                         last_blend = PowderBlends.query.order_by(
                             PowderBlends.BlendID.desc()).first()
                         last_blend_id = last_blend.BlendID if last_blend else 0
@@ -321,47 +319,62 @@ def CreateBlend():
                             BlendDate=dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S'),#.lstrip('0').replace(' 0', ' '),
                             BlendCreatedBy=current_user.id,
                             AlloyID=alloy_id,
-                            TotalWeight=blendWeight
+                            TotalWeight=total_weight,
+                            CurrentWeight=total_weight,
                         )
                         db.session.add(new_blend)
                         db.session.commit()
-
                         flash(f'{alloy_name} Blend {new_blend_id} created!', category='success')
-
+                        
+                        # Update PowderBlends
+                        for i, blend_id in enumerate(blend_list):
+                            blend_query = PowderBlends.query.filter_by(
+                                BlendID=blend_id).first()
+                            blend_query.CurrentWeight -= float(blend_part_weights[i])
+                            db.session.commit()
+                            
+                        # Update InventoryVirginBatch
+                        for i, batch_id in enumerate(batch_list):
+                            batch_query = InventoryVirginBatch.query.filter_by(
+                                BatchID=batch_id).first()
+                            batch_query.CurrentWeight -= float(batch_weights[i])
+                            db.session.commit()
+                            
+                        # Update PowderBlendParts
                         last_part_id = 0
                         if PowderBlendParts.query.count() > 0:
                             last_part_id = db.session.query(
                                 func.max(PowderBlendParts.PartID)).scalar()
-
-                        for i, number in enumerate(numbers):
+                        for i, blend_id in enumerate(blend_list):
                             new_part = PowderBlendParts(
                                 PartID=last_part_id + i + 1,
                                 BlendID=new_blend_id,
-                                PartBlendID=number,
+                                PartBlendID=blend_id,
                                 PartBatchID=None,
-                                AddedWeight=float(weights[i])
+                                AddedWeight=float(blend_part_weights[i])
                             )
                             db.session.add(new_part)
-
-                        for i, batch in enumerate(batch_list):
+                        for i, batch_id in enumerate(batch_list):
                             new_part = PowderBlendParts(
-                                PartID=last_part_id + len(numbers) + i + 1,
+                                PartID=last_part_id + len(blend_list) + i + 1,
                                 BlendID=new_blend_id,
                                 PartBlendID=None,
-                                PartBatchID=batch,
-                                AddedWeight=float(batchWeights[i])
+                                PartBatchID=batch_id,
+                                AddedWeight=float(batch_weights[i])
                             )
                             db.session.add(new_part)
                         db.session.commit()
-
+                        
+                        # Update BlendDatabaseCalc
                         updater = BlendDatabaseUpdater(
-                            blend_limit=500, frac_limit=0.0001)
-                        updater.update_blend_database(numbers, weights)
-
-                        numbers.clear()
-                        weights.clear()
+                            blend_limit=500, 
+                            frac_limit=0.0001)
+                        updater.update_blend_database(blend_list, blend_part_weights)
+                        # Clear lists and variables
+                        blend_list.clear()
+                        blend_part_weights.clear()
                         batch_list.clear()
-                        batchWeights.clear()
+                        batch_weights.clear()
                         alloy_list.clear()
                         session.pop('alloy_name', None)
                     else:
@@ -370,22 +383,28 @@ def CreateBlend():
                     flash('Selected material does not exist.', category='error')
             else:
                 flash('Selected materials do not match.', category='error')
-    totalWeight = sum([float(w) for w in weights] + [float(w) for w in batchWeights])
-    return render_template('create-blend.html', user=current_user, blends=numbers, blendWeights=weights,
-                           batch_list=batch_list, batchWeights=batchWeights, alloy_list=alloy_list,
-                           totalWeight=totalWeight,
-                        #    blend_or_batch=blend_or_batch,
-                           )
+    total_weight = sum([float(w) for w in blend_part_weights] + \
+        [float(w) for w in batch_weights])
+    return render_template(
+        'create-blend.html', 
+        user=current_user, 
+        blend_list=blend_list, 
+        blend_part_weights=blend_part_weights,
+        batch_list=batch_list, 
+        batch_weights=batch_weights, 
+        alloy_list=alloy_list,
+        total_weight=total_weight
+        )
 
 
 @blends.route('/removeBlend/<int:blendIndex>', methods=['POST'])
 @login_required
 def RemoveBlend(blendIndex):
-    if blendIndex < len(numbers):
-        numbers.pop(blendIndex)
-        weights.pop(blendIndex)
+    if blendIndex < len(blend_list):
+        blend_list.pop(blendIndex)
+        blend_part_weights.pop(blendIndex)
         alloy_list.pop(blendIndex)
-    if not numbers:  # Check if the numbers list is empty
+    if not blend_list:  # Check if blend_list is empty
         session.pop('alloy_name', None)  # Clear the session variable
     return redirect(url_for('blends.CreateBlend'))
 
@@ -395,7 +414,7 @@ def RemoveBlend(blendIndex):
 def RemoveBatch(batchIndex):
     if batchIndex < len(batch_list):
         batch_list.pop(batchIndex)
-        batchWeights.pop(batchIndex)
+        batch_weights.pop(batchIndex)
         alloy_list.pop(batchIndex)
     return redirect(url_for('blends.CreateBlend'))
 
@@ -403,27 +422,32 @@ def RemoveBatch(batchIndex):
 @blends.route('/create-batch', methods=['GET', 'POST'])
 @login_required
 def CreateBatch():
-    products_table = db.session.query(MaterialProducts.SupplierProduct, MaterialAlloys.AlloyName) \
-        .join(MaterialAlloys, MaterialProducts.AlloyID == MaterialAlloys.AlloyID).all()
-    # print(products_table)
-    alloy_names = sorted(set([product.AlloyName for product in products_table]))
+    products_query = db.session.query(
+        MaterialProducts.SupplierProduct, 
+        MaterialAlloys.AlloyName
+        ).join(
+            MaterialAlloys, 
+            MaterialProducts.AlloyID == MaterialAlloys.AlloyID
+            ).all()
+    # print(products_query)
+    alloy_names = sorted(set([product.AlloyName for product in products_query]))
     # print(alloy_names)
     material_products = {}
-    for product in products_table:
+    for product in products_query:
         if product.AlloyName not in material_products:
             material_products[product.AlloyName] = []
         material_products[product.AlloyName].append(
             product.SupplierProduct)
     # print(material_products)
     if request.method == 'POST':
-        poNumber = request.form.get('poNumber', '')
-        vlot = request.form.get('vLot', '')
+        v_po = request.form.get('v_po', '')
+        v_lot = request.form.get('v_lot', '')
         weight = request.form.get('weight', '')
         product = request.form.get('product', '')
 
-        if not poNumber:
+        if not v_po:
             flash('Missing PO Number. Please enter a PO Number.', category='error')
-        elif not vlot:
+        elif not v_lot:
             flash('Missing Virgin Lot. Please enter a Virgin Lot.', category='error')
         elif not weight:
             flash('Missing Weight. Please enter a Weight.', category='error')
@@ -447,12 +471,12 @@ def CreateBatch():
                 new_batch = InventoryVirginBatch(
                     BatchID=new_batch_id,
                     BatchCreatedBy=current_user.id,
-                    BatchTimeStamp=str(
-                    dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
+                    BatchTimeStamp=str(dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                     BatchFacilityID=int(4),
-                    VirginPO=int(poNumber),
-                    VirginLot=str(vlot),
+                    VirginPO=int(v_po),
+                    VirginLot=str(v_lot),
                     VirginWeight=float(weight),
+                    CurrentWeight=float(weight),
                     ProductID=int(product_id)
                 )
                 # flash(product_id, category='success')
@@ -464,7 +488,10 @@ def CreateBatch():
                 flash(f'Product {product} not found.', category='error')
                 # Additional error handling code if needed
 
-    return render_template('create-batch.html', user=current_user, alloy_names=alloy_names, \
+    return render_template(
+        'create-batch.html', 
+        user=current_user, 
+        alloy_names=alloy_names,
         material_products=material_products)
 
 
@@ -496,10 +523,17 @@ def HistoryBlend():
 @login_required
 def HistoryBatch():
     alloy_name = None
-    batch_query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName, MaterialProducts.SupplierProduct)\
-        .join(MaterialProducts, InventoryVirginBatch.ProductID == MaterialProducts.ProductID) \
-            .join(MaterialAlloys, MaterialProducts.AlloyID == MaterialAlloys.AlloyID) \
-                .order_by(InventoryVirginBatch.BatchID.desc())
+    batch_query = db.session.query(
+        InventoryVirginBatch, 
+        MaterialAlloys.AlloyName, 
+        MaterialProducts.SupplierProduct
+        ).join(
+            MaterialProducts, 
+            InventoryVirginBatch.ProductID == MaterialProducts.ProductID
+            ).join(
+                MaterialAlloys, 
+                MaterialProducts.AlloyID == MaterialAlloys.AlloyID
+                ).order_by(InventoryVirginBatch.BatchID.desc())
 
     if request.method == 'POST':
         alloy_name = request.form.get('alloy')
@@ -583,7 +617,7 @@ def BlendReport():
     alloy_id = powder_blend.set_index('BlendID')['AlloyID'].to_dict()[blend]
     alloy_name = material_alloys.set_index('AlloyID')['AlloyName'].to_dict()[alloy_id]
     # material = alloy_id.map(mat_dict)
-    total_weight = powder_blend[powder_blend['BlendID']
+    total_wt = powder_blend[powder_blend['BlendID']
                                 == blend]['TotalWeight'].iloc[0]
     count_avg = round((blend_data['PartFraction']
                       * blend_data['SieveCount']).sum())
@@ -591,7 +625,7 @@ def BlendReport():
 
     summary_dict = {'Blend': blend,
                     'Material': alloy_name,
-                    'Total Weight (kg)': total_weight,
+                    'Total Weight (kg)': total_wt,
                     'Avg. Sieve Count': count_avg,
                     'Max. Sieve Count': count_max,
                     }
@@ -670,19 +704,20 @@ def BlendReport():
     return response
 
 
-@blends.route('/trace/<int:blend>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@blends.route('/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
 @login_required
-def BlendTrace(blend, lvl, limit):
-    blendPartTable = 'powder_blend_parts'
+def BlendTrace(blend_id, lvl, limit):
+    # blendPartTable = 'powder_blend_parts'
     powder_blend_part = pd.read_sql(
-        f"SELECT * FROM {blendPartTable}", con=db.engine)
-    blendsTable = "powder_blends"
-    powder_blend = pd.read_sql(f"SELECT * FROM {blendsTable}", con=db.engine)
+        f"SELECT * FROM powder_blend_parts", con=db.engine)
+    # blendsTable = "powder_blends"
+    powder_blend = pd.read_sql(f"SELECT * FROM powder_blends", con=db.engine)
+    inventory_virgin_batch = pd.read_sql(f"SELECT * FROM inventory_virgin_batch", con=db.engine)
 
     powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[[
         'PartBlendID', 'PartBatchID']].astype('Int64')
 
-    blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend].copy()
+    blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend_id].copy()
     blend_df['TotalWeight'] = blend_df['BlendID'].map(
         powder_blend.set_index('BlendID')['TotalWeight'])
     blend_df['PartFraction'] = blend_df['AddedWeight'] / \
@@ -691,230 +726,190 @@ def BlendTrace(blend, lvl, limit):
     tracebacks = []  # List to store the tracebacks
 
     if lvl == 0:
-        total_weight = blend_df['TotalWeight'].max()
-        blend_date = powder_blend.loc[powder_blend['BlendID']
-                                      == blend, 'BlendDate'].values[0]
+        total_wt = blend_df['TotalWeight'].max()
+        blend_date = powder_blend.loc[powder_blend['BlendID'] == blend_id, 'BlendDate'].values[0]
+        blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
         tracebacks.append(
-            f'{lvl}: Blend {blend} ({total_weight:.2f} kg) (Date: {blend_date})')
+            f'{lvl}: Blend {blend_id} ({total_wt:.2f} kg) ({blend_date})')
 
     if limit > 0:
         for i, r in blend_df.iterrows():
             old_blend = r['PartBlendID']
-            batch = r['PartBatchID']
+            batch_id = r['PartBatchID']
             frac = r['PartFraction']
             new_lvl = lvl + 1
 
             if old_blend is not pd.NA:
-                blend_weight = powder_blend.loc[powder_blend['BlendID']
-                                                == old_blend, 'TotalWeight'].values[0]
-                blend_date = powder_blend.loc[powder_blend['BlendID']
-                                              == old_blend, 'BlendDate'].values[0]
+                blend_weight = powder_blend_part.loc[
+                    (powder_blend_part['BlendID'] == blend_id) &
+                    (powder_blend_part['PartBlendID'] == old_blend), 
+                    'AddedWeight'].values[0]
+                blend_date = powder_blend.loc[
+                    powder_blend['BlendID']== old_blend, 
+                    'BlendDate'].values[0]
+                blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
                 tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) (Weight: {blend_weight:.2f} kg) (Date: {blend_date})')
+                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) ({blend_weight:.1f} kg) ({blend_date})')
                 new_limit = limit - 1
                 tracebacks.extend(BlendTrace(old_blend, new_lvl, new_limit))
 
             elif old_blend is pd.NA:
-                batch_weight = powder_blend_part.loc[powder_blend_part['PartBatchID'] == batch, 'AddedWeight'].sum(
-                )
-                batch_date = powder_blend.loc[powder_blend['BlendID']
-                                              == blend, 'BlendDate'].values[0]
+                batch_weight = powder_blend_part.loc[
+                    (powder_blend_part['BlendID'] == blend_id) &
+                    (powder_blend_part['PartBatchID'] == batch_id), 
+                    'AddedWeight'].values[0]
+                batch_date = inventory_virgin_batch.loc[
+                    inventory_virgin_batch['BatchID']== batch_id, 
+                    'BatchTimeStamp'].values[0]
+                batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
                 tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Batch {batch} ({frac * 100:.0f}%) (Weight: {batch_weight:.2f} kg) (Date: {batch_date})')
+                    f'{new_lvl}: {"..." * new_lvl} Batch {batch_id} ({frac * 100:.0f}%) ({batch_weight:.1f} kg) ({batch_date})')
 
-    cleaned_tracebacks = [traceback.strip(
-    ) for traceback in tracebacks if traceback.strip()]  # Remove unwanted characters
-    return cleaned_tracebacks
+    return tracebacks
 
 
-@blends.route('/BlendInventory', methods=['GET', 'POST'])
+@blends.route('/inventory-blend', methods=['GET', 'POST'])
 @login_required
-def Blend_Inventory():
-    # Import necessary libraries
-    import datetime
-    from sqlalchemy import func
-    from sqlalchemy.orm import aliased
-
-    # Define aliases for the tables
-    PowderBlendsAlias = aliased(PowderBlends)
-    MaterialAlloysAlias = aliased(MaterialAlloys)
-
-    # Retrieve the blend inventory data
+def InventoryBlend():
+    # Retrieve the Blend inventory data
     inventory_query = db.session.query(
-        PowderBlendsAlias.BlendID,
-        MaterialAlloysAlias.AlloyName,
-        PowderBlendsAlias.CurrentWeight,
-        PowderBlendsAlias.BlendDate
+        PowderBlends.BlendID,
+        MaterialAlloys.AlloyName,
+        PowderBlends.CurrentWeight,
+        PowderBlends.BlendDate
     ).join(
-        MaterialAlloysAlias, PowderBlendsAlias.AlloyID == MaterialAlloysAlias.AlloyID
-    ).order_by(MaterialAlloysAlias.AlloyName).all()
-
-    # Fetch the blend inventory data
-    inventory_query = inventory_query.all()
-
+        MaterialAlloys, 
+        PowderBlends.AlloyID == MaterialAlloys.AlloyID
+    ).order_by(MaterialAlloys.AlloyName).all()
     # Create a list to store the result data
     result_data = []
-
     # Variables for subtotal calculation
     current_alloy = None
     subtotal_weight = 0
-
     # Set to store blend IDs
     blend_ids_set = set()
-
     # Iterate over the inventory data
-    for blend_id, alloy_name, total_weight, blend_date in inventory_query:
+    for blend_id, alloy_name, current_wt, blend_date in inventory_query:
+        # Check if the material has changed
+        if alloy_name != current_alloy:
+            # Add subtotal row for previous material
+            if current_alloy is not None and subtotal_weight > 1:
+                subtotal_row = ('Subtotal', current_alloy, subtotal_weight)
+                result_data.append(subtotal_row)
+            # Update current material and reset subtotal weight
+            current_alloy = alloy_name
+            subtotal_weight = 0
+        # Check if blend_date is not None before converting to datetime.date object
+        if blend_date is not None:
+            blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
+        # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 10 and Blend ID not in set
+        if (
+            blend_date is not None
+            and blend_date > dt.date(2021, 8, 1)
+            and current_wt is not None
+            and current_wt > 10
+            and blend_id not in blend_ids_set
+        ):
+            blend_row = (blend_id, alloy_name, current_wt)
+            result_data.append(blend_row)
+            # Update subtotal weight
+            if current_wt is not None:
+                subtotal_weight += current_wt
+            # Add blend ID to set
+            blend_ids_set.add(blend_id)
+    # Add final subtotal row for the last material
+    if current_alloy is not None and subtotal_weight > 1:
+        subtotal_row = ('Subtotal', current_alloy, round(subtotal_weight, 2))
+        result_data.append(subtotal_row)
+    # Calculate total weight
+    total_wt = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
+    # Get distinct material names
+    alloy_names = sorted(set(row[1] for row in result_data))
+    # Filter by selected material name
+    selected_alloy = request.form.get('alloy') or request.args.get('alloy')
+    if selected_alloy and selected_alloy != 'All Materials':
+        filtered_data = [row for row in result_data if row[1] == selected_alloy]
+    else:
+        filtered_data = result_data
+    return render_template(
+        'inventory-blend.html',
+        user=current_user,
+        filtered_data=filtered_data,
+        alloy_names=alloy_names,
+        total_wt=total_wt,
+        selected_alloy=selected_alloy
+    )
+
+
+@blends.route('/inventory-batch', methods=['GET', 'POST'])
+@login_required
+def InventoryBatch():
+    # Initialize batch_id_set as an empty set
+    batch_id_set = set()
+    # Retrieve the Batch inventory data where CurrentWeight > 1
+    inventory_query = db.session.query(
+        InventoryVirginBatch.BatchID, 
+        MaterialAlloys.AlloyName, 
+        MaterialProducts.SupplierProduct, 
+        InventoryVirginBatch.CurrentWeight, 
+        InventoryVirginBatch.VirginPO, 
+        InventoryVirginBatch.VirginLot, 
+        InventoryVirginBatch.BatchTimeStamp
+        ).join(
+            MaterialProducts, 
+            InventoryVirginBatch.ProductID == MaterialProducts.ProductID
+            ).join(
+                MaterialAlloys,
+                MaterialProducts.AlloyID == MaterialAlloys.AlloyID
+                ).filter(
+                    InventoryVirginBatch.CurrentWeight > 1  # Add the filter condition
+                    ).order_by(MaterialAlloys.AlloyName).all()
+    # Create a list to store the result data
+    result_data = []
+    # Variables for subtotal calculation
+    current_alloy = None
+    subtotal_weight = 0
+    # Iterate over the inventory data
+    for batch_id, alloy_name, supplier_product, current_wt, v_po, v_lot, batch_date in inventory_query:
         # Check if the material has changed
         if alloy_name != current_alloy:
             # Add subtotal row for previous material
             if current_alloy is not None:
-                subtotal_row = ('Subtotal', current_alloy, subtotal_weight)
+                subtotal_row = ('Subtotal', current_alloy, None, None, None, subtotal_weight)
                 result_data.append(subtotal_row)
-
             # Update current material and reset subtotal weight
             current_alloy = alloy_name
             subtotal_weight = 0
-
-        # Check if blend_date is not None before converting to datetime.date object
-        if blend_date is not None:
-            blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
-
-        # Add blend row if BlendDate is after 8/1/2022 and current weight > 20 and blend ID not in set
-        if (
-            blend_date is not None
-            and blend_date > dt.date(2021, 8, 1)
-            and total_weight is not None
-            and total_weight > 20
-            and blend_id not in blend_ids_set
-        ):
-            blend_row = (blend_id, alloy_name, total_weight)
-            result_data.append(blend_row)
-
+        # Check if batch_date is not None before converting to datetime.date object
+        if batch_date is not None:
+            batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
+            batch_row = (batch_id, alloy_name, supplier_product, v_po, v_lot, current_wt)
+            result_data.append(batch_row)
             # Update subtotal weight
-            if total_weight is not None:
-                subtotal_weight += total_weight
-
-            # Add blend ID to set
-            blend_ids_set.add(blend_id)
-
+            if current_wt is not None:
+                subtotal_weight += current_wt
+            # Add batch ID to set
+            batch_id_set.add(batch_id)
     # Add final subtotal row for the last material
     if current_alloy is not None:
-        subtotal_row = ('Subtotal', current_alloy, round(subtotal_weight, 2))
+        subtotal_row = ('Subtotal', current_alloy, None, None, None, round(subtotal_weight, 2))
         result_data.append(subtotal_row)
-
-
     # Calculate total weight
-    total_weight = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
-
+    total_wt = sum(row[5] for row in result_data if isinstance(row[5], (int, float)))
     # Get distinct material names
     alloy_names = sorted(set(row[1] for row in result_data))
-    
-
     # Filter by selected material name
-    selected_alloy = request.form.get('alloy') # or request.args.get('material')
+    selected_alloy = request.form.get('alloy') or request.args.get('alloy')
     if selected_alloy and selected_alloy != 'All Materials':
         filtered_data = [row for row in result_data if row[1] == selected_alloy]
     else:
         filtered_data = result_data
 
     return render_template(
-        "blend_inventory.html",
+        'inventory-batch.html',
         user=current_user,
-        inventory_data=filtered_data,
-        material_names=material_names,
-        total_weight=total_weight,
-        selected_material=selected_material
-    )
-
-
-@blends.route('/BatchInventory', methods=['GET', 'POST'])
-@login_required
-def Batch_Inventory():
-    # Import necessary libraries
-    import datetime
-    from sqlalchemy import func
-    from sqlalchemy.orm import aliased
-
-    # Define aliases for the tables
-    InventoryVirginBatchAlias = aliased(InventoryVirginBatch)
-    MaterialsTableAlias = aliased(MaterialsTable)
-
-    # Initialize batch_id_set as an empty set
-    batch_id_set = set()
-
-    # Retrieve the blend inventory data where CurrentWeight > 5
-    query = db.session.query(
-        InventoryVirginBatchAlias.BatchID,
-        MaterialsTableAlias.MaterialName,
-        MaterialsTableAlias.SupplierProduct,  # Include SupplierProduct in the query
-        InventoryVirginBatchAlias.CurrentWeight,
-        InventoryVirginBatchAlias.BatchTimeStamp    
-    ).join(
-        MaterialsTableAlias, InventoryVirginBatchAlias.ProductID == MaterialsTableAlias.ProductID
-    ).filter(
-        InventoryVirginBatchAlias.CurrentWeight > 5  # Add the filter condition
-    ).order_by(MaterialsTableAlias.MaterialName)
-    
-    # Fetch the batch inventory data
-    inventory_data = query.all()
-
-    # Create a list to store the result data
-    result_data = []
-
-    # Variables for subtotal calculation
-    current_material = None
-    subtotal_weight = 0
-
-    # Iterate over the inventory data
-    for batch_id, material_name, supplier_product, current_weight, batch_date in inventory_data:
-        # Check if the material has changed
-        if material_name != current_material:
-            # Add subtotal row for previous material
-            if current_material is not None:
-                subtotal_row = ("Subtotal", current_material, supplier_product, subtotal_weight)
-                result_data.append(subtotal_row)
-
-            # Update current material and reset subtotal weight
-            current_material = material_name
-            subtotal_weight = 0
-
-        # Check if batch_date is not None before converting to datetime.date object
-        if batch_date is not None:
-            batch_date = datetime.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
-
-            batch_row = (batch_id, material_name, supplier_product, current_weight)
-            result_data.append(batch_row)
-
-            # Update subtotal weight
-            if current_weight is not None:
-                subtotal_weight += current_weight
-
-            # Add batch ID to set
-            batch_id_set.add(batch_id)
-
-    # Add final subtotal row for the last material
-    if current_material is not None:
-        subtotal_row = ("Subtotal", current_material, supplier_product, round(subtotal_weight, 2))
-        result_data.append(subtotal_row)
-
-    # Calculate total weight
-    total_weight = sum(row[3] for row in result_data if isinstance(row[3], (int, float)))
-
-    # Get distinct material names
-    material_names = sorted(set(row[1] for row in result_data))
-
-    # Filter by selected material name
-    selected_material = request.form.get('material') or request.args.get('material')
-    if selected_material and selected_material != "All Materials":
-        filtered_data = [row for row in result_data if row[1] == selected_material]
-    else:
-        filtered_data = result_data
-
-    return render_template(
-        "batch_inventory.html",
-        user=current_user,
-        inventory_query=filtered_data,
+        filtered_data=filtered_data,
         alloy_names=alloy_names,
-        total_weight=total_weight,
+        total_wt=total_wt,
         selected_alloy=selected_alloy
     )

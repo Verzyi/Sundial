@@ -9,21 +9,21 @@
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Search"
+        id="search"
         autocomplete="off"
         onclick="window.location.href = '/search-blend'"
       />
-      <label class="btn btn-outline-primary" for="Search">Search</label>
+      <label class="btn btn-outline-primary" for="search">Search</label>
 
       <input
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="New"
+        id="create-blend"
         autocomplete="off"
         onclick="window.location.href = '/create-blend'"
       />
-      <label class="btn btn-outline-primary" for="New">Create Blend</label>
+      <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
       <input
         type="radio"
@@ -33,7 +33,7 @@
         autocomplete="off"
         onclick="window.location.href = '/create-batch'"
       />
-      <label class="btn btn-outline-primary" for="createBatch"
+      <label class="btn btn-outline-primary" for="create-batch"
         >Create Batch</label
       >
 
@@ -41,22 +41,22 @@
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="History"
+        id="history"
         autocomplete="off"
         checked
         onclick="window.location.href = '/history-blend'"
       />
-      <label class="btn btn-outline-primary" for="History">History</label>
+      <label class="btn btn-outline-primary" for="history">History</label>
 
       <input
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Inventory"
+        id="inventory"
         autocomplete="off"
-        onclick="window.location.href = '/BlendInventory'"
+        onclick="window.location.href = '/inventory-blend'"
       />
-      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+      <label class="btn btn-outline-primary" for="inventory">Inventory</label>
     </div>
   </div>
   <div class="container">
@@ -109,9 +109,9 @@
         <thead>
           <tr>
             <th>Blend ID</th>
-            <th>Blend Material</th>
-            <th>Total Weight</th>
-            <th>Date Added</th>
+            <th>Material</th>
+            <th>Total Weight (kg)</th>
+            <th>Date Created</th>
             <th>Created By</th>
           </tr>
         </thead>

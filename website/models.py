@@ -1,7 +1,6 @@
 from . import db 
 from flask_login import UserMixin
-from sqlalchemy import func, ForeignKeyConstraint
-from datetime import datetime
+from sqlalchemy import ForeignKeyConstraint
 
 
 class Users(db.Model, UserMixin):
@@ -13,13 +12,17 @@ class Users(db.Model, UserMixin):
     role = db.Column(db.String(10), default='User')
     # ip = db.Column(db.String(50))
 
-class PowderBlendParts(db.Model):
-    PartID = db.Column(db.Integer, primary_key=True, nullable=False) 
-    BlendID = db.Column(db.Integer)
-    PartBlendID = db.Column(db.Integer)
-    PartBatchID = db.Column(db.Integer)
-    AddedWeight = db.Column(db.Float)
+class MaterialProducts(db.Model):
+    ProductID = db.Column(db.Integer, primary_key=True, unique=True)
+    SupplierProduct = db.Column(db.String)
+    AlloyID = db.Column(db.Integer)
 
+class MaterialAlloys(db.Model):
+    Alloy = db.Column(db.String)
+    MaterialName = db.Column(db.String(50))
+    MaterialID = db.Column(db.Integer)
+    AlloyName = db.Column(db.String(50))
+    AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
 
 class InventoryVirginBatch(db.Model):
     BatchID = db.Column(db.Integer, primary_key=True, nullable=False) 
@@ -31,42 +34,35 @@ class InventoryVirginBatch(db.Model):
     VirginLot = db.Column(db.String)
     VirginWeight = db.Column(db.Float)
     CurrentWeight = db.Column(db.Float)
-    
-
-class MaterialProducts(db.Model):
-    SupplierProduct = db.Column(db.String)
-    ProductID = db.Column(db.Integer, primary_key=True, unique=True)
-    AlloyID = db.Column(db.Integer)
-
-
-class MaterialAlloys(db.Model):
-    Alloy = db.Column(db.String)
-    MaterialName = db.Column(db.String(50))
-    MaterialID = db.Column(db.Integer)
-    AlloyName = db.Column(db.String(50))
-    AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
-
 
 class PowderBlends(db.Model):
     BlendID	= db.Column(db.Integer, primary_key=True, unique=True )
     BlendDate = db.Column(db.String)
-    BlendCreatedBy	= db.Column(db.Integer)
-    AlloyID	=db.Column(db.Integer)
+    BlendCreatedBy = db.Column(db.Integer)
+    AlloyID	= db.Column(db.Integer)
     TotalWeight = db.Column(db.Float)
     CurrentWeight = db.Column(db.Float)
     
 __table_args__ = (
-        ForeignKeyConstraint(['BlendID', 'PartID'], ['PowderBlends.BlendID', 'PowderBlendParts.PartID']),
+    ForeignKeyConstraint(
+        ['BlendID', 'PartID'], 
+        ['PowderBlends.BlendID', 'PowderBlendParts.PartID']
+        ),
     )
-
 
 class PowderBlendCalc(db.Model):
     BlendID = db.Column(db.Integer, primary_key=True)	
     PartID = db.Column(db.Integer, primary_key=True)
-    PartWeight	= db.Column(db.Float)
+    PartWeight = db.Column(db.Float)
     PartFraction = db.Column(db.Float)	
     SieveCount = db.Column(db.Integer)
     
+class PowderBlendParts(db.Model):
+    PartID = db.Column(db.Integer, primary_key=True, nullable=False) 
+    BlendID = db.Column(db.Integer)
+    PartBlendID = db.Column(db.Integer)
+    PartBatchID = db.Column(db.Integer)
+    AddedWeight = db.Column(db.Float)
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)

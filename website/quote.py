@@ -1,14 +1,15 @@
+import os
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask_login import login_required, current_user
 from werkzeug.utils import secure_filename
-import pandas as pd
-import numpy as np
-import os
-import tempfile
 import math
+import numpy as np
+import pandas as pd
+import tempfile
 from stl.mesh import Mesh
 import matplotlib.pyplot as plt
 from mpl_toolkits import mplot3d
+# import trimesh
 
 quote = Blueprint('quote', __name__)
 
@@ -23,10 +24,6 @@ material_info = {
     "Cobalt Chrome": {"CoeffA": 1.143, "CoeffB": 0.040, "CoeffC": 0.192, "CoeffD": 0.611, "Intercept": -1.405, "LayerThickness": 0.0015748},
 }
 
-import numpy as np
-import trimesh
-import matplotlib.pyplot as plt
-import trimesh
 
 def generate_isometric_image(obj, output_image_path):
     # Create a new figure
@@ -320,7 +317,7 @@ def calculate_total_build_time(row):
     total_build_time = row['TFB_RecTime'] + row['PB_RecTime'] + row['OrderQty'] * row['ExpTime']
     return total_build_time
 
-@quote.route('/Quote', methods=['GET', 'POST'])
+@quote.route('/quote', methods=['GET', 'POST'])
 @login_required
 def quote_page():
     if request.method == 'POST':
@@ -332,28 +329,18 @@ def quote_page():
             else:
                 # Calculate the initial metrics without user inputs
                 df = calculate_metrics(stl_files)
-                
                 # display_stl(stl_files)
-                
                 # Calculate the Numbuilds for each row
                 df = df.apply(calculate_num_builds, axis=1)
-                
                 df = df.reset_index(drop=True)  # Drop the previous index and reset it
-
                 # Set the default small frame machine as the build area 81 = 9x9
                 df['BuildArea'] = 81
-
                 session["results"] = df.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
-                
-
-                
-
                 return render_template("quote.html", user=current_user, results=df)
 
         # Inside the 'update_quote' section of the 'quote_page' function
         elif 'update_quote' in request.form:
             results_data = session.get('results')
-            
             # session["results"] = df.to_dict(orient='records')
             if results_data is not None and len(results_data) > 0:
                 for index, row in enumerate(results_data):
@@ -363,19 +350,20 @@ def quote_page():
                     row['OrderQty'] = int(request.form.get(f"order_qty_input_{index}", 1))  # Use default value 0 if not found
                     row['Orientation'] = request.form.get(f"orientation_{index}", 'Z') # Use default value Z if not found
                     row['Material'] = request.form.get(f"material_{index}", 'Aluminum (AlSi10Mg)')  # Use default value 'Aluminum (AlSi10Mg)' if not found in session
-                    
-
                     # Calculate newXExt, newYExt, and newZExt based on orientation
                     if row['Orientation'] == 'X':
-                        new_x, new_y, new_z = float(request.form.get(f"zExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0)), float(request.form.get(f"xExtents_{index}", 0))
+                        new_x, new_y, new_z = float(request.form.get(f"zExtents_{index}", 0)), \
+                            float(request.form.get(f"yExtents_{index}", 0)), \
+                            float(request.form.get(f"xExtents_{index}", 0))
                     elif row['Orientation'] == 'Y':
-                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), float(request.form.get(f"zExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0))
+                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), \
+                            float(request.form.get(f"zExtents_{index}", 0)), \
+                            float(request.form.get(f"yExtents_{index}", 0))
                     elif row['Orientation'] == 'Z':
-                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), float(request.form.get(f"yExtents_{index}", 0)), float(request.form.get(f"zExtents_{index}", 0))
-
+                        new_x, new_y, new_z = float(request.form.get(f"xExtents_{index}", 0)), \
+                            float(request.form.get(f"yExtents_{index}", 0)), \
+                            float(request.form.get(f"zExtents_{index}", 0))
                     row['NewXExt'], row['NewYExt'], row['NewZExt'] = new_x, new_y, new_z
-
-
                     # Update the values in the results_data list
                     results_data[index] = row
                     
@@ -433,14 +421,7 @@ def quote_page():
                     print(f"TotalBuildTime: {df['TotalBuildTime']}")
                     session["results"] = df.to_dict(orient='records')
                     
-                    
-                    
-                    
-
                     return render_template("quote.html", user=current_user, results=df)
-
-
-
 
     # Pass the existing DataFrame in the session to the template context if 'results' is available
     results_data = session.get('results')

@@ -1,5 +1,6 @@
-{% extends "base.html" %} {% block title %} Create Batch {% endblock %} {% block
-content %}
+{% extends "base.html" %} 
+{% block title %} Create Batch {% endblock %} 
+{% block content %}
 <h1 class="text-center">Blend System - Create Batch</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
@@ -8,32 +9,32 @@ content %}
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Search"
+        id="search"
         autocomplete="off"
         onclick="window.location.href = '/search-blend'"
       />
-      <label class="btn btn-outline-primary" for="Search">Search</label>
+      <label class="btn btn-outline-primary" for="search">Search</label>
 
       <input
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="New"
+        id="create-blend"
         autocomplete="off"
         onclick="window.location.href = '/create-blend'"
       />
-      <label class="btn btn-outline-primary" for="New">Create Blend</label>
+      <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
       <input
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="createBatch"
+        id="create-batch"
         autocomplete="off"
         checked
         onclick="window.location.href = '/create-batch'"
       />
-      <label class="btn btn-outline-primary" for="createBatch"
+      <label class="btn btn-outline-primary" for="create-batch"
         >Create Batch</label
       >
 
@@ -41,21 +42,21 @@ content %}
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="History"
+        id="history"
         autocomplete="off"
         onclick="window.location.href = '/history-blend'"
       />
-      <label class="btn btn-outline-primary" for="History">History</label>
+      <label class="btn btn-outline-primary" for="history">History</label>
 
       <input
         type="radio"
         class="btn-check"
         name="btnradio"
-        id="Inventory"
+        id="inventory"
         autocomplete="off"
-        onclick="window.location.href = '/BlendInventory'"
+        onclick="window.location.href = '/inventory-blend'"
       />
-      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
+      <label class="btn btn-outline-primary" for="inventory">Inventory</label>
     </div>
   </div>
 
@@ -63,11 +64,11 @@ content %}
     <form id="createBlendForm" method="POST" class="mt-4">
       <div id="blendFields" class="mb-3">
         <!-- Form fields for PO Number, Virgin Lot, Weight -->
-        <label for="poNumber" class="form-label">PO Number</label>
-        <input type="number" class="form-control" name="poNumber" id="poNumber" placeholder="0">
+        <label for="v_po" class="form-label">PO Number</label>
+        <input type="number" class="form-control" name="v_po" id="v_po" placeholder="0">
 
-        <label for="vLotNumber" class="form-label">Virgin Lot</label>
-        <input type="text" class="form-control" name="vLot" id="vLot" placeholder="0">
+        <label for="v_lot" class="form-label">Virgin Lot</label>
+        <input type="text" class="form-control" name="v_lot" id="v_lot" placeholder="0">
 
         <label for="weight" class="form-label">Weight (kg)</label>
         <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
@@ -80,7 +81,7 @@ content %}
             class="form-select"
             id="alloy"
             style="text-align: center"
-            onchange="updateProductDropdown()"
+            onchange="UpdateProductDropdown()"
           >
             <option value="" disabled selected>Select Material</option>
             {% for alloy in alloy_names %}
@@ -104,57 +105,29 @@ content %}
         </div>
       </div>
     </form>
-
-    <!-- Display the blend results here -->
-    <div class="table-responsive mt-4">
-      <table class="table table-hover">
-        <!-- Table headers -->
-        <thead>
-          <tr style="font-size: 20px">
-            <th scope="col">PO Number</th>
-            <th scope="col">Virgin Lot Number</th>
-            <th scope="col">Weight (kg)</th>
-            <th scope="col">Material</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Loop through the blendNumber results -->
-          {% if blendNumber %}
-          {% for blend in blendNumber %}
-          <tr class="table-active">
-            <td>{{ blend.PowderBlendID }}</td>
-            <td>{{ blend.AddedWeight }}</td>
-            <td>{{ blend.OldPowderBlendID }}</td>
-            <td>{{ blend.AddedWeight }}</td>
-            <td>{{ blend.PowderInventoryBatchID }}</td>
-          </tr>
-          {% endfor %}
-          {% endif %}
-        </tbody>
-      </table>
-    </div>
   </div>
 </div>
+
 <script>
-  function updateProductDropdown() {
-    var alloyDropdown = document.getElementById("alloy");
-    var productDropdown = document.getElementById("product");
-    var selectedMaterial = alloyDropdown.value;
+  function UpdateProductDropdown() {
+    var alloy_dropdown = document.getElementById("alloy");
+    var product_dropdown = document.getElementById("product");
+    var selected_alloy = alloy_dropdown.value;
 
     // Clear existing options
-    productDropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
+    product_dropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
 
     // Filter products based on selected material
     var products = {{ material_products | tojson }};
-    var filteredProducts = products[selectedMaterial];
+    var filtered_products = products[selected_alloy];
 
     // Add filtered products to the dropdown
-    if (filteredProducts) {
-      for (var i = 0; i < filteredProducts.length; i++) {
+    if (filtered_products) {
+      for (var i = 0; i < filtered_products.length; i++) {
         var option = document.createElement("option");
-        option.value = filteredProducts[i];
-        option.text = filteredProducts[i];
-        productDropdown.appendChild(option);
+        option.value = filtered_products[i];
+        option.text = filtered_products[i];
+        product_dropdown.appendChild(option);
       }
     }
   }

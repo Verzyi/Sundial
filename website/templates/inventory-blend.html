@@ -11,7 +11,7 @@
         name="btnradio"
         id="Search"
         autocomplete="off"
-        onclick="window.location.href = '/searchBlends'"
+        onclick="window.location.href = '/search-blend'"
       />
       <label class="btn btn-outline-primary" for="Search">Search</label>
 
@@ -21,7 +21,7 @@
         name="btnradio"
         id="New"
         autocomplete="off"
-        onclick="window.location.href = '/createBlend'"
+        onclick="window.location.href = '/create-blend'"
       />
       <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
@@ -31,7 +31,7 @@
         name="btnradio"
         id="createBatch"
         autocomplete="off"
-        onclick="window.location.href = '/createBatch'"
+        onclick="window.location.href = '/create-batch'"
       />
       <label class="btn btn-outline-primary" for="createBatch">Create Batch</label>
 
@@ -41,7 +41,7 @@
         name="btnradio"
         id="History"
         autocomplete="off"
-        onclick="window.location.href = '/BlendHistory'"
+        onclick="window.location.href = '/history-blend'"
       />
       <label class="btn btn-outline-primary" for="History">History</label>
 
@@ -52,42 +52,42 @@
         id="Inventory"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/BlendInventory'"
+        onclick="window.location.href = '/inventory-blend'"
       />
       <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
     </div>
   </div>
   <div class="container">
     <form
-      action="{{ url_for('blends.Blend_Inventory') }}"
+      action="{{ url_for('blends.InventoryBlend') }}"
       method="POST"
       class="mt-4"
     >
     <div class="container">
-      <form action="{{ url_for('blends.Blend_Inventory') }}" method="POST" class="mt-4">
+      <form action="{{ url_for('blends.InventoryBlend') }}" method="POST" class="mt-4">
         <div class="d-grid">
-      <label class="btn btn-outline-primary" for="swtich" >Switch to Virgin Batch Inventory</label>
+      <label class="btn btn-outline-primary" for="switch" >Switch to Virgin Batch Inventory</label>
       <input type="radio"
       class="btn-check"
       name="btnradio"
-      id="swtich"
+      id="switch"
       autocomplete="off"
-      onclick="window.location.href = '/BatchInventory'"
+      onclick="window.location.href = '/inventory-batch'"
       ></input>
         </div>
 
-  <form action="{{ url_for('blends.Blend_Inventory') }}" method="POST" class="mt-4">
+  <form action="{{ url_for('blends.InventoryBlend') }}" method="POST" class="mt-4">
     <div class="form-group">
       <select
-        name="material"
+        name="alloy"
         class="form-select"
-        id="material_name"
+        id="alloy_name"
         style="text-align: center"
         onchange="this.form.submit()"
       >
-        <option value="" {% if selected_material == '' %}selected{% endif %}>All Materials</option>
-        {% for material in material_names %}
-          <option value="{{ material }}" {% if selected_material == material %}selected{% endif %}>{{ material }}</option>
+        <option value="" {% if selected_alloy == '' %}selected{% endif %}>All Materials</option>
+        {% for alloy in alloy_names %}
+          <option value="{{ alloy }}" {% if selected_alloy == alloy %}selected{% endif %}>{{ alloy }}</option>
         {% endfor %}
       </select>
     </div>
@@ -104,18 +104,18 @@
         </tr>
       </thead>
       <tbody>
-      {% for blend_id, material_name, current_weight in inventory_data %}
+      {% for blend_id, alloy_name, current_wt in filtered_data %}
         {% if blend_id == 'Subtotal' %}
-          <tr class="table-active">
-            <td><span style="color: red;">{{ blend_id }}</td>
-            <td><span style="color: red;">{{ material_name }}</td>
-            <td><span style="color: red;">{{ "%.2f" % current_weight }}</span></td>
+          <tr class="table-active table-secondary">
+            <td><span>{{ blend_id }}</td>
+            <td><span>{{ alloy_name }}</td>
+            <td><span>{{ "%.0f" % current_wt }}</span></td>
           </tr>
         {% else %}
           <tr class="table-active">
             <td>{{ blend_id }}</td>
-            <td>{{ material_name }}</td>
-            <td>{{ "%.2f" % current_weight }}</td>
+            <td>{{ alloy_name }}</td>
+            <td>{{ "%.0f" % current_wt }}</td>
           </tr>
         {% endif %}
       {% endfor %}
@@ -123,7 +123,7 @@
     </table>
   </div>
 
-  <p class="text-end mt-3">Total Weight: {{ total_weight }}</p>
+  <p class="text-end mt-3">Total Blended Powder Weight: {{ "%.0f" % total_wt }} kg</p>
 
 </div>
 {% endblock %}
