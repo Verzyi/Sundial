@@ -117,12 +117,12 @@ def create_app():
             csv_writer = csv.writer(output)
 
             # Write header row
-            header = ['Email', 'Password', 'First Name', 'Last Name']  # Replace with your actual column names
+            header = ['id','email', 'password', 'first_name', 'last_name','role']  # Replace with your actual column names
             csv_writer.writerow(header)
 
             # Write data rows
             for record in records:
-                data_row = [record.email, record.password, record.first_name, record.last_name]  # Replace with your actual data
+                data_row = [record.id, record.email, record.password, record.first_name, record.last_name, record.role]  # Replace with your actual data
                 csv_writer.writerow(data_row)
 
             # Prepare the response with CSV content
