@@ -13,7 +13,7 @@ from sqlalchemy import distinct
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
-    wkhtmltopdf="C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe")
+    wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
 
 
 builds = Blueprint('builds', __name__)
@@ -21,16 +21,15 @@ builds = Blueprint('builds', __name__)
 @builds.route('/')
 @login_required
 def builds_home():
-    blends = PowderBlends.query.all()
-    return render_template("home.html", user=current_user, blends=blends)
+    return render_template('home.html', user=current_user)
 
 
 @builds.route('/builds', methods=['GET', 'POST'])
 @login_required
 def builds_page():
     # Get the selected facility and search input from the form or query parameters
-    selectedFacility = request.form.get("facilitySelect") or request.args.get("selectedFacility")
-    searchInput = request.form.get("SearchInput")
+    selectedFacility = request.form.get('facilitySelect') or request.args.get('selectedFacility')
+    searchInput = request.form.get('SearchInput')
 
     # Store the selected facility in the session for future use
     if selectedFacility:
@@ -60,15 +59,15 @@ def builds_page():
 
     # You'll need to fetch the build information from the database
     # based on the selected build ID (use the selectedBuildID variable)
-    selectedBuildID = request.form.get("solidJobsBuildIDInput")
+    selectedBuildID = request.form.get('solidJobsBuildIDInput')
     selectedBuild = BuildsTable.query.filter_by(BuildIt=selectedBuildID).first()
 
     if request.method == 'POST':
         if 'data_viewer' in request.form:
-            flash("Load Data Viewer", category='success')
+            flash('Load Data Viewer', category='success')
             return redirect(url_for('builds.data_viewer'))
         elif 'traveler' in request.form:
-            flash("Make Traveler", category='success')
+            flash('Make Traveler', category='success')
             return redirect(url_for('builds.generate_traveler_report'))
         elif 'buildformSetup' in request.form:
             session['buildformSetup'] = request.form.to_dict()
@@ -104,7 +103,7 @@ def get_build_info(buildid):
         return jsonify(build_data)
     else:
         # If build ID is not found, return an empty response with 404 status code
-        return jsonify({"error": "Build not found"}), 404
+        return jsonify({'error': 'Build not found'}), 404
     
 
 
@@ -146,7 +145,7 @@ def export_csv():
 
     # Create a Flask Response object with the CSV data
     response = Response(csv_data, content_type='text/csv')
-    response.headers["Content-Disposition"] = "attachment; filename=builds_data.csv"
+    response.headers['Content-Disposition'] = 'attachment; filename=builds_data.csv'
 
     return response
 
@@ -154,8 +153,8 @@ def export_csv():
 @login_required
 def generate_traveler_report():
     # Get the data from the forms or database and populate the fields
-    field1_value = "Value 1"  # Replace with your actual data
-    field2_value = "Value 2"  # Replace with your actual data
+    field1_value = 'Value 1'  # Replace with your actual data
+    field2_value = 'Value 2'  # Replace with your actual data
 
     # Render the HTML template with the data
     rendered = render_template('traveler_report.html', field1_value=field1_value, field2_value=field2_value)
@@ -181,7 +180,7 @@ def new_build():
     new_buildit = highest_buildit + 1
 
     # Retrieve the selected facility from the form or session
-    selectedFacility = request.form.get("facilitySelect")
+    selectedFacility = request.form.get('facilitySelect')
     if not selectedFacility:
         selectedFacility = session.get('last_selected_facility')
 
@@ -210,7 +209,7 @@ def copy_build():
             selected_buildid = int(selected_buildid)
         except ValueError:
             # Handle the case when the 'BuildsID' cannot be converted to an integer
-            flash("Invalid Build ID format.", category='error')
+            flash('Invalid Build ID format.', category='error')
             return redirect(url_for('builds.builds_page'))
 
         # Get the highest BuildIt number from the database
@@ -253,7 +252,7 @@ def copy_build():
             return redirect(url_for('builds.builds_page', selectedBuildID=new_buildit))
 
     # Handle the case when 'BuildsID' is not present in the form
-    flash("No Build ID found in the form.", category='error')
+    flash('No Build ID found in the form.', category='error')
     return redirect(url_for('builds.builds_page'))
 
 
@@ -295,11 +294,11 @@ def setup_form():
         db.session.commit()
 
         # Redirect to the builds page or any other page as needed
-        flash("Build Setup information updated successfully.", category='success')
+        flash('Build Setup information updated successfully.', category='success')
         return redirect(url_for('builds.builds_page'))
 
     # Handle the case when the existing build is not found
-    flash("Build not found.", category='error')
+    flash('Build not found.', category='error')
     return redirect(url_for('builds.builds_page'))
 
 
@@ -332,7 +331,7 @@ def start_form():
         existing_build.LaserFocus = Inspec
         
         
-        print("Build Inspec Input:", existing_build.BuildInterrupts)
+        print('Build Inspec Input:', existing_build.BuildInterrupts)
 
         
         # Populate data from buildStartForm (float attributes)
@@ -341,7 +340,7 @@ def start_form():
             try:
                 value = float(buildform_data.get(f'{attr}Input', 55))  # Use 0 as default if conversion fails
             except ValueError:
-                print("error")
+                print('error')
                 value = 0  # Default value in case of ValueError
             setattr(existing_build, attr, value)
         
@@ -358,11 +357,11 @@ def start_form():
         db.session.commit()
 
         # Redirect to the builds page or any other page as needed
-        flash("Build Start information updated successfully.", category='success')
+        flash('Build Start information updated successfully.', category='success')
         return redirect(url_for('builds.builds_page'))
 
     # Handle the case when the existing build is not found
-    flash("Build not found.", category='error')
+    flash('Build not found.', category='error')
     return redirect(url_for('builds.builds_page'))
 
             
@@ -386,10 +385,10 @@ def finish_form():
         existing_build.Breakout = buildform_data.get('BreakoutInput') 
         
         existing_build.MaterialAdded = buildform_data.get('MaterialAddedInput')
-        print("Material Added Input:", existing_build.MaterialAdded)
+        print('Material Added Input:', existing_build.MaterialAdded)
 
         existing_build.BuildInterrupts = buildform_data.get('BuildInterruptsInput')
-        print("Build Interrupts Input:", existing_build.BuildInterrupts)
+        print('Build Interrupts Input:', existing_build.BuildInterrupts)
         
         
 
@@ -406,10 +405,10 @@ def finish_form():
         db.session.commit()
 
         # Redirect to the builds page or any other page as needed
-        flash("Build Finished information updated successfully.", category='success')
+        flash('Build Finished information updated successfully.', category='success')
         return redirect(url_for('builds.builds_page'))
 
     # Handle the case when the existing build is not found
-    flash("Build not found.", category='error')
+    flash('Build not found.', category='error')
     return redirect(url_for('builds.builds_page'))
 

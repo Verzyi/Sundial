@@ -11,7 +11,7 @@ from pdfkit.api import configuration
 
 from . import db
 from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
+from .blend_calc import BlendDatabaseUpdater
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -22,15 +22,14 @@ blends = Blueprint('blends', __name__)
 
 @blends.route('/')
 @login_required
-def home():
-    blends = PowderBlends.query.all()
-    return render_template('home.html', user=current_user, blends=blends)
+def Home():
+    return render_template('home.html', user=current_user)
 
 
 @blends.route('/blend', methods=['GET', 'POST'])
 @login_required
-def blend():
-    return render_template('blend.html', user=current_user)
+def Blend():
+    return render_template('powder/blend.html', user=current_user)
 
 def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
     # Create a TCP/IP socket
@@ -163,7 +162,10 @@ def SearchBlends():
             else:
                 flash(f'Error: Blend sticker not printed.', category='error')
 
-    return render_template('search-blend.html', user=current_user, blends=blend_query)
+    return render_template(
+        'powder/search-blend.html', 
+        user=current_user, 
+        blends=blend_query)
 
 
 @blends.route('/search-batch', methods=['GET', 'POST'])
@@ -223,7 +225,10 @@ def SearchBatch():
             else:
                 flash('Batch number not found in session', category='error')
 
-    return render_template('search-batch.html', user=current_user, batch=batch_query)
+    return render_template(
+        'powder/search-batch.html', 
+        user=current_user, 
+        batch=batch_query)
 
 
 blend_list = []
@@ -386,7 +391,7 @@ def CreateBlend():
     total_weight = sum([float(w) for w in blend_part_weights] + \
         [float(w) for w in batch_weights])
     return render_template(
-        'create-blend.html', 
+        'powder/create-blend.html', 
         user=current_user, 
         blend_list=blend_list, 
         blend_part_weights=blend_part_weights,
@@ -440,12 +445,12 @@ def CreateBatch():
             product.SupplierProduct)
     # print(material_products)
     if request.method == 'POST':
-        v_po = request.form.get('v_po', '')
+        po_num = request.form.get('po_num', '')
         v_lot = request.form.get('v_lot', '')
         weight = request.form.get('weight', '')
         product = request.form.get('product', '')
 
-        if not v_po:
+        if not po_num:
             flash('Missing PO Number. Please enter a PO Number.', category='error')
         elif not v_lot:
             flash('Missing Virgin Lot. Please enter a Virgin Lot.', category='error')
@@ -473,7 +478,7 @@ def CreateBatch():
                     BatchCreatedBy=current_user.id,
                     BatchTimeStamp=str(dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                     BatchFacilityID=int(4),
-                    VirginPO=int(v_po),
+                    VirginPO=int(po_num),
                     VirginLot=str(v_lot),
                     VirginWeight=float(weight),
                     CurrentWeight=float(weight),
@@ -489,7 +494,7 @@ def CreateBatch():
                 # Additional error handling code if needed
 
     return render_template(
-        'create-batch.html', 
+        'powder/create-batch.html', 
         user=current_user, 
         alloy_names=alloy_names,
         material_products=material_products)
@@ -510,12 +515,16 @@ def HistoryBlend():
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
-    blends = query.paginate(page=page, per_page=per_page)
+    blend_table = query.paginate(page=page, per_page=per_page)
 
     alloy_names = db.session.query(MaterialAlloys.AlloyName).distinct().all()
     alloy_names = [name[0] for name in alloy_names]
 
-    return render_template('history-blend.html', user=current_user, blends=blends, alloy_names=alloy_names, \
+    return render_template(
+        'powder/history-blend.html', 
+        user=current_user, 
+        blend_table=blend_table, 
+        alloy_names=alloy_names, 
         selected_alloy=alloy_name)
 
 
@@ -543,7 +552,7 @@ def HistoryBatch():
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
-    blends = batch_query.paginate(page=page, per_page=per_page)
+    batch_table = batch_query.paginate(page=page, per_page=per_page)
 
     alloy_names = db.session.query(
         MaterialAlloys.AlloyName).distinct().all()
@@ -553,7 +562,13 @@ def HistoryBatch():
         MaterialProducts.SupplierProduct).distinct().all()
     supplier_product = [name[0] for name in supplier_product]
 
-    return render_template('history-batch.html', user=current_user, batch_list=blends, alloy_names=alloy_names, supplier_name=supplier_product, selected_alloy=alloy_name)
+    return render_template(
+        'powder/history-batch.html', 
+        user=current_user, 
+        batch_table=batch_table, 
+        alloy_names=alloy_names, 
+        supplier_name=supplier_product, 
+        selected_alloy=alloy_name)
 
 
 @blends.route('/blend-report', methods=['GET', 'Post'])
@@ -682,25 +697,17 @@ def BlendReport():
     
     footer = f'Report generated on: {dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
 
-    # print('Blend Summary:')
-    # print(blend_summary)
-    # print('\nMajority Batch:')
-    # print(majority_batch)
-    # print('\nBlend Breakdown:')
-    # print(blend_breakdown)
-    # print('\nReport Generated:')
-    # print(footer_html)
-
-    rendered = render_template('blend-report.html',
-                               blend_summary=blend_summary,
-                               majority_batch=majority_batch,
-                               blend_breakdown=blend_breakdown,
-                               footer=footer)
+    rendered = render_template(
+        'powder/blend-report.html',
+        blend_summary=blend_summary,
+        majority_batch=majority_batch,
+        blend_breakdown=blend_breakdown,
+        footer=footer)
     pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
 
     response = make_response(pdf)
     response.headers['Content-type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename={blend}_Report.pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
     return response
 
 
@@ -802,12 +809,12 @@ def InventoryBlend():
         # Check if blend_date is not None before converting to datetime.date object
         if blend_date is not None:
             blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
-        # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 10 and Blend ID not in set
+        # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 20 and Blend ID not in set
         if (
             blend_date is not None
             and blend_date > dt.date(2021, 8, 1)
             and current_wt is not None
-            and current_wt > 10
+            and current_wt > 20
             and blend_id not in blend_ids_set
         ):
             blend_row = (blend_id, alloy_name, current_wt)
@@ -832,7 +839,7 @@ def InventoryBlend():
     else:
         filtered_data = result_data
     return render_template(
-        'inventory-blend.html',
+        'powder/inventory-blend.html',
         user=current_user,
         filtered_data=filtered_data,
         alloy_names=alloy_names,
@@ -870,7 +877,7 @@ def InventoryBatch():
     current_alloy = None
     subtotal_weight = 0
     # Iterate over the inventory data
-    for batch_id, alloy_name, supplier_product, current_wt, v_po, v_lot, batch_date in inventory_query:
+    for batch_id, alloy_name, supplier_product, current_wt, po_num, v_lot, batch_date in inventory_query:
         # Check if the material has changed
         if alloy_name != current_alloy:
             # Add subtotal row for previous material
@@ -883,7 +890,7 @@ def InventoryBatch():
         # Check if batch_date is not None before converting to datetime.date object
         if batch_date is not None:
             batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
-            batch_row = (batch_id, alloy_name, supplier_product, v_po, v_lot, current_wt)
+            batch_row = (batch_id, alloy_name, supplier_product, po_num, v_lot, current_wt)
             result_data.append(batch_row)
             # Update subtotal weight
             if current_wt is not None:
@@ -892,7 +899,7 @@ def InventoryBatch():
             batch_id_set.add(batch_id)
     # Add final subtotal row for the last material
     if current_alloy is not None:
-        subtotal_row = ('Subtotal', current_alloy, None, None, None, round(subtotal_weight, 2))
+        subtotal_row = ('Subtotal', current_alloy, None, None, None, subtotal_weight)
         result_data.append(subtotal_row)
     # Calculate total weight
     total_wt = sum(row[5] for row in result_data if isinstance(row[5], (int, float)))
@@ -906,7 +913,7 @@ def InventoryBatch():
         filtered_data = result_data
 
     return render_template(
-        'inventory-batch.html',
+        'powder/inventory-batch.html',
         user=current_user,
         filtered_data=filtered_data,
         alloy_names=alloy_names,

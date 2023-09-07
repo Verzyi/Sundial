@@ -1,0 +1,151 @@
+{% extends "base_powder.html" %} 
+{% block title %}History{% endblock %} 
+{% block content %}
+<h1 class="text-center">Blend System - Blend History</h1>
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="search"
+        autocomplete="off"
+        onclick="window.location.href = '/search-blend'"
+      />
+      <label class="btn btn-outline-primary" for="search">Search</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="create-blend"
+        autocomplete="off"
+        onclick="window.location.href = '/create-blend'"
+      />
+      <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="create-batch"
+        autocomplete="off"
+        onclick="window.location.href = '/create-batch'"
+      />
+      <label class="btn btn-outline-primary" for="create-batch"
+        >Create Batch</label
+      >
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="history"
+        autocomplete="off"
+        checked
+        onclick="window.location.href = '/history-blend'"
+      />
+      <label class="btn btn-outline-primary" for="history">History</label>
+
+      <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="inventory"
+        autocomplete="off"
+        onclick="window.location.href = '/inventory-blend'"
+      />
+      <label class="btn btn-outline-primary" for="inventory">Inventory</label>
+    </div>
+  </div>
+  <div class="container">
+    <form
+      action="{{ url_for('blends.HistoryBlend') }}"
+      method="POST"
+      class="mt-4"
+    >
+    <div class="container">
+      <form action="{{ url_for('blends.HistoryBlend') }}" method="POST" class="mt-4">
+        <div class="d-grid">
+          <input
+        type="radio"
+        class="btn-check"
+        name="btnradio"
+        id="Search"
+        autocomplete="off"
+        onclick="window.location.href = '/search-blend'"
+      />
+      <label class="btn btn-outline-primary" for="switch" >Switch to Virgin Batch History</label>
+      <input type="radio"
+      class="btn-check"
+      name="btnradio"
+      id="switch"
+      autocomplete="off"
+      onclick="window.location.href = '/history-batch'"
+      ></input>
+        </div>
+        <div class="form-group">
+          <select
+            name="alloy"
+            class="form-select"
+            id="alloy"
+            style="text-align: center"
+            onchange="this.form.submit()"
+          >
+            <option value="" {% if selected_alloy == '' %}selected{% endif %}>All Materials</option>
+            {% for alloy in alloy_names %}
+            <option value="{{ alloy }}" {% if selected_alloy == alloy %}selected{% endif %}>{{ alloy }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="d-grid">
+        </div>
+      </form>
+
+    <div class="table-responsive mt-4">
+      <table class="table table-hover">
+        <!-- Table headers -->
+        <thead>
+          <tr>
+            <th>Blend ID</th>
+            <th>Material</th>
+            <th>Total Weight (kg)</th>
+            <th>Date Created</th>
+            <th>Created By</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for blend, alloy_name in blend_table.items %}
+          <tr class="table-active">
+            <td>{{ blend.BlendID }}</td>
+            <td>{{ alloy_name }}</td>
+            <td>{{ "%.1f" % blend.TotalWeight }}</td>
+            {% set date, time = blend.BlendDate.split(' ') %}
+            <td>{{ date}}</td>
+            <td>{{ blend.BlendCreatedBy }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Pagination -->
+    <nav class="mt-4">
+      {% if blend_table.has_prev %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('blends.HistoryBlend', page=blend_table.prev_num, search=search) }}"
+        >Previous</a
+      >
+      {% endif %} {% if blend_table.has_next %}
+      <a
+        class="btn btn-primary"
+        href="{{ url_for('blends.HistoryBlend', page=blend_table.next_num, search=search) }}"
+        >Next</a
+      >
+      {% endif %}
+    </nav>
+  </div>
+</div>
+{% endblock %}

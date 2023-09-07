@@ -1,16 +1,18 @@
 from flask import Blueprint, Flask, redirect, url_for, request, render_template, request, flash, redirect, url_for, session
-from .models import Users
+
 from werkzeug.security import generate_password_hash, check_password_hash
-from . import db
 from flask_bcrypt import Bcrypt, check_password_hash 
 from flask_login import login_user, login_required, logout_user, current_user, LoginManager, UserMixin
 
-auth = Blueprint('auth', __name__)
+from . import db
+from .models import Users
+
+auth_bp = Blueprint('auth_bp', __name__)
 bcrypt = Bcrypt() 
 
 
-@auth.route('/login', methods=['GET', 'POST'])
-def login():
+@auth_bp.route('/login', methods=['GET', 'POST'])
+def Login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
@@ -28,17 +30,17 @@ def login():
         else:
             flash('Email does not exist', category='error')
 
-    return render_template("login.html", user=current_user)
+    return render_template('login.html', user=current_user)
 
-@auth.route('/logout')
+@auth_bp.route('/logout')
 @login_required
 def logout():
     logout_user()
     session.clear()
     session['_remember'] = 'clear'
-    return redirect(url_for('auth.login'))
+    return redirect(url_for('auth.Login'))
 
-@auth.route('/sign-up', methods=['GET', 'POST'])
+@auth_bp.route('/sign-up', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -67,7 +69,7 @@ def signup():
                 first_name=first_name,
                 last_name=last_name,
                 password=hashed_password,
-                role="User"
+                role='User'
             )
             db.session.add(new_user)
             db.session.commit()
@@ -75,4 +77,4 @@ def signup():
             login_user(new_user, remember=True)
             return redirect(url_for('blends.home'))
 
-    return render_template("sign_up.html", user=current_user)
+    return render_template('sign-up.html', user=current_user)

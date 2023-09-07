@@ -2,7 +2,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session
 from flask_login import login_user, login_required, current_user
 from .dashboard import dashboard
-# from flask import current_app as app
 
 import dash
 from dash import dash_table, dcc, html
