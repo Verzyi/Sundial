@@ -1,5 +1,5 @@
 import os
-from flask import Flask, redirect, url_for, flash, request
+from flask import Flask, redirect, url_for, flash, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_debugtoolbar import DebugToolbarExtension
@@ -7,6 +7,9 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from .dashboard import dashboard
+import csv
+from flask_admin.actions import action  
+import io 
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -89,14 +92,41 @@ def create_app():
 
     # Users
     class RestrictedUsersAdminView(ModelView):
-        column_display_pk = True
         column_searchable_list = ['email', 'first_name', 'last_name']
+
         def is_accessible(self):
             if current_user.is_authenticated:
                 return current_user.id == 1 or current_user.role == "Admin"
             else:
                 return False
+        # Define a custom action to download the table as a CSV file
+        @action('download_csv', 'Download CSV', 'Download selected records as CSV')
+        def download_csv(self, ids):
+            if not ids:
+                flash('No records selected.', 'error')
+                return redirect(request.referrer)
 
+            # Get the selected records from the database
+            records = self.model.query.filter(self.model.id.in_(ids)).all()
+
+            # Create a CSV file
+            output = io.StringIO()
+            csv_writer = csv.writer(output)
+
+            # Write header row
+            header = ['Email', 'Password', 'First Name', 'Last Name']  # Replace with your actual column names
+            csv_writer.writerow(header)
+
+            # Write data rows
+            for record in records:
+                data_row = [record.email, record.password, record.first_name, record.last_name]  # Replace with your actual data
+                csv_writer.writerow(data_row)
+
+            # Prepare the response with CSV content
+            response = Response(output.getvalue(), content_type='text/csv')
+            response.headers['Content-Disposition'] = 'attachment; filename=User_data.csv'
+
+            return response
     admin.add_view(RestrictedUsersAdminView(Users, db.session, category=users_category.name))
 
     # Blend
