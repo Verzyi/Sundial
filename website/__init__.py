@@ -60,7 +60,10 @@ def create_app():
    # Custom AdminIndexView to restrict access
     class RestrictedAdminIndexView(AdminIndexView):
         def is_accessible(self):
-            return current_user.is_authenticated and current_user.id == 1 or current_user.role == "Admin"
+            if current_user.is_authenticated: 
+                if (current_user.id == 1 or current_user.role == "Admin"):
+                    return current_user.is_authenticated and current_user.id == 1 or current_user.role == "Admin" 
+
 
         def inaccessible_callback(self, name, **kwargs):
             if not current_user.is_authenticated or current_user.id != 1 or current_user.role != "Admin":
