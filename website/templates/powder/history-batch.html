@@ -1,157 +1,104 @@
 {% extends "base_powder.html" %} 
-{% block title %}History{% endblock %} 
+{% block title %}Virgin Batch History{% endblock %} 
 {% block content %}
-<h1 class="text-center">Powder Management | Virgin Batch History</h1>
+<div class="container">  
+  <h1 class="text-center">{{ super() }}</h1>
+  <h2 class="text-center">{{ self.title() }}</h2>
+</div>
+
 <div class="container">
-  <div class="d-flex justify-content-center mt-3">
-    <div class="btn-group">
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Search"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/search/blend'"
-      />
-      <label class="btn btn-outline-primary" for="Search">Search</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="New"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/create/blend'"
-      />
-      <label class="btn btn-outline-primary" for="New">Create Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="createBatch"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/create/batch'"
-      />
-      <label class="btn btn-outline-primary" for="createBatch"
-        >Create Batch</label
-      >
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="History"
-        autocomplete="off"
-        checked
-        onclick="window.location.href = '/powder/history/blend'"
-      />
-      <label class="btn btn-outline-primary" for="History">History</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Inventory"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/inventory/blend'"
-      />
-      <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
-    </div>
-  </div>
+  <form
+    action="{{ url_for('blends.HistoryBatch') }}"
+    method="POST"
+    class="mt-4"
+  >
   <div class="container">
-    <form
-      action="{{ url_for('blends.HistoryBatch') }}"
-      method="POST"
-      class="mt-4"
-    >
-    <div class="container">
-      <form action="{{ url_for('blends.HistoryBatch') }}" method="POST" class="mt-4">
-        <div class="d-grid">
-          <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="Search"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/search/blend'"
-      />
-      <label class="btn btn-outline-primary" for="switch">Switch to Blend History</label>
-      <input type="radio"
+    <form action="{{ url_for('blends.HistoryBatch') }}" method="POST" class="mt-4">
+      <div class="d-grid">
+        <input
+      type="radio"
       class="btn-check"
       name="btnradio"
-      id="switch"
+      id="Search"
       autocomplete="off"
-      onclick="window.location.href = '/powder/history/blend'"
-      ></input>
-        </div>
-        <div class="form-group">
-          <select
-            name="alloy"
-            class="form-select"
-            id="alloy"
-            style="text-align: center"
-            onchange="this.form.submit()"
-          >
-            <option value="" {% if selected_alloy == '' %}selected{% endif %}>All Materials</option>
-            {% for alloy in alloy_names %}
-            <option value="{{ alloy }}" {% if selected_alloy == alloy %}selected{% endif %}>{{ alloy }}</option>
-            {% endfor %}
-          </select>
-        </div>
-        <div class="d-grid">
-        </div>
-      </form>
-
-    <div class="table-responsive mt-4">
-      <table class="table table-hover">
-        <!-- Table headers -->
-        <thead>
-          <tr>
-            <th>Batch ID</th>
-            <th>Material</th>
-            <th>Supplier Product </th>
-            <th>PO Number</th>
-            <th>Virgin Lot</th>
-            <th>Total Weight (kg)</th>
-            <th>Date Created</th>
-            <th>Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          {% for batch, alloy_names, supplier_product in batch_table.items %}
-          <tr class="table-active">
-            <td>{{ batch.BatchID }}</td>
-            <td>{{ alloy_names }}</td>
-            <td>{{ supplier_product }}</td>
-            <td>{{ batch.VirginPO }}</td>
-            <td>{{ batch.VirginLot }}</td>
-            <td>{{ "%.0f" % batch.VirginWeight }}</td>
-            {% set date, time = batch.BatchTimeStamp.split(' ') %}
-            <td>{{ date}}</td>
-            <td>{{ batch.BatchCreatedBy }}</td>
-          </tr>
+      onclick="window.location.href = '/powder/search/blend'"
+    />
+    <label class="btn btn-outline-primary" for="switch">Switch to Blend History</label>
+    <input type="radio"
+    class="btn-check"
+    name="btnradio"
+    id="switch"
+    autocomplete="off"
+    onclick="window.location.href = '/powder/history/blend'"
+    ></input>
+      </div>
+      <div class="form-group">
+        <select
+          name="alloy"
+          class="form-select"
+          id="alloy"
+          style="text-align: center"
+          onchange="this.form.submit()"
+        >
+          <option value="" {% if selected_alloy == '' %}selected{% endif %}>All Materials</option>
+          {% for alloy in alloy_names %}
+          <option value="{{ alloy }}" {% if selected_alloy == alloy %}selected{% endif %}>{{ alloy }}</option>
           {% endfor %}
-        </tbody>
-      </table>
-    </div>
+        </select>
+      </div>
+      <div class="d-grid">
+      </div>
+    </form>
 
-    <!-- Pagination -->
-    <nav class="mt-4">
-      {% if batch_table.has_prev %}
-      <a
-        class="btn btn-primary"
-        href="{{ url_for('blends.HistoryBatch', page=batch_table.prev_num, search=search) }}"
-        >Previous</a
-      >
-      {% endif %} {% if batch_table.has_next %}
-      <a
-        class="btn btn-primary"
-        href="{{ url_for('blends.HistoryBatch', page=batch_table.next_num, search=search) }}"
-        >Next</a
-      >
-      {% endif %}
-    </nav>
+  <div class="table-responsive mt-4">
+    <table class="table table-hover">
+      <!-- Table headers -->
+      <thead>
+        <tr>
+          <th>Batch ID</th>
+          <th>Material</th>
+          <th>Supplier Product </th>
+          <th>PO Number</th>
+          <th>Virgin Lot</th>
+          <th>Total Weight (kg)</th>
+          <th>Date Created</th>
+          <th>Created By</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for batch, alloy_names, supplier_product in batch_table.items %}
+        <tr class="table-active">
+          <td>{{ batch.BatchID }}</td>
+          <td>{{ alloy_names }}</td>
+          <td>{{ supplier_product }}</td>
+          <td>{{ batch.VirginPO }}</td>
+          <td>{{ batch.VirginLot }}</td>
+          <td>{{ "%.0f" % batch.VirginWeight }}</td>
+          {% set date, time = batch.BatchTimeStamp.split(' ') %}
+          <td>{{ date}}</td>
+          <td>{{ batch.BatchCreatedBy }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
   </div>
+
+  <!-- Pagination -->
+  <nav class="mt-4">
+    {% if batch_table.has_prev %}
+    <a
+      class="btn btn-primary"
+      href="{{ url_for('blends.HistoryBatch', page=batch_table.prev_num, search=search) }}"
+      >Previous</a
+    >
+    {% endif %} {% if batch_table.has_next %}
+    <a
+      class="btn btn-primary"
+      href="{{ url_for('blends.HistoryBatch', page=batch_table.next_num, search=search) }}"
+      >Next</a
+    >
+    {% endif %}
+  </nav>
+</div>
 </div>
 {% endblock %}

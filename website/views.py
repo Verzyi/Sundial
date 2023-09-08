@@ -8,17 +8,17 @@ from flask_bcrypt import Bcrypt, check_password_hash
 from . import db
 
 # Create a Blueprint for your views
-views_bp = Blueprint('views_bp', __name__)
+views = Blueprint('views', __name__)
 bcrypt = Bcrypt()
 
-@views_bp.route('/')
+@views.route('/')
 @login_required
 def builds_home():
     # blends = PowderBlends.query.all()
     return render_template('home.html', user=current_user)
 
 
-@views_bp.route('/settings', methods=['GET', 'POST'])
+@views.route('/settings', methods=['GET', 'POST'])
 @login_required
 def Settings():
     if request.method == 'POST':
