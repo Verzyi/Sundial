@@ -20,7 +20,7 @@ class MaterialProducts(db.Model):
 class MaterialAlloys(db.Model):
     Alloy = db.Column(db.String)
     MaterialName = db.Column(db.String(50))
-    MaterialID = db.Column(db.Integer)
+    MaterialID = db.Column(db.Integer, nullable=True)
     AlloyName = db.Column(db.String(50))
     AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
 
@@ -39,7 +39,7 @@ class PowderBlends(db.Model):
     BlendID	= db.Column(db.Integer, primary_key=True, unique=True )
     BlendDate = db.Column(db.String)
     BlendCreatedBy = db.Column(db.Integer)
-    AlloyID	= db.Column(db.Integer)
+    AlloyID	= db.Column(db.Integer, nullable=True)
     TotalWeight = db.Column(db.Float)
     CurrentWeight = db.Column(db.Float)
     
@@ -60,8 +60,8 @@ class PowderBlendCalc(db.Model):
 class PowderBlendParts(db.Model):
     PartID = db.Column(db.Integer, primary_key=True, nullable=False) 
     BlendID = db.Column(db.Integer)
-    PartBlendID = db.Column(db.Integer)
-    PartBatchID = db.Column(db.Integer)
+    PartBlendID = db.Column(db.Integer, nullable=True)
+    PartBatchID = db.Column(db.Integer, nullable=True)
     AddedWeight = db.Column(db.Float)
 
 class BuildsTable(db.Model):
@@ -85,7 +85,7 @@ class BuildsTable(db.Model):
     BuildTime = db.Column(db.Integer)
     FinishHeight = db.Column(db.Integer)
     FinishPlatformWeight = db.Column(db.Float)
-    BlendID = db.Column(db.Integer)
+    BlendID = db.Column(db.Integer, nullable=True)
     CertificationBuild = db.Column(db.Boolean)
     FeedPowderHeight = db.Column(db.Float)
     EndFeedPowderHeight = db.Column(db.Float)
@@ -97,7 +97,7 @@ class BuildsTable(db.Model):
     MaxChargeAmount = db.Column(db.Integer)
     DosingBoostAmount = db.Column(db.Float)
     RecoaterSpeed = db.Column(db.Integer)
-    ParameterRev = db.Column(db.Integer)
+    ParameterRev = db.Column(db.String)
     MeasuredLaserPower = db.Column(db.Integer)
     GasFlow = db.Column(db.Integer)
     MaterialAdded = db.Column(db.String)

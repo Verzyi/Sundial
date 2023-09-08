@@ -1,66 +1,10 @@
 {% extends "base_powder.html" %} 
-{% block title %}Blend{% endblock %} 
+{% block title %}Blend Search{% endblock %} 
 {% block content %}
-<h1 class="text-center">Powder Management | Blend Search</h1>
 <div class="container">
+  <h1 class="text-center">{{ super() }}</h1>
+  <h2 class="text-center">{{ self.title() }}</h2>
   <div class="container">
-    <div class="d-flex justify-content-center mt-3">
-      <div class="btn-group">
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Search"
-          autocomplete="off"
-          checked
-          onclick="window.location.href = '/powder/search/blend'"
-        />
-        <label class="btn btn-outline-primary" for="Search">Search</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="New"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/create/blend'"
-        />
-        <label class="btn btn-outline-primary" for="New">Create Blend</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="createBatch"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/create/batch'"
-        />
-        <label class="btn btn-outline-primary" for="createBatch"
-          >Create Batch</label
-        >
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="History"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/history/blend'"
-        />
-        <label class="btn btn-outline-primary" for="History">History</label>
-
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="Inventory"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/inventory/blend'"
-        />
-        <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
-      </div>
-    </div>
-
     <form id="searchBlendForm" method="POST" class="mt-4">
       <label class="btn btn-outline-primary form-group" for="switch">Switch to Batch Search</label>
       <input type="radio"

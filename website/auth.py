@@ -1,17 +1,17 @@
-from flask import Blueprint, Flask, redirect, url_for, request, render_template, request, flash, redirect, url_for, session
+from flask import Blueprint, redirect, url_for, request, render_template, request, flash, redirect, url_for, session
 
-from werkzeug.security import generate_password_hash, check_password_hash
+# from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt, check_password_hash 
-from flask_login import login_user, login_required, logout_user, current_user, LoginManager, UserMixin
+from flask_login import login_user, login_required, logout_user, current_user
 
 from . import db
 from .models import Users
 
-auth_bp = Blueprint('auth_bp', __name__)
+auth = Blueprint('auth', __name__)
 bcrypt = Bcrypt() 
 
 
-@auth_bp.route('/login', methods=['GET', 'POST'])
+@auth.route('/login', methods=['GET', 'POST'])
 def Login():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -24,7 +24,7 @@ def Login():
                 login_user(user, remember=True)
                 # current_user.set_ip = request.remote_addr
                 # db.session.commit()
-                return redirect(url_for('blends.home'))
+                return redirect(url_for('blends.Home'))
             else:
                 flash('Password incorrect', category='error')
         else:
@@ -32,7 +32,7 @@ def Login():
 
     return render_template('login.html', user=current_user)
 
-@auth_bp.route('/logout')
+@auth.route('/logout')
 @login_required
 def logout():
     logout_user()
@@ -40,7 +40,7 @@ def logout():
     session['_remember'] = 'clear'
     return redirect(url_for('auth.Login'))
 
-@auth_bp.route('/sign-up', methods=['GET', 'POST'])
+@auth.route('/sign-up', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
         email = request.form.get('email')
@@ -75,6 +75,6 @@ def signup():
             db.session.commit()
             flash('Account created', category='success')
             login_user(new_user, remember=True)
-            return redirect(url_for('blends.home'))
+            return redirect(url_for('blends.Home'))
 
     return render_template('sign-up.html', user=current_user)

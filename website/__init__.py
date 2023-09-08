@@ -9,6 +9,7 @@ from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
+import datetime as dt
 
 from .dashboard import dashboard
 
@@ -32,14 +33,14 @@ def CreateApp():
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
 
-    from .auth import auth_bp
-    from .views import views_bp
+    from .auth import auth
+    from .views import views
     from .blends import blends
     from .builds import builds
     from .quote import quote
     from .dashapp import dashapp_bp
 
-    bp_list = [auth_bp, views_bp, blends, builds, quote, dashapp_bp]
+    bp_list = [auth, views, blends, builds, quote, dashapp_bp]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
@@ -49,7 +50,7 @@ def CreateApp():
     
     # Login info
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.login'
+    login_manager.login_view = 'auth.Login'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -60,19 +61,18 @@ def CreateApp():
     class RestrictedAdminIndexView(AdminIndexView):
         def is_accessible(self):
             if current_user.is_authenticated: 
-                if (current_user.id == 1 or current_user.role == "Admin"):
-                    return current_user.is_authenticated and current_user.id == 1 or current_user.role == "Admin" 
-
+                if (current_user.id == 1 or current_user.role == 'Admin'):
+                    return current_user.is_authenticated and current_user.id == 1 or current_user.role == 'Admin' 
 
         def inaccessible_callback(self, name, **kwargs):
-            if not current_user.is_authenticated or current_user.id != 1 or current_user.role != "Admin":
-                flash("Access denied.", category='error')
-                return redirect(url_for('blends.home'))
+            if not current_user.is_authenticated or current_user.id != 1 or current_user.role != 'Admin':
+                flash('Access denied.', category='error')
+                return redirect(url_for('blends.Home'))
 
             if request.path.startswith(self.admin.url):
                 return super().inaccessible_callback(name, **kwargs)
             else:
-                return redirect(url_for('blends.home'))
+                return redirect(url_for('blends.Home'))
 
         def _handle_view(self, name, **kwargs):
             if not self.is_accessible():
@@ -84,21 +84,21 @@ def CreateApp():
 
     # Create the drop-down menu categories
     users_category = MenuCategory(name='Users')
-    blends_category = MenuCategory(name='Blend')
+    powder_category = MenuCategory(name='Powder')
     builds_category = MenuCategory(name='Build')
 
     # Add the categories to the admin menu
     admin.add_category(users_category)
-    admin.add_category(blends_category)
+    admin.add_category(powder_category)
     admin.add_category(builds_category)
 
     # Users
-    class RestrictedUsersAdminView(ModelView):
-        column_searchable_list = ['email', 'first_name', 'last_name']
+    class UsersAdminView(ModelView):
+        column_searchable_list = ['email', 'first_name', 'last_name', 'role']
 
         def is_accessible(self):
             if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == "Admin"
+                return current_user.id == 1 or current_user.role == 'Admin'
             else:
                 return False
         # Define a custom action to download the table as a CSV file
@@ -116,7 +116,7 @@ def CreateApp():
             csv_writer = csv.writer(output)
 
             # Write header row
-            header = ['Email', 'Password', 'First Name', 'Last Name']  # Replace with your actual column names
+            header = ['Email', 'Password', 'First Name', 'Last Name', 'Role']  # Replace with your actual column names
             csv_writer.writerow(header)
 
             # Write data rows
@@ -126,48 +126,48 @@ def CreateApp():
 
             # Prepare the response with CSV content
             response = Response(output.getvalue(), content_type='text/csv')
-            response.headers['Content-Disposition'] = 'attachment; filename=User_data.csv'
+            timestamp = str(dt.datetime.now())[:10].replace(' ', '_').replace(':', '-').replace('-', '')
+            response.headers['Content-Disposition'] = f'attachment; filename=Users_{timestamp}.csv'
 
             return response
-    admin.add_view(RestrictedUsersAdminView(Users, db.session, category=users_category.name))
+    admin.add_view(UsersAdminView(Users, db.session, category=users_category.name))
 
     # Blend
-    class RestrictedBlendModelView(ModelView):
+    class BlendAdminView(ModelView):
         column_display_pk = True
         column_searchable_list = ['BlendID', 'BlendDate', 'BlendCreatedBy']
         def is_accessible(self):
             if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == "Admin"
+                return current_user.id == 1 or current_user.role == 'Admin'
             else:
                 return False
-    admin.add_view(RestrictedBlendModelView(PowderBlends, db.session, category=blends_category.name))
+    admin.add_view(BlendAdminView(PowderBlends, db.session, category=powder_category.name))
 
     # Batch
-    class RestrictedBatchModelView(ModelView):
+    class BatchAdminView(ModelView):
         column_display_pk = True
         column_searchable_list = ['BatchID', 'ProductID', 'BatchCreatedBy']
         def is_accessible(self):
             if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == "Admin"
+                return current_user.id == 1 or current_user.role == 'Admin'
             else:
                 return False
-    admin.add_view(RestrictedBatchModelView(InventoryVirginBatch, db.session, category=blends_category.name))
+    admin.add_view(BatchAdminView(InventoryVirginBatch, db.session, category=powder_category.name))
 
     # Build
-    class RestrictedBuildsModelView(ModelView):
+    class BuildsAdminView(ModelView):
         column_display_pk = True
         def is_accessible(self):
             if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == "Admin"
+                return current_user.id == 1 or current_user.role == 'Admin'
             else:
                 return False
 
-    admin.add_view(RestrictedBuildsModelView(BuildsTable, db.session, category=builds_category.name))
-
-    admin.add_view(ModelView(MaterialAlloys, db.session, category=blends_category.name))
-    admin.add_view(ModelView(MaterialProducts, db.session, category=blends_category.name))
-    admin.add_view(ModelView(PowderBlendParts, db.session, category=blends_category.name))
-    admin.add_view(ModelView(PowderBlendCalc, db.session, category=blends_category.name))
+    admin.add_view(BuildsAdminView(BuildsTable, db.session, category=builds_category.name))
+    admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
+    admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
+    admin.add_view(ModelView(PowderBlendParts, db.session, category=powder_category.name))
+    admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
     app = dashboard.init_dashboard(app)
 

@@ -1,65 +1,9 @@
 {% extends "base_powder.html" %} 
 {% block title %} Create Batch {% endblock %} 
 {% block content %}
-<h1 class="text-center">Powder Management | Create Batch</h1>
+<h1 class="text-center">{{ super() }}</h1>
+<h2 class="text-center">{{ self.title() }}</h2>
 <div class="container">
-  <div class="d-flex justify-content-center mt-3">
-    <div class="btn-group">
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="search"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/search/blend'"
-      />
-      <label class="btn btn-outline-primary" for="search">Search</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="create-blend"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/create/blend'"
-      />
-      <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="create-batch"
-        autocomplete="off"
-        checked
-        onclick="window.location.href = '/powder/create/batch'"
-      />
-      <label class="btn btn-outline-primary" for="create-batch"
-        >Create Batch</label
-      >
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="history"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/history/blend'"
-      />
-      <label class="btn btn-outline-primary" for="history">History</label>
-
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="inventory"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/inventory/blend'"
-      />
-      <label class="btn btn-outline-primary" for="inventory">Inventory</label>
-    </div>
-  </div>
-
   <div class="container-fluid">
     <form id="createBlendForm" method="POST" class="mt-4">
       <div id="blendFields" class="mb-3">

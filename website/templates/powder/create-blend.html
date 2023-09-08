@@ -1,202 +1,142 @@
 {% extends "base_powder.html" %} 
 {% block title %} Create Blend {% endblock %} 
 {% block content %}
-<h1 class="text-center">Powder Management | Create Blend</h1>
-<div class="container">  <div class="container">
-    <div class="d-flex justify-content-center mt-3">
-      <div class="btn-group">
-        <!-- "Search" button -->
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="search"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/search/blend'"
-        />
-        <label class="btn btn-outline-primary" for="search">Search</label>
+<div class="container">  
+  <h1 class="text-center">{{ super() }}</h1>
+  <h2 class="text-center">{{ self.title() }}</h2>
+</div>
 
-        <!-- "Create Blend" button -->
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="create-blend"
-          autocomplete="off"
-          checked
-          onclick="window.location.href = '/powder/create/blend'"
-        />
-        <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
+<div class="container-fluid">
+  <form
+    id="createBlendForm"
+    method="POST"
+    action="{{ url_for('blends.CreateBlend') }} "
+    class="mt-4"
+  >
+    <div id="createBlend" class="createBlend">
+      <div class="form-group">
+        <div class="mb-3">
+          <!-- "Blend" button -->
+          <input
+            type="radio"
+            class="btn-check"
+            name="option"
+            id="btn_blend"
+            value="Blend"
+            autocomplete="off"
+          />
+          <label class="btn btn-outline-primary" style="width:120px;" for="btn_blend">
+            Blend
+          </label>
 
-        <!-- "Create Batch" button -->
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="create-batch"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/create/batch'"
-        />
-        <label class="btn btn-outline-primary" for="create-batch"
-          >Create Batch</label
-        >
-
-        <!-- "History" button -->
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="history"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/history/blend'"
-        />
-        <label class="btn btn-outline-primary" for="history">History</label>
-
-        <!-- "Inventory" button -->
-        <input
-          type="radio"
-          class="btn-check"
-          name="btnradio"
-          id="inventory"
-          autocomplete="off"
-          onclick="window.location.href = '/powder/inventory/blend'"
-        />
-        <label class="btn btn-outline-primary" for="inventory">Inventory</label>
+      <!-- "Virgin Batch" button -->
+          <input
+            type="radio"
+            class="btn-check"
+            name="option"
+            id="btn_batch"
+            value="Batch"
+            autocomplete="off"
+          />
+          <label class="btn btn-outline-primary" style="width:120px;" for="btn_batch">
+            Virgin Batch
+          </label>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <div class="container-fluid">
-    <form
-      id="createBlendForm"
-      method="POST"
-      action="{{ url_for('blends.CreateBlend') }} "
-      class="mt-4"
-    >
-      <div id="createBlend" class="createBlend">
-        <div class="form-group">
-          <div class="mb-3">
-            <!-- "Blend" button -->
-            <input
-              type="radio"
-              class="btn-check"
-              name="option"
-              id="btn_blend"
-              value="Blend"
-              autocomplete="off"
-            />
-            <label class="btn btn-outline-primary" style="width:120px;" for="btn_blend">
-              Blend
-            </label>
+      <!-- "Blend/Batch ID" button -->
+      <div id="blendFields" class="mb-3">
+        <label for="number" class="form-label">Blend/Batch ID</label>
+        <input
+          type="number"
+          class="form-control"
+          name="batch_blend_id"
+          id="batch_blend_id"
+          placeholder="0"
+        />
 
-        <!-- "Virgin Batch" button -->
-            <input
-              type="radio"
-              class="btn-check"
-              name="option"
-              id="btn_batch"
-              value="Batch"
-              autocomplete="off"
-            />
-            <label class="btn btn-outline-primary" style="width:120px;" for="btn_batch">
-              Virgin Batch
-            </label>
-          </div>
-        </div>
-
-        <!-- "Blend/Batch ID" button -->
-        <div id="blendFields" class="mb-3">
-          <label for="number" class="form-label">Blend/Batch ID</label>
-          <input
-            type="number"
-            class="form-control"
-            name="batch_blend_id"
-            id="batch_blend_id"
-            placeholder="0"
-          />
-
-          <label for="added_weight" class="form-label">Weight (kg)</label>
-          <input
-            type="number"
-            step="0.01"
-            class="form-control"
-            name="added_weight"
-            id="added_weight"
-            placeholder="0"
-          />
-        </div>
-        <div class="d-grid">
-          <button
-            type="submit"
-            id="addButton"
-            name="add"
-            class="btn btn-primary"
-          >
-            Add
-          </button>
-        </div>
-        <div class="form-group mt-4">
-          <label for="total" id="weightTotal"
-            >Total Blend Weight: {{ total_weight }} kg</label
-          >
-        </div>
-        <div class="d-grid">
-          <button
-            type="submit"
-            id="createButton"
-            class="btn btn-primary"
-            name="create"
-          >
-            Create Blend
-          </button>
-        </div>
-        <div class="table-responsive mt-4">
-          <table class="table table-hover">
-            <!-- Table headers -->
-            <thead>
-              <tr style="font-size: 20px">
-                <th scope="col">Blend/Batch ID</th>
-                <th scope="col">Material</th>
-                <th scope="col">Weight (kg)</th>
-                <th scope="col">Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for i in range(blend_list|length) %}
-              <tr class="table-active">
-                <td>Blend {{ blend_list[i] }}</td>
-                <td>{{ alloy_list[i] }}</td>
-                <td>{{ blend_part_weights[i] }}</td>
-                <td>
-                  <button
-                    type="submit"
-                    class="btn btn-danger"
-                    formaction="{{ url_for('blends.RemoveBlend', blendIndex=i) }}"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-              {% endfor %} 
-              {% for i in range(batch_list|length) %}
-              <tr class="table-active table-secondary">
-                <td>Batch {{ batch_list[i] }}</td>
-                <td>{{ alloy_list[i] }}</td>
-                <td>{{ batch_weights[i] }}</td>
-                <td>
-                  <button
-                    type="submit"
-                    class="btn btn-danger"
-                    formaction="{{ url_for('blends.RemoveBatch', batchIndex=i) }}"
-                  >
-                    Remove
-                  </button>
-                </td>
-              </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-    </form>
-  </div>
+        <label for="added_weight" class="form-label">Weight (kg)</label>
+        <input
+          type="number"
+          step="0.01"
+          class="form-control"
+          name="added_weight"
+          id="added_weight"
+          placeholder="0"
+        />
+      </div>
+      <div class="d-grid">
+        <button
+          type="submit"
+          id="addButton"
+          name="add"
+          class="btn btn-primary"
+        >
+          Add
+        </button>
+      </div>
+      <div class="form-group mt-4">
+        <label for="total" id="weightTotal"
+          >Total Blend Weight: {{ total_weight }} kg</label
+        >
+      </div>
+      <div class="d-grid">
+        <button
+          type="submit"
+          id="createButton"
+          class="btn btn-primary"
+          name="create"
+        >
+          Create Blend
+        </button>
+      </div>
+      <div class="table-responsive mt-4">
+        <table class="table table-hover">
+          <!-- Table headers -->
+          <thead>
+            <tr style="font-size: 20px">
+              <th scope="col">Blend/Batch ID</th>
+              <th scope="col">Material</th>
+              <th scope="col">Weight (kg)</th>
+              <th scope="col">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for i in range(blend_list|length) %}
+            <tr class="table-active">
+              <td>Blend {{ blend_list[i] }}</td>
+              <td>{{ alloy_list[i] }}</td>
+              <td>{{ blend_part_weights[i] }}</td>
+              <td>
+                <button
+                  type="submit"
+                  class="btn btn-danger"
+                  formaction="{{ url_for('blends.RemoveBlend', blendIndex=i) }}"
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+            {% endfor %} 
+            {% for i in range(batch_list|length) %}
+            <tr class="table-active table-secondary">
+              <td>Batch {{ batch_list[i] }}</td>
+              <td>{{ alloy_list[i] }}</td>
+              <td>{{ batch_weights[i] }}</td>
+              <td>
+                <button
+                  type="submit"
+                  class="btn btn-danger"
+                  formaction="{{ url_for('blends.RemoveBatch', batchIndex=i) }}"
+                >
+                  Remove
+                </button>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+  </form>
+</div>
 </div>
 {% endblock %}
