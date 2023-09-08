@@ -421,7 +421,7 @@ def quote_page():
                     print(f"TotalBuildTime: {df['TotalBuildTime']}")
                     session["results"] = df.to_dict(orient='records')
                     
-                    return render_template("quote.html", user=current_user, results=df)
+                    return render_template('quote.html', user=current_user, results=df)
 
     # Pass the existing DataFrame in the session to the template context if 'results' is available
     results_data = session.get('results')
@@ -430,4 +430,4 @@ def quote_page():
     else:
         df = pd.DataFrame()  # Create an empty DataFrame
 
-    return render_template("quote.html", user=current_user, results=df)
+    return render_template('quote.html', user=current_user, results=df)

@@ -1,7 +1,7 @@
-{% extends "blend.html" %}
+{% extends "base_powder.html" %}
 {% block title %}Inventory{% endblock %}
 {% block content %}
-<h1 class="text-center">Blend System - Virgin Batch Inventory</h1>
+<h1 class="text-center">Powder Management | Virgin Batch Inventory</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -11,7 +11,7 @@
         name="btnradio"
         id="Search"
         autocomplete="off"
-        onclick="window.location.href = '/search-blend'"
+        onclick="window.location.href = '/powder/search/blend'"
       />
       <label class="btn btn-outline-primary" for="Search">Search</label>
 
@@ -21,7 +21,7 @@
         name="btnradio"
         id="New"
         autocomplete="off"
-        onclick="window.location.href = '/create-blend'"
+        onclick="window.location.href = '/powder/create/blend'"
       />
       <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
@@ -31,7 +31,7 @@
         name="btnradio"
         id="createBatch"
         autocomplete="off"
-        onclick="window.location.href = '/create-batch'"
+        onclick="window.location.href = '/powder/create/batch'"
       />
       <label class="btn btn-outline-primary" for="create-batch">Create Batch</label>
 
@@ -41,7 +41,7 @@
         name="btnradio"
         id="History"
         autocomplete="off"
-        onclick="window.location.href = '/history-blend'"
+        onclick="window.location.href = '/powder/history/blend'"
       />
       <label class="btn btn-outline-primary" for="History">History</label>
 
@@ -52,7 +52,7 @@
         id="Inventory"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/inventory-blend'"
+        onclick="window.location.href = '/powder/inventory/blend'"
       />
       <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
     </div>
@@ -72,7 +72,7 @@
       name="btnradio"
       id="switch"
       autocomplete="off"
-      onclick="window.location.href = '/inventory-blend'"
+      onclick="window.location.href = '/powder/inventory/blend'"
       ></input>
         </div>
 
@@ -102,20 +102,17 @@
             <th>Batch ID</th>
             <th>Material</th>
             <th>Supplier Product </th>
-            <th>Virgin PO</th>
+            <th>PO Number</th>
             <th>Virgin Lot</th>
             <th>Current Weight (kg)</th>
           </tr>
         </thead>
         <tbody>
-          {% for batch_id, alloy_name, supplier_product, v_po, v_lot, current_wt in filtered_data %}
+          {% for batch_id, alloy_name, supplier_product, po_num, v_lot, current_wt in filtered_data %}
         {% if batch_id == 'Subtotal' %}
           <tr class="table-active table-secondary" >
             <td><span>{{ batch_id }}</td>
-            <td><span>{{ alloy_name }}</td>
-            <td><span></td>
-            <td><span></td>
-            <td><span></td>
+            <td colspan="4"><span>{{ alloy_name }}</td>
             <td><span>{{ "%.0f" % current_wt }}</span></td>
           </tr>
         {% else %}
@@ -123,7 +120,7 @@
             <td>{{ batch_id }}</td>
             <td>{{ alloy_name }}</td>
             <td>{{ supplier_product }}</td>
-            <td>{{ v_po }}</td>
+            <td>{{ po_num }}</td>
             <td>{{ v_lot }}</td>
             <td>{{ "%.0f" % current_wt }}</td>
           </tr>

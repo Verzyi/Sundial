@@ -1,6 +1,6 @@
-{% extends "blend.html" %} {% block title %}Blend{% endblock %} {% block content
+{% extends "base_powder.html" %} {% block title %}Blend{% endblock %} {% block content
 %}
-<h1 class="text-center">Blend System - Batch Search</h1>
+<h1 class="text-center">Powder Management | Batch Search</h1>
 <div class="container">
   <div class="container">
     <div class="d-flex justify-content-center mt-3">
@@ -12,7 +12,7 @@
           id="Search"
           autocomplete="off"
           checked
-          onclick="window.location.href = '/search-blend'"
+          onclick="window.location.href = '/powder/search/blend'"
         />
         <label class="btn btn-outline-primary" for="Search">Search</label>
 
@@ -22,7 +22,7 @@
           name="btnradio"
           id="New"
           autocomplete="off"
-          onclick="window.location.href = '/create-blend'"
+          onclick="window.location.href = '/powder/create/blend'"
         />
         <label class="btn btn-outline-primary" for="New">Create Blend</label>
 
@@ -32,7 +32,7 @@
           name="btnradio"
           id="createBatch"
           autocomplete="off"
-          onclick="window.location.href = '/create-batch'"
+          onclick="window.location.href = '/powder/create/batch'"
         />
         <label class="btn btn-outline-primary" for="createBatch"
           >Create Batch</label
@@ -44,7 +44,7 @@
           name="btnradio"
           id="History"
           autocomplete="off"
-          onclick="window.location.href = '/history-blend'"
+          onclick="window.location.href = '/powder/history/blend'"
         />
         <label class="btn btn-outline-primary" for="History">History</label>
         <input
@@ -53,7 +53,7 @@
           name="btnradio"
           id="Inventory"
           autocomplete="off"
-          onclick="window.location.href = '/inventory-blend'"
+          onclick="window.location.href = '/powder/inventory/blend'"
         />
         <label class="btn btn-outline-primary" for="Inventory">Inventory</label>
       </div>
@@ -69,7 +69,7 @@
         name="btnradio"
         id="switch"
         autocomplete="off"
-        onclick="window.location.href = '/search-blend'"
+        onclick="window.location.href = '/powder/search/blend'"
       />
 
       <div id="search" class="menus">

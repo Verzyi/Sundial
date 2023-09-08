@@ -8,7 +8,7 @@ class BlendDatabaseUpdater:
         self.frac_limit = frac_limit
         self.db = db
 
-    def update_blend_database(self, blend_numbers, blend_weights):
+    def UpdateBlendDatabase(self, blend_numbers, blend_weights):
         blend_fractions = []
         blend_part_ids = []
         calculated_weights = []

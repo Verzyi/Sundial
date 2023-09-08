@@ -1,4 +1,6 @@
 import os
+import io
+import csv
 from flask import Flask, redirect, url_for, flash, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
@@ -6,21 +8,20 @@ from flask_debugtoolbar import DebugToolbarExtension
 from flask_admin import Admin, AdminIndexView
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
+from flask_admin.actions import action 
+
 from .dashboard import dashboard
-import csv
-from flask_admin.actions import action  
-import io 
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
 
-def create_database(app):
+def CreateDatabase(app):
     if not os.path.exists('website/' + DB_NAME):
         with app.app_context():
             db.create_all()
             print('Database Created!')
 
-def create_app():
+def CreateApp():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'jflkdsjfalksjfdsa jfsdlkjfdsljfa'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
@@ -31,22 +32,20 @@ def create_app():
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
 
+    from .auth import auth_bp
+    from .views import views_bp
     from .blends import blends
-    from .auth import auth
     from .builds import builds
     from .quote import quote
-    from .views import views
     from .dashapp import dashapp_bp
 
-    app.register_blueprint(blends, url_prefix='/')
-    app.register_blueprint(auth, url_prefix='/')
-    app.register_blueprint(builds, url_prefix='/')
-    app.register_blueprint(quote, url_prefix='/')
-    app.register_blueprint(views, url_prefix='/')
-    app.register_blueprint(dashapp_bp, url_prefix='/')
+    bp_list = [auth_bp, views_bp, blends, builds, quote, dashapp_bp]
+    
+    for bp in bp_list:
+        app.register_blueprint(bp, url_prefix='/')
     
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-    create_database(app)
+    CreateDatabase(app)
     
     # Login info
     login_manager = LoginManager()

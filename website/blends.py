@@ -1,17 +1,14 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, Flask, make_response
-from jinja2 import Environment, PackageLoader, select_autoescape
-from flask_login import login_user, login_required, current_user
-import datetime as dt
-from sqlalchemy import func, join, and_, create_engine
-from sqlalchemy.orm import joinedload, aliased
-import socket
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
+from flask_login import login_required, current_user
 import pandas as pd
+import datetime as dt
+from sqlalchemy import func
+import socket
 import pdfkit
-from pdfkit.api import configuration
 
 from . import db
 from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-from .blend_calculator import BlendDatabaseUpdater, PowderBlendCalc
+from .blend_calc import BlendDatabaseUpdater
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -22,15 +19,14 @@ blends = Blueprint('blends', __name__)
 
 @blends.route('/')
 @login_required
-def home():
-    blends = PowderBlends.query.all()
-    return render_template('home.html', user=current_user, blends=blends)
+def Home():
+    return render_template('home.html', user=current_user)
 
 
-@blends.route('/blend', methods=['GET', 'POST'])
+@blends.route('/powder', methods=['GET', 'POST'])
 @login_required
-def blend():
-    return render_template('blend.html', user=current_user)
+def Powder():
+    return render_template('base_powder.html', user=current_user)
 
 def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
     # Create a TCP/IP socket
@@ -90,7 +86,7 @@ def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, wei
     # Close the socket
     sock.close()
 
-@blends.route('/search-blend', methods=['GET', 'POST'])
+@blends.route('/powder/search/blend', methods=['GET', 'POST'])
 @login_required
 def SearchBlends():
     blend_query = None
@@ -101,7 +97,7 @@ def SearchBlends():
                 if len(request.form.get('blend_id')) != 0:
                     blend_id = request.form.get('blend_id')
                     # Store the blend number in session
-                    session['last_blend_number'] = blend_id
+                    session['last_blend_id'] = blend_id
 
                     if int(request.form.get('blend_id')) > 1:
                         # blend_query = PowderBlends.query.filter_by(BlendID=blend_id).all()
@@ -121,14 +117,14 @@ def SearchBlends():
         elif 'Trace' in request.form:
             flash('Making Trace', category='success')
             # Retrieve the blend number from session
-            blend_id = session.get('last_blend_number')
+            blend_id = session.get('last_blend_id')
             if blend_id:
-                return redirect(url_for('blends.BlendTrace', blend=blend_id, lvl=0, limit=10))
+                return redirect(url_for('blends.BlendTrace', blend_id=blend_id, lvl=0, limit=10))
 
         elif 'Report' in request.form:
             flash('Making Report', category='success')
             # Retrieve the blend number from session
-            blend_id = session.get('last_blend_number')
+            blend_id = session.get('last_blend_id')
             if blend_id:
                 return redirect(url_for('blends.BlendReport', blend=blend_id))
 
@@ -140,7 +136,7 @@ def SearchBlends():
                 printer_ip = '10.101.102.65'
 
                 # Retrieve the blend number from session
-                blend_id = session.get('last_blend_number')
+                blend_id = session.get('last_blend_id')
 
                 if blend_id:
                     blend_query = db.session.query(PowderBlends, MaterialAlloys.AlloyName) \
@@ -163,10 +159,13 @@ def SearchBlends():
             else:
                 flash(f'Error: Blend sticker not printed.', category='error')
 
-    return render_template('search-blend.html', user=current_user, blends=blend_query)
+    return render_template(
+        'powder/search-blend.html', 
+        user=current_user, 
+        blends=blend_query)
 
 
-@blends.route('/search-batch', methods=['GET', 'POST'])
+@blends.route('/powder/search/batch', methods=['GET', 'POST'])
 @login_required
 def SearchBatch():
     batch_query = None
@@ -223,7 +222,10 @@ def SearchBatch():
             else:
                 flash('Batch number not found in session', category='error')
 
-    return render_template('search-batch.html', user=current_user, batch=batch_query)
+    return render_template(
+        'powder/search-batch.html', 
+        user=current_user, 
+        batch=batch_query)
 
 
 blend_list = []
@@ -232,7 +234,7 @@ batch_list = []
 batch_weights = []
 alloy_list = []
 
-@blends.route('/create-blend', methods=['GET', 'POST'])
+@blends.route('/powder/create/blend', methods=['GET', 'POST'])
 @login_required
 def CreateBlend():
     # blend_or_batch = 'Blend
@@ -386,7 +388,7 @@ def CreateBlend():
     total_weight = sum([float(w) for w in blend_part_weights] + \
         [float(w) for w in batch_weights])
     return render_template(
-        'create-blend.html', 
+        'powder/create-blend.html', 
         user=current_user, 
         blend_list=blend_list, 
         blend_part_weights=blend_part_weights,
@@ -397,7 +399,7 @@ def CreateBlend():
         )
 
 
-@blends.route('/removeBlend/<int:blendIndex>', methods=['POST'])
+@blends.route('/powder/removeBlend/<int:blendIndex>', methods=['POST'])
 @login_required
 def RemoveBlend(blendIndex):
     if blendIndex < len(blend_list):
@@ -409,7 +411,7 @@ def RemoveBlend(blendIndex):
     return redirect(url_for('blends.CreateBlend'))
 
 
-@blends.route('/removeBatch/<int:batchIndex>', methods=['POST'])
+@blends.route('/powder/removeBatch/<int:batchIndex>', methods=['POST'])
 @login_required
 def RemoveBatch(batchIndex):
     if batchIndex < len(batch_list):
@@ -419,7 +421,7 @@ def RemoveBatch(batchIndex):
     return redirect(url_for('blends.CreateBlend'))
 
 
-@blends.route('/create-batch', methods=['GET', 'POST'])
+@blends.route('/powder/create/batch', methods=['GET', 'POST'])
 @login_required
 def CreateBatch():
     products_query = db.session.query(
@@ -440,12 +442,12 @@ def CreateBatch():
             product.SupplierProduct)
     # print(material_products)
     if request.method == 'POST':
-        v_po = request.form.get('v_po', '')
+        po_num = request.form.get('po_num', '')
         v_lot = request.form.get('v_lot', '')
         weight = request.form.get('weight', '')
         product = request.form.get('product', '')
 
-        if not v_po:
+        if not po_num:
             flash('Missing PO Number. Please enter a PO Number.', category='error')
         elif not v_lot:
             flash('Missing Virgin Lot. Please enter a Virgin Lot.', category='error')
@@ -473,7 +475,7 @@ def CreateBatch():
                     BatchCreatedBy=current_user.id,
                     BatchTimeStamp=str(dt.datetime.now().strftime('%Y-%m-%d %H:%M:%S')),
                     BatchFacilityID=int(4),
-                    VirginPO=int(v_po),
+                    VirginPO=int(po_num),
                     VirginLot=str(v_lot),
                     VirginWeight=float(weight),
                     CurrentWeight=float(weight),
@@ -489,13 +491,13 @@ def CreateBatch():
                 # Additional error handling code if needed
 
     return render_template(
-        'create-batch.html', 
+        'powder/create-batch.html', 
         user=current_user, 
         alloy_names=alloy_names,
         material_products=material_products)
 
 
-@blends.route('/history-blend', methods=['GET', 'POST'])
+@blends.route('/powder/history/blend', methods=['GET', 'POST'])
 @login_required
 def HistoryBlend():
     alloy_name = None
@@ -510,16 +512,20 @@ def HistoryBlend():
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
-    blends = query.paginate(page=page, per_page=per_page)
+    blend_table = query.paginate(page=page, per_page=per_page)
 
     alloy_names = db.session.query(MaterialAlloys.AlloyName).distinct().all()
     alloy_names = [name[0] for name in alloy_names]
 
-    return render_template('history-blend.html', user=current_user, blends=blends, alloy_names=alloy_names, \
+    return render_template(
+        'powder/history-blend.html', 
+        user=current_user, 
+        blend_table=blend_table, 
+        alloy_names=alloy_names, 
         selected_alloy=alloy_name)
 
 
-@blends.route('/history-batch', methods=['GET', 'POST'])
+@blends.route('/powder/history/batch', methods=['GET', 'POST'])
 @login_required
 def HistoryBatch():
     alloy_name = None
@@ -543,7 +549,7 @@ def HistoryBatch():
 
     page = request.args.get('page', 1, type=int)
     per_page = 100  # Number of rows to display per page
-    blends = batch_query.paginate(page=page, per_page=per_page)
+    batch_table = batch_query.paginate(page=page, per_page=per_page)
 
     alloy_names = db.session.query(
         MaterialAlloys.AlloyName).distinct().all()
@@ -553,10 +559,16 @@ def HistoryBatch():
         MaterialProducts.SupplierProduct).distinct().all()
     supplier_product = [name[0] for name in supplier_product]
 
-    return render_template('history-batch.html', user=current_user, batch_list=blends, alloy_names=alloy_names, supplier_name=supplier_product, selected_alloy=alloy_name)
+    return render_template(
+        'powder/history-batch.html', 
+        user=current_user, 
+        batch_table=batch_table, 
+        alloy_names=alloy_names, 
+        supplier_name=supplier_product, 
+        selected_alloy=alloy_name)
 
 
-@blends.route('/blend-report', methods=['GET', 'Post'])
+@blends.route('/powder/search/blend-report', methods=['GET', 'Post'])
 @login_required
 def BlendReport():
     blend = request.args.get('blend')
@@ -682,29 +694,21 @@ def BlendReport():
     
     footer = f'Report generated on: {dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
 
-    # print('Blend Summary:')
-    # print(blend_summary)
-    # print('\nMajority Batch:')
-    # print(majority_batch)
-    # print('\nBlend Breakdown:')
-    # print(blend_breakdown)
-    # print('\nReport Generated:')
-    # print(footer_html)
-
-    rendered = render_template('blend-report.html',
-                               blend_summary=blend_summary,
-                               majority_batch=majority_batch,
-                               blend_breakdown=blend_breakdown,
-                               footer=footer)
+    rendered = render_template(
+        'powder/blend-report.html',
+        blend_summary=blend_summary,
+        majority_batch=majority_batch,
+        blend_breakdown=blend_breakdown,
+        footer=footer)
     pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
 
     response = make_response(pdf)
     response.headers['Content-type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename={blend}_Report.pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
     return response
 
 
-@blends.route('/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@blends.route('/powder/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
 @login_required
 def BlendTrace(blend_id, lvl, limit):
     # blendPartTable = 'powder_blend_parts'
@@ -768,7 +772,7 @@ def BlendTrace(blend_id, lvl, limit):
     return tracebacks
 
 
-@blends.route('/inventory-blend', methods=['GET', 'POST'])
+@blends.route('/powder/inventory/blend', methods=['GET', 'POST'])
 @login_required
 def InventoryBlend():
     # Retrieve the Blend inventory data
@@ -781,6 +785,9 @@ def InventoryBlend():
         MaterialAlloys, 
         PowderBlends.AlloyID == MaterialAlloys.AlloyID
     ).order_by(MaterialAlloys.AlloyName).all()
+    
+    powder_part_blend_list = [r.PartBlendID for r in db.session.query(
+        PowderBlendParts.PartBlendID).distinct()]
     # Create a list to store the result data
     result_data = []
     # Variables for subtotal calculation
@@ -802,13 +809,14 @@ def InventoryBlend():
         # Check if blend_date is not None before converting to datetime.date object
         if blend_date is not None:
             blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
-        # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 10 and Blend ID not in set
+        # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 20 and Blend ID not in set
         if (
             blend_date is not None
             and blend_date > dt.date(2021, 8, 1)
             and current_wt is not None
-            and current_wt > 10
+            # and current_wt > 20
             and blend_id not in blend_ids_set
+            and blend_id not in powder_part_blend_list
         ):
             blend_row = (blend_id, alloy_name, current_wt)
             result_data.append(blend_row)
@@ -822,7 +830,9 @@ def InventoryBlend():
         subtotal_row = ('Subtotal', current_alloy, round(subtotal_weight, 2))
         result_data.append(subtotal_row)
     # Calculate total weight
-    total_wt = sum(row[2] for row in result_data if isinstance(row[2], (int, float)))
+    # non_subtotal_data = result_data[result_data[0] != 'Subtotal']
+    total_wt = sum(row[2] for row in result_data \
+        if isinstance(row[2], (int, float)) and row[0] != 'Subtotal')
     # Get distinct material names
     alloy_names = sorted(set(row[1] for row in result_data))
     # Filter by selected material name
@@ -832,7 +842,7 @@ def InventoryBlend():
     else:
         filtered_data = result_data
     return render_template(
-        'inventory-blend.html',
+        'powder/inventory-blend.html',
         user=current_user,
         filtered_data=filtered_data,
         alloy_names=alloy_names,
@@ -841,7 +851,7 @@ def InventoryBlend():
     )
 
 
-@blends.route('/inventory-batch', methods=['GET', 'POST'])
+@blends.route('/powder/inventory/batch', methods=['GET', 'POST'])
 @login_required
 def InventoryBatch():
     # Initialize batch_id_set as an empty set
@@ -870,7 +880,7 @@ def InventoryBatch():
     current_alloy = None
     subtotal_weight = 0
     # Iterate over the inventory data
-    for batch_id, alloy_name, supplier_product, current_wt, v_po, v_lot, batch_date in inventory_query:
+    for batch_id, alloy_name, supplier_product, current_wt, po_num, v_lot, batch_date in inventory_query:
         # Check if the material has changed
         if alloy_name != current_alloy:
             # Add subtotal row for previous material
@@ -883,7 +893,7 @@ def InventoryBatch():
         # Check if batch_date is not None before converting to datetime.date object
         if batch_date is not None:
             batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
-            batch_row = (batch_id, alloy_name, supplier_product, v_po, v_lot, current_wt)
+            batch_row = (batch_id, alloy_name, supplier_product, po_num, v_lot, current_wt)
             result_data.append(batch_row)
             # Update subtotal weight
             if current_wt is not None:
@@ -892,7 +902,7 @@ def InventoryBatch():
             batch_id_set.add(batch_id)
     # Add final subtotal row for the last material
     if current_alloy is not None:
-        subtotal_row = ('Subtotal', current_alloy, None, None, None, round(subtotal_weight, 2))
+        subtotal_row = ('Subtotal', current_alloy, None, None, None, subtotal_weight)
         result_data.append(subtotal_row)
     # Calculate total weight
     total_wt = sum(row[5] for row in result_data if isinstance(row[5], (int, float)))
@@ -906,7 +916,7 @@ def InventoryBatch():
         filtered_data = result_data
 
     return render_template(
-        'inventory-batch.html',
+        'powder/inventory-batch.html',
         user=current_user,
         filtered_data=filtered_data,
         alloy_names=alloy_names,
