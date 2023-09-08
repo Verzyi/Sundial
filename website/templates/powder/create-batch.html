@@ -1,7 +1,7 @@
 {% extends "base_powder.html" %} 
 {% block title %} Create Batch {% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - Create Batch</h1>
+<h1 class="text-center">Powder Management | Create Batch</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -11,7 +11,7 @@
         name="btnradio"
         id="search"
         autocomplete="off"
-        onclick="window.location.href = '/search-blend'"
+        onclick="window.location.href = '/powder/search/blend'"
       />
       <label class="btn btn-outline-primary" for="search">Search</label>
 
@@ -21,7 +21,7 @@
         name="btnradio"
         id="create-blend"
         autocomplete="off"
-        onclick="window.location.href = '/create-blend'"
+        onclick="window.location.href = '/powder/create/blend'"
       />
       <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
@@ -32,7 +32,7 @@
         id="create-batch"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/create-batch'"
+        onclick="window.location.href = '/powder/create/batch'"
       />
       <label class="btn btn-outline-primary" for="create-batch"
         >Create Batch</label
@@ -44,7 +44,7 @@
         name="btnradio"
         id="history"
         autocomplete="off"
-        onclick="window.location.href = '/history-blend'"
+        onclick="window.location.href = '/powder/history/blend'"
       />
       <label class="btn btn-outline-primary" for="history">History</label>
 
@@ -54,7 +54,7 @@
         name="btnradio"
         id="inventory"
         autocomplete="off"
-        onclick="window.location.href = '/inventory-blend'"
+        onclick="window.location.href = '/powder/inventory/blend'"
       />
       <label class="btn btn-outline-primary" for="inventory">Inventory</label>
     </div>
@@ -110,21 +110,21 @@
 
 <script>
   function UpdateProductDropdown() {
-    var alloy_dropdown = document.getElementById("alloy");
-    var product_dropdown = document.getElementById("product");
-    var selected_alloy = alloy_dropdown.value;
+    let alloy_dropdown = document.getElementById("alloy");
+    let product_dropdown = document.getElementById("product");
+    let selected_alloy = alloy_dropdown.value;
 
     // Clear existing options
     product_dropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
 
     // Filter products based on selected material
-    var products = {{ material_products | tojson }};
-    var filtered_products = products[selected_alloy];
+    let products = {{ material_products | tojson }};
+    let filtered_products = products[selected_alloy];
 
     // Add filtered products to the dropdown
     if (filtered_products) {
-      for (var i = 0; i < filtered_products.length; i++) {
-        var option = document.createElement("option");
+      for (let i = 0; i < filtered_products.length; i++) {
+        let option = document.createElement("option");
         option.value = filtered_products[i];
         option.text = filtered_products[i];
         product_dropdown.appendChild(option);

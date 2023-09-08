@@ -1,7 +1,7 @@
 {% extends "base_powder.html" %} 
 {% block title %} Create Blend {% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - Create Blend</h1>
+<h1 class="text-center">Powder Management | Create Blend</h1>
 <div class="container">  <div class="container">
     <div class="d-flex justify-content-center mt-3">
       <div class="btn-group">
@@ -12,7 +12,7 @@
           name="btnradio"
           id="search"
           autocomplete="off"
-          onclick="window.location.href = '/search-blend'"
+          onclick="window.location.href = '/powder/search/blend'"
         />
         <label class="btn btn-outline-primary" for="search">Search</label>
 
@@ -24,7 +24,7 @@
           id="create-blend"
           autocomplete="off"
           checked
-          onclick="window.location.href = '/create-blend'"
+          onclick="window.location.href = '/powder/create/blend'"
         />
         <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
@@ -35,7 +35,7 @@
           name="btnradio"
           id="create-batch"
           autocomplete="off"
-          onclick="window.location.href = '/create-batch'"
+          onclick="window.location.href = '/powder/create/batch'"
         />
         <label class="btn btn-outline-primary" for="create-batch"
           >Create Batch</label
@@ -48,7 +48,7 @@
           name="btnradio"
           id="history"
           autocomplete="off"
-          onclick="window.location.href = '/history-blend'"
+          onclick="window.location.href = '/powder/history/blend'"
         />
         <label class="btn btn-outline-primary" for="history">History</label>
 
@@ -59,7 +59,7 @@
           name="btnradio"
           id="inventory"
           autocomplete="off"
-          onclick="window.location.href = '/inventory-blend'"
+          onclick="window.location.href = '/powder/inventory/blend'"
         />
         <label class="btn btn-outline-primary" for="inventory">Inventory</label>
       </div>

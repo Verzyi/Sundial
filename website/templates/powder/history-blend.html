@@ -1,7 +1,7 @@
 {% extends "base_powder.html" %} 
 {% block title %}History{% endblock %} 
 {% block content %}
-<h1 class="text-center">Blend System - Blend History</h1>
+<h1 class="text-center">Powder Management | Blend History</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -11,7 +11,7 @@
         name="btnradio"
         id="search"
         autocomplete="off"
-        onclick="window.location.href = '/search-blend'"
+        onclick="window.location.href = '/powder/search/blend'"
       />
       <label class="btn btn-outline-primary" for="search">Search</label>
 
@@ -21,7 +21,7 @@
         name="btnradio"
         id="create-blend"
         autocomplete="off"
-        onclick="window.location.href = '/create-blend'"
+        onclick="window.location.href = '/powder/create/blend'"
       />
       <label class="btn btn-outline-primary" for="create-blend">Create Blend</label>
 
@@ -31,7 +31,7 @@
         name="btnradio"
         id="create-batch"
         autocomplete="off"
-        onclick="window.location.href = '/create-batch'"
+        onclick="window.location.href = '/powder/create/batch'"
       />
       <label class="btn btn-outline-primary" for="create-batch"
         >Create Batch</label
@@ -44,7 +44,7 @@
         id="history"
         autocomplete="off"
         checked
-        onclick="window.location.href = '/history-blend'"
+        onclick="window.location.href = '/powder/history/blend'"
       />
       <label class="btn btn-outline-primary" for="history">History</label>
 
@@ -54,7 +54,7 @@
         name="btnradio"
         id="inventory"
         autocomplete="off"
-        onclick="window.location.href = '/inventory-blend'"
+        onclick="window.location.href = '/powder/inventory/blend'"
       />
       <label class="btn btn-outline-primary" for="inventory">Inventory</label>
     </div>
@@ -74,7 +74,7 @@
         name="btnradio"
         id="Search"
         autocomplete="off"
-        onclick="window.location.href = '/search-blend'"
+        onclick="window.location.href = '/powder/search/blend'"
       />
       <label class="btn btn-outline-primary" for="switch" >Switch to Virgin Batch History</label>
       <input type="radio"
@@ -82,7 +82,7 @@
       name="btnradio"
       id="switch"
       autocomplete="off"
-      onclick="window.location.href = '/history-batch'"
+      onclick="window.location.href = '/powder/history/batch'"
       ></input>
         </div>
         <div class="form-group">
