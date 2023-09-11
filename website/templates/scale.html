@@ -1,9 +1,11 @@
 {% extends "base.html" %}
 {% block title %} Scale {% endblock %}
 {% block content %}
+
 <head>
     <title>Scale Calculator</title>
 </head>
+
 <body>
     <h1>Scale Calculator</h1>
     <form method="post">
@@ -23,9 +25,9 @@
                 <td><input type="text" name="x_input" value=""></td>
                 <td>
                     {% if i > 12 %}
-                        Outer
+                    Outer
                     {% else %}
-                        Inner
+                    Inner
                     {% endif %}
                 </td>
             </tr>
@@ -33,7 +35,7 @@
         </table>
         <input type="submit" value="Calculate">
     </form>
-    
+
     {% if plot_path %}
     <h2>Plots</h2>
     <img src="{{ plot_path }}" alt="X Data vs New Scale">

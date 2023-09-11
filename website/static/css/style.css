@@ -11,20 +11,6 @@ input {
     text-align: center;
 }
 
-#Batch {
-    margin-top: 0;
-}
-
-.Add {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-    margin: 10px auto;
-    text-align: center;
-    height: 40px;
-}
-
 table {
     border: 5px solid black;
     margin-left: auto;
@@ -40,7 +26,8 @@ table {
     margin-right: auto;
 }
 
-th, td {
+th,
+td {
     border: 1px solid black;
     padding: 8px;
     text-align: center;
@@ -51,18 +38,30 @@ th {
     background-color: black;
 }
 
+.Add {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    margin: 10px auto;
+    text-align: center;
+    height: 40px;
+}
+
 .form-label2 {
     text-align: left;
     display: flex;
     align-items: center;
     width: auto
 }
-.form-label2  {
+
+.form-label2 {
     margin-right: 10px;
     display: inline;
     white-space: nowrap;
     width: auto;
 }
+
 /* input[type="text"],
 select {
     font-size: 12px;
@@ -81,7 +80,8 @@ h3 {
     text-align: center;
 }
 
-#signupbutton, #Loginbutton {
+#signupButton,
+#loginButton {
     display: block;
     margin: 10px 0;
     text-align: center;
@@ -92,9 +92,16 @@ h3 {
     text-align: center;
 }
 
-#createBlend, .createBatch, .traceBlend, .menus {
+#createBlend,
+#createBatch,
+#traceBlend,
+.menus {
     display: block;
     visibility: visible;
+}
+
+#Batch {
+    margin-top: 0;
 }
 
 .blendField {
@@ -124,5 +131,3 @@ h3 {
     opacity: 0 !important;
     visibility: hidden !important;
 }
-
-

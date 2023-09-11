@@ -1,107 +1,80 @@
-{% extends "base_powder.html" %} 
-{% block title %}Virgin Batch Search{% endblock %} 
+{% extends "base_powder.html" %}
+{% block title %}Virgin Batch Search{% endblock %}
 {% block content %}
-<div class="container">  
+<div class="container">
   <h1 class="text-center">{{ super() }}</h1>
   <h2 class="text-center">{{ self.title() }}</h2>
 </div>
-    <form id="searchBlendForm" method="POST" class="mt-4">
-      <label class="btn btn-outline-primary form-group" for="switch"
-        >Switch to Blend Search</label
-      >
-      <input
-        type="radio"
-        class="btn-check"
-        name="btnradio"
-        id="switch"
-        autocomplete="off"
-        onclick="window.location.href = '/powder/search/blend'"
-      />
+<form id="searchBlendForm" method="POST" class="mt-4">
+  <label class="btn btn-outline-primary form-group" for="switch">Switch to Blend Search</label>
+  <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
+    onclick="window.location.href = '/powder/search/blend'" />
 
-      <div id="search" class="menus">
-        <div class="mb-3">
-          <label for="batch_id" class="form-label">Batch Number</label>
-          <input
-            type="number"
-            id="batch_id"
-            name="batch_id"
-            class="form-control"
-            placeholder="0"
-          />
+  <div id="search" class="menus">
+    <div class="mb-3">
+      <label for="batch_id" class="form-label">Batch Number</label>
+      <input type="number" id="batch_id" name="batch_id" class="form-control" placeholder="0" />
+    </div>
+    <div class="d-grid">
+      <button type="submit" name="search" class="btn btn-primary">
+        Search
+      </button>
+      {% if batch %}
+      <div class="d-grid">
+        <div class="form-group">
+          <label for="printer" class="form-label mt-4">Select Printer</label>
+          <select name="printer" class="form-select" id="printer" style="text-align: center">
+            <option>Shop Floor Printer</option>
+            <option>Office Printer</option>
+          </select>
         </div>
         <div class="d-grid">
-          <button type="submit" name="search" class="btn btn-primary">
-            Search
+          <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
+          <button type="submit" name="Print" class="btn btn-primary">
+            Print
           </button>
-          {% if batch %}
-          <div class="d-grid">
-            <div class="form-group">
-              <label for="printer" class="form-label mt-4"
-                >Select Printer</label
-              >
-              <select
-                name="printer"
-                class="form-select"
-                id="printer"
-                style="text-align: center"
-              >
-                <option>Shop Floor Printer</option>
-                <option>Office Printer</option>
-              </select>
-            </div>
-            <div class="d-grid">
-              <input
-                type="number"
-                id="qty"
-                name="qty"
-                class="form-control"
-                placeholder="1"
-              />
-              <button type="submit" name="Print" class="btn btn-primary">
-                Print
-              </button>
-              {% endif %}
-            </div>
-          </div>
+          {% endif %}
         </div>
       </div>
-    </form>
-    <!-- Display the blend results here -->
-    <div class="table-responsive mt-4 container">
-      <table class="table table-hover">
-        <!-- Table headers -->
-        <thead>
-          <tr>
-            <th>Batch ID</th>
-            <th>Material</th>
-            <th>Supplier Product</th>
-            <th>Virgin Lot</th>
-            <th>Virgin PO</th>
-            <th>Total Weight (kg)</th>
-            <th>Current Weight (kg)</th>
-            <th>Date Added</th>
-            <th>Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Loop through the Batch Search results -->
-          {% if batch %} 
-          {% for batch_result, alloy_name, supplier_product in batch %}
-          <tr class="table-active">
-            <td>{{ batch_result.BatchID }}</td>
-            <td>{{ alloy_name }}</td>
-            <td>{{ supplier_product }}</td>
-            <td>{{ batch_result.VirginLot }}</td>
-            <td>{{ batch_result.VirginPO }}</td>
-            <td>{{ batch_result.VirginWeight }}</td>
-            <td>{{ batch_result.CurrentWeight }}</td>
-            <td>{{ batch_result.BatchTimeStamp }}</td>
-            <td>{{ batch_result.BatchCreatedBy }}</td>
-          </tr>
-          {% endfor %} {% endif %}
-        </tbody>
-      </table>
     </div>
   </div>
+</form>
+<!-- Display the blend results here -->
+<div class="table-responsive mt-4 container">
+  <table class="table table-hover">
+    <!-- Table headers -->
+    <thead>
+      <tr>
+        <th>Batch ID</th>
+        <th>Material</th>
+        <th>Supplier Product</th>
+        <th>Virgin Lot</th>
+        <th>Virgin PO</th>
+        <th>Total Weight (kg)</th>
+        <th>Current Weight (kg)</th>
+        <th>Date Added</th>
+        <th>Created By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Loop through the Batch Search results -->
+      {% if batch %}
+      {% for batch_result, alloy_name, supplier_product in batch %}
+      <tr class="table-active">
+        <td>{{ batch_result.BatchID }}</td>
+        <td>{{ alloy_name }}</td>
+        <td>{{ supplier_product }}</td>
+        <td>{{ batch_result.VirginLot }}</td>
+        <td>{{ batch_result.VirginPO }}</td>
+        <td>{{ batch_result.VirginWeight }}</td>
+        <td>{{ batch_result.CurrentWeight }}</td>
+        <td>{{ batch_result.BatchTimeStamp }}</td>
+        <td>{{ batch_result.BatchCreatedBy }}</td>
+      </tr>
+      {% endfor %} {% endif %}
+    </tbody>
+  </table>
+</div>
+</div>
 </div>
 {% endblock %}

@@ -1,74 +1,42 @@
-{% extends "base.html" %} 
-{% block title %} Blend {% endblock %} 
+{% extends "base.html" %}
+{% block title %} Blend {% endblock %}
 {% block content %}
 <h1 class="text-center">User Settings</h1>
 
 <!-- User Settings Form -->
 <div class="container mt-5">
-  <form method="POST" >
+  <form method="POST">
     <!-- First Name -->
     <div class="form-group row">
-      <label for="firstNameInput" class="col-sm-2 col-form-label"
-        >First Name</label
-      >
+      <label for="firstNameInput" class="col-sm-2 col-form-label">First Name</label>
       <div class="col-sm-10">
-        <input
-          type="text"
-          class="form-control"
-          id="firstNameInput"
-          name="first_name"
-          value="{{ user.first_name }}"
-          required
-        />
+        <input type="text" class="form-control" id="firstNameInput" name="first_name" value="{{ user.first_name }}"
+          required />
       </div>
     </div>
 
     <!-- Last Name -->
     <div class="form-group row">
-      <label for="lastNameInput" class="col-sm-2 col-form-label"
-        >Last Name</label
-      >
+      <label for="lastNameInput" class="col-sm-2 col-form-label">Last Name</label>
       <div class="col-sm-10">
-        <input
-          type="text"
-          class="form-control"
-          id="lastNameInput"
-          name="last_name"
-          value="{{ user.last_name }}"
-          required
-        />
+        <input type="text" class="form-control" id="lastNameInput" name="last_name" value="{{ user.last_name }}"
+          required />
       </div>
     </div>
 
     <!-- Password -->
     <div class="form-group row">
-      <label for="new_password1" class="col-sm-2 col-form-label"
-        >Change Password</label
-      >
+      <label for="new_password1" class="col-sm-2 col-form-label">Change Password</label>
       <div class="col-sm-10">
-        <input
-          type="password"
-          class="form-control"
-          id="new_password1"
-          name="new_password1"
-          required
-        />
+        <input type="password" class="form-control" id="new_password1" name="new_password1" required />
       </div>
     </div>
 
     <!-- Confirm Password -->
     <div class="form-group row">
-      <label for="new_password2" class="col-sm-2 col-form-label"
-        >Confirm New Password</label
-      >
+      <label for="new_password2" class="col-sm-2 col-form-label">Confirm New Password</label>
       <div class="col-sm-10">
-        <input
-          type="password"
-          class="form-control"
-          id="new_password2"
-          name="new_password2"
-          required
-        />
+        <input type="password" class="form-control" id="new_password2" name="new_password2" required />
       </div>
     </div>
 

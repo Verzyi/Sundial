@@ -1,60 +1,29 @@
 {% extends "base.html" %}
 {% block title %} Powder Management {% endblock %}
 {% block content %}
-<script src="../../../../static/js/scripts.js"></script>
 <h1 class="text-center">Powder Management System</h1>
 <h2 class="text-center"></h2>
 <div class="container">
     <div class="d-flex justify-content-center mt-3">
         <div class="btn-group">
-            <input
-            type="radio"
-            class="btn-check"
-            name="btnradio"
-            id="search"
-            autocomplete="off"
-            onclick="window.location.href = '/powder/search/blend'"
-            />
+            <input type="radio" class="btn-check" name="btnradio" id="search" autocomplete="off"
+                onclick="window.location.href = '/powder/search/blend'" />
             <label class="btn btn-outline-primary" for="search">Search</label>
-    
-            <input
-            type="radio"
-            class="btn-check"
-            name="btnradio"
-            id="create_blend"
-            autocomplete="off"
-            onclick="window.location.href = '/powder/create/blend'"
-            />
+
+            <input type="radio" class="btn-check" name="btnradio" id="create_blend" autocomplete="off"
+                onclick="window.location.href = '/powder/create/blend'" />
             <label class="btn btn-outline-primary" for="create_blend">Create Blend</label>
-    
-            <input
-            type="radio"
-            class="btn-check"
-            name="btnradio"
-            id="create_batch"
-            autocomplete="off"
-            onclick="window.location.href = '/powder/create/batch'"
-            />
+
+            <input type="radio" class="btn-check" name="btnradio" id="create_batch" autocomplete="off"
+                onclick="window.location.href = '/powder/create/batch'" />
             <label class="btn btn-outline-primary" for="create_batch">Create Batch</label>
-    
-            <input
-            type="radio"
-            class="btn-check"
-            name="btnradio"
-            id="history"
-            autocomplete="off"
-            onclick="window.location.href = '/powder/history/blend'"
-            />
+
+            <input type="radio" class="btn-check" name="btnradio" id="history" autocomplete="off"
+                onclick="window.location.href = '/powder/history/blend'" />
             <label class="btn btn-outline-primary" for="history">History</label>
-    
-            <input
-            type="radio"
-            class="btn-check"
-            name="btnradio"
-            id="inventory"
-            autocomplete="off"
-            onclick="window.location.href = '/powder/inventory/blend'"
-            />
+
+            <input type="radio" class="btn-check" name="btnradio" id="inventory" autocomplete="off"
+                onclick="window.location.href = '/powder/inventory/blend'" />
             <label class="btn btn-outline-primary" for="inventory">Inventory</label>
         </div>
     </div>
