@@ -1,53 +1,54 @@
 <!DOCTYPE html>
 <html>
-    <head>
 
-        <link rel="stylesheet"
-        href="{{ url_for('static',filename="css/bootstrap.min.css")}}">
+<head>
 
-        <link rel="stylesheet"
-        href="{{ url_for('static',filename="css/build.css")}}">
+    <link rel="stylesheet" href="{{ url_for('static',filename=" css/bootstrap.min.css")}}">
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz" crossorigin="anonymous"></script>
-        <title>{% block title %}Home{% endblock %}</title>
-    </head>
-    <body>
-        <nav class="navbar navbar-expand-lg navbar-dark bg-dark" controls="navbarSupportedContent">
-            <div class="container-fluid">
-                <button 
-                class="navbar-toggler" 
-                type="button" 
-                data-bs-toggle="collapse" 
+    <link rel="stylesheet" href="{{ url_for('static',filename=" css/build.css")}}">
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-geWF76RCwLtnZ8qwWowPQNguL3RmwHVBC9FhGdlKrxdiJJigb/j/68SIy3Te4Bkz"
+        crossorigin="anonymous"></script>
+    <title>{% block title %}Home{% endblock %}</title>
+</head>
+
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark" controls="navbarSupportedContent">
+        <div class="container-fluid">
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse"
                 data-bs-target="#navbarSupportedContent">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <div class="navbar-nav">
-                        {% if user.is_authenticated %}
-                            <a class="nav-item nav-link" id="home" href="/">Home</a>
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Apps</a>
-                                <div class="dropdown-menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <div class="navbar-nav">
+                    {% if user.is_authenticated %}
+                    <a class="nav-item nav-link" id="home" href="/">Home</a>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">Apps</a>
+                        <div class="dropdown-menu">
                             <a class="nav-item nav-link" id="blend" href="/powder">Powder Management</a>
                             <a class="nav-item nav-link" id="builds" href="/builds">Build Tracking</a>
                             <a class="nav-item nav-link" id="quote" href="/quote">Quote Estimation</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">{{user.first_name}} {{user.last_name}}</a>
-                            <div class="dropdown-menu">
-                                <a class="nav-item nav-link" id="userSettings" href="/settings">Settings</a>
-                            <a class="nav-item nav-link" id="logOut" href="/logout">Logout</a>
-                            </li>
                         </div>
-                            
-                        {% else %}
-                            <a class="nav-item nav-link" id="login" href="/login">Login</a>
-                            <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
-                        {% endif %}
-            </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                            aria-haspopup="true" aria-expanded="false">{{user.first_name}} {{user.last_name}}</a>
+                        <div class="dropdown-menu">
+                            <a class="nav-item nav-link" id="userSettings" href="/settings">Settings</a>
+                            <a class="nav-item nav-link" id="logOut" href="/logout">Logout</a>
+                    </li>
                 </div>
+
+                {% else %}
+                <a class="nav-item nav-link" id="login" href="/login">Login</a>
+                <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+                {% endif %}
             </div>
+        </div>
+        </div>
     </nav>
     {% with messages = get_flashed_messages(with_categories=true) %}
     {% if messages %}
@@ -59,7 +60,7 @@
             <span aria-hidden="true">&times;</span>
         </button>
     </div>
-    {%  else %}
+    {% else %}
     <div class="alert alert-success alter-dismissable fade show" role="alert">
         {{ message }}
         <button type="button" class="close" data-bs-dismiss="alert">
@@ -69,10 +70,11 @@
     {% endif %}
     {% endfor %}
     {% endif %}
-    {% endwith  %}
+    {% endwith %}
     <div class="contaniner">
         {% block content %}
         {% endblock %}
     </div>
 </body>
+
 </html>

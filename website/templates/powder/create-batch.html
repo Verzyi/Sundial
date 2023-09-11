@@ -1,5 +1,5 @@
-{% extends "base_powder.html" %} 
-{% block title %} Create Batch {% endblock %} 
+{% extends "base_powder.html" %}
+{% block title %} Create Batch {% endblock %}
 {% block content %}
 <h1 class="text-center">{{ super() }}</h1>
 <h2 class="text-center">{{ self.title() }}</h2>
@@ -20,25 +20,15 @@
 
       <div class="d-grid">
         <div class="form-group">
-          <select
-            name="alloy"
-            class="form-select"
-            id="alloy"
-            style="text-align: center"
-            onchange="UpdateProductDropdown()"
-          >
+          <select name="alloy" class="form-select" id="alloy" style="text-align: center"
+            onchange="UpdateProductDropdown()">
             <option value="" disabled selected>Select Material</option>
             {% for alloy in alloy_names %}
             <option value="{{ alloy }}">{{ alloy }}</option>
             {% endfor %}
           </select>
           <br>
-          <select
-            name="product"
-            class="form-select"
-            id="product"
-            style="text-align: center"
-          >
+          <select name="product" class="form-select" id="product" style="text-align: center">
             <option value="" disabled selected>Select Product</option>
           </select>
         </div>
@@ -62,18 +52,19 @@
     product_dropdown.innerHTML = '<option value="" disabled selected>Select Product</option>';
 
     // Filter products based on selected material
-    let products = {{ material_products | tojson }};
-    let filtered_products = products[selected_alloy];
+    let products = {{ material_products | tojson
+  }};
+  let filtered_products = products[selected_alloy];
 
-    // Add filtered products to the dropdown
-    if (filtered_products) {
-      for (let i = 0; i < filtered_products.length; i++) {
-        let option = document.createElement("option");
-        option.value = filtered_products[i];
-        option.text = filtered_products[i];
-        product_dropdown.appendChild(option);
-      }
+  // Add filtered products to the dropdown
+  if (filtered_products) {
+    for (let i = 0; i < filtered_products.length; i++) {
+      let option = document.createElement("option");
+      option.value = filtered_products[i];
+      option.text = filtered_products[i];
+      product_dropdown.appendChild(option);
     }
+  }
   }
 </script>
 {% endblock %}
