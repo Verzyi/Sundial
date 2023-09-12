@@ -60,17 +60,20 @@ body {
   border-radius: 5px;
 }
 
-.vStick{
+.vStick {
   position: sticky;
   top: 0;
 }
 
 .sticky-button {
   position: sticky;
-  bottom: 20px; /* Adjust this value as needed */
-  right: 20px; /* Adjust this value as needed */
+  bottom: 20px;
+  /* Adjust this value as needed */
+  right: 20px;
+  /* Adjust this value as needed */
   z-index: 1;
 }
+
 .buildsTable {
   border: 1px solid #ffffff;
   height: 550px;

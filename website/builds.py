@@ -1,15 +1,13 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify, Response, make_response
-from .models import PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
-from . import db
-from flask_login import login_user, login_required, current_user
+from flask_login import login_required, current_user
 from datetime import datetime
-from sqlalchemy import func, join, desc
-import socket
+from sqlalchemy import func, desc, or_
 import pandas as pd
-from math import ceil
+import math
 import pdfkit
-from pdfkit.api import configuration
-from sqlalchemy import distinct
+
+from . import db
+from .models import BuildsTable
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -117,7 +115,7 @@ def data_viewer():
     per_page = 150
     current_page = int(request.args.get('page', 1))
     total_builds = len(all_builds)
-    num_pages = ceil(total_builds / per_page)
+    num_pages = math.ceil(total_builds / per_page)
     start = (current_page - 1) * per_page
     end = start + per_page
 
