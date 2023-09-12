@@ -297,6 +297,8 @@ def CreateBlend():
                                     alloy_list.append(alloy)
                             else:
                                 flash('Batch {batch_blend_id} does not exist.', category='error')
+                    else:
+                        flash('Select either "Blend" or "Virgin Batch".', category='error')
                 else: flash('Blend weight must be greater than 0 kg.', category='error')
         elif 'create' in request.form:
             if alloy_list == []:
@@ -371,7 +373,7 @@ def CreateBlend():
                         updater = BlendDatabaseUpdater(
                             blend_limit=500, 
                             frac_limit=0.0001)
-                        updater.update_blend_database(blend_list, blend_part_weights)
+                        updater.UpdateBlendDatabase(blend_list, blend_part_weights)
                         # Clear lists and variables
                         blend_list.clear()
                         blend_part_weights.clear()
@@ -788,6 +790,7 @@ def InventoryBlend():
     
     powder_part_blend_list = [r.PartBlendID for r in db.session.query(
         PowderBlendParts.PartBlendID).distinct()]
+    print(powder_part_blend_list)
     # Create a list to store the result data
     result_data = []
     # Variables for subtotal calculation
