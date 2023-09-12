@@ -51,12 +51,12 @@ class DatabaseAppender:
 
 # Dictionary of lookup tables:
 table_dict = {'users': 'Users_20230908.csv', 
-              'inventory_virgin_batch': 'InventoryVirginBatch_20230906_1138.csv', 
+              'inventory_virgin_batch': 'InventoryVirginBatch_20230912_1518.csv', 
               'builds_table': 'MLSBuilds_20230821_Clean.csv',
               'powder_blends': 'PowderBlend_20230908_1337.csv',
               'powder_blend_calc': 'PowderBlendCalc_20230905_1511.csv',
               'powder_blend_parts': 'PowderBlendPart_20230713_1224.csv',
-              'material_products': 'MaterialProducts_20230905.csv',
+              'material_products': 'MaterialProducts_20230912.csv',
               'material_alloys': 'MaterialAlloys_20230905.csv',
               }
 

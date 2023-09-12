@@ -55,8 +55,7 @@ def builds_page():
     unique_machines = list(set(machines))
     unique_materials = list(set(materials))
 
-    # You'll need to fetch the build information from the database
-    # based on the selected build ID (use the selectedBuildID variable)
+    # You'll need to fetch the build information from the database based on the selected build ID (use the selectedBuildID variable)
     selectedBuildID = request.form.get('solidJobsBuildIDInput')
     selectedBuild = BuildsTable.query.filter_by(BuildIt=selectedBuildID).first()
 
@@ -77,17 +76,11 @@ def builds_page():
             session['buildformFinish'] = request.form.to_dict()
             return redirect(url_for('builds.finish_form'))
             
-             
-
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
                            machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
         
-        
-
     return render_template('builds.html', user=current_user, current_build=selectedBuild, buildsInfo=builds,
                            machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
-
-
 
 
 @builds.route('/get_build_info/<int:buildid>', methods=['GET'])
