@@ -1,10 +1,6 @@
-from flask import Blueprint, redirect, url_for, flash,render_template,request
+from flask import Blueprint, flash,render_template,request
 from flask_login import current_user, login_required
-from flask_admin import Admin
-from flask_admin.menu import MenuCategory
-from flask_admin.contrib.sqla import ModelView
-from werkzeug.security import generate_password_hash, check_password_hash
-from flask_bcrypt import Bcrypt, check_password_hash 
+from flask_bcrypt import Bcrypt
 from . import db
 
 # Create a Blueprint for your views
@@ -13,8 +9,7 @@ bcrypt = Bcrypt()
 
 @views.route('/')
 @login_required
-def builds_home():
-    # blends = PowderBlends.query.all()
+def Home():
     return render_template('home.html', user=current_user)
 
 
@@ -27,7 +22,6 @@ def Settings():
         new_password2 = request.form.get('new_password2')
         first_name = request.form.get('first_name')
         last_name = request.form.get('last_name')
-
         # Check if the user wants to update their password
         if new_password1 is not None:
             if new_password1 != new_password2:
@@ -40,12 +34,15 @@ def Settings():
                 current_user.password = hashed_password
                 db.session.commit()
                 flash('Password updated successfully!', category='success')
-
         # Update the user's first name and last name
         current_user.first_name = first_name
         current_user.last_name = last_name
         db.session.commit()
-
         flash('Account updated.', category='success')
-
     return render_template('settings.html', user=current_user)
+
+
+@views.route('/printers')
+@login_required
+def PrinterDash():
+    return render_template('printers.html', user=current_user)

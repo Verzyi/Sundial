@@ -17,13 +17,13 @@ wkhtml_path = pdfkit.configuration(
 blends = Blueprint('blends', __name__)
 
 
-@blends.route('/')
-@login_required
-def Home():
-    return render_template('home.html', user=current_user)
+# @blends.route('/')
+# @login_required
+# def Home():
+#     return render_template('home.html', user=current_user)
 
 
-@blends.route('/powder', methods=['GET', 'POST'])
+@blends.route('/', methods=['GET', 'POST'])
 @login_required
 def Powder():
     return render_template('base_powder.html', user=current_user)
@@ -86,7 +86,7 @@ def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, wei
     # Close the socket
     sock.close()
 
-@blends.route('/powder/search/blend', methods=['GET', 'POST'])
+@blends.route('/search/blend', methods=['GET', 'POST'])
 @login_required
 def SearchBlends():
     blend_query = None
@@ -165,7 +165,7 @@ def SearchBlends():
         blends=blend_query)
 
 
-@blends.route('/powder/search/batch', methods=['GET', 'POST'])
+@blends.route('/search/batch', methods=['GET', 'POST'])
 @login_required
 def SearchBatch():
     batch_query = None
@@ -234,7 +234,7 @@ batch_list = []
 batch_weights = []
 alloy_list = []
 
-@blends.route('/powder/create/blend', methods=['GET', 'POST'])
+@blends.route('/create/blend', methods=['GET', 'POST'])
 @login_required
 def CreateBlend():
     # blend_or_batch = 'Blend
@@ -401,7 +401,7 @@ def CreateBlend():
         )
 
 
-@blends.route('/powder/removeBlend/<int:blendIndex>', methods=['POST'])
+@blends.route('/removeBlend/<int:blendIndex>', methods=['POST'])
 @login_required
 def RemoveBlend(blendIndex):
     if blendIndex < len(blend_list):
@@ -413,7 +413,7 @@ def RemoveBlend(blendIndex):
     return redirect(url_for('blends.CreateBlend'))
 
 
-@blends.route('/powder/removeBatch/<int:batchIndex>', methods=['POST'])
+@blends.route('/removeBatch/<int:batchIndex>', methods=['POST'])
 @login_required
 def RemoveBatch(batchIndex):
     if batchIndex < len(batch_list):
@@ -423,7 +423,7 @@ def RemoveBatch(batchIndex):
     return redirect(url_for('blends.CreateBlend'))
 
 
-@blends.route('/powder/create/batch', methods=['GET', 'POST'])
+@blends.route('/create/batch', methods=['GET', 'POST'])
 @login_required
 def CreateBatch():
     products_query = db.session.query(
@@ -499,7 +499,7 @@ def CreateBatch():
         material_products=material_products)
 
 
-@blends.route('/powder/history/blend', methods=['GET', 'POST'])
+@blends.route('/history/blend', methods=['GET', 'POST'])
 @login_required
 def HistoryBlend():
     alloy_name = None
@@ -527,7 +527,7 @@ def HistoryBlend():
         selected_alloy=alloy_name)
 
 
-@blends.route('/powder/history/batch', methods=['GET', 'POST'])
+@blends.route('/history/batch', methods=['GET', 'POST'])
 @login_required
 def HistoryBatch():
     alloy_name = None
@@ -570,7 +570,7 @@ def HistoryBatch():
         selected_alloy=alloy_name)
 
 
-@blends.route('/powder/search/blend-report', methods=['GET', 'Post'])
+@blends.route('/search/blend-report', methods=['GET', 'Post'])
 @login_required
 def BlendReport():
     blend = request.args.get('blend')
@@ -710,7 +710,7 @@ def BlendReport():
     return response
 
 
-@blends.route('/powder/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@blends.route('/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
 @login_required
 def BlendTrace(blend_id, lvl, limit):
     # blendPartTable = 'powder_blend_parts'
@@ -774,7 +774,7 @@ def BlendTrace(blend_id, lvl, limit):
     return tracebacks
 
 
-@blends.route('/powder/inventory/blend', methods=['GET', 'POST'])
+@blends.route('/inventory/blend', methods=['GET', 'POST'])
 @login_required
 def InventoryBlend():
     # Retrieve the Blend inventory data
@@ -854,7 +854,7 @@ def InventoryBlend():
     )
 
 
-@blends.route('/powder/inventory/batch', methods=['GET', 'POST'])
+@blends.route('/inventory/batch', methods=['GET', 'POST'])
 @login_required
 def InventoryBatch():
     # Initialize batch_id_set as an empty set

@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block title %} Austin Printer Status {% endblock %}
+{% block content %}
+<h1 class="text-center">{{ self.title() }}</h1>
+<div style="margin: 10px;">
+  <div style="position: relative; padding-bottom: 75%; padding-left: 75%; padding-right: 75%; height: 0;">
+    <iframe
+        src="https://docs.google.com/spreadsheets/d/e/2PACX-1vQUdy6NMeAC_qwG5SYtXxyCO6vObMVoJVh5JviJ-fkUCQXHT3U_uCLOx5DzygEvBe-R-ZKCN9duXTRw/pubhtml?gid=213723902&single=true"
+        style="position: absolute; top: 0; left: -14%; width: 95%; height: 100%;" frameborder="0"
+        scrolling="no"></iframe>
+  </div>
+</div>
+{% endblock %}
