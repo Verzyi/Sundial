@@ -1,9 +1,7 @@
 {% extends "base_powder.html" %}
 {% block title %} Create Batch {% endblock %}
-{% block content %}
-<h1 class="text-center">{{ super() }}</h1>
-<h2 class="text-center">{{ self.title() }}</h2>
-<div class="container">
+{% block subcontent %}
+  <h2>{{ self.title() }}</h2>
   <div class="container-fluid">
     <form id="createBlendForm" method="POST" class="mt-4">
       <div id="blendFields" class="mb-3">
@@ -40,7 +38,6 @@
       </div>
     </form>
   </div>
-</div>
 
 <script>
   function UpdateProductDropdown() {
@@ -67,4 +64,4 @@
   }
   }
 </script>
-{% endblock %}
+{% endblock subcontent %}

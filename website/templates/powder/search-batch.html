@@ -1,10 +1,8 @@
 {% extends "base_powder.html" %}
 {% block title %}Virgin Batch Search{% endblock %}
-{% block content %}
-<div class="container">
-  <h1 class="text-center">{{ super() }}</h1>
-  <h2 class="text-center">{{ self.title() }}</h2>
-</div>
+{% block subcontent %}
+<h2>{{ self.title() }}</h2>
+
 <form id="searchBlendForm" method="POST" class="mt-4">
   <label class="btn btn-outline-primary form-group" for="switch">Switch to Blend Search</label>
   <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
@@ -75,6 +73,4 @@
     </tbody>
   </table>
 </div>
-</div>
-</div>
-{% endblock %}
+{% endblock subcontent %}

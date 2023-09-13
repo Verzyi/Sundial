@@ -11,7 +11,7 @@ from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
 import datetime as dt
 
-from .dashboard import dashboard
+from .mpd_dash import mpd_dash
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -35,18 +35,17 @@ def CreateApp():
 
     from .auth import auth
     from .views import views
-    from .blends import blends
+    from .powder import powder
     from .builds import builds
     from .quote import quote
-    from .dashapp import dashapp_bp
     from .dashboards import dashboards_bp
 
-    bp_list = [auth, views, builds, quote, dashapp_bp]
+    bp_list = [auth, views, builds, quote]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
     
-    app.register_blueprint(blends, url_prefix='/powder')
+    app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
     
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
@@ -178,6 +177,6 @@ def CreateApp():
     admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
     # Initialize Dash app
-    app = dashboard.init_dashboard(app)
+    app = mpd_dash.InitDashboard(app)
 
-    return app    
+    return app

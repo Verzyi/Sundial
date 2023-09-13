@@ -1,91 +1,86 @@
 {% extends "base_powder.html" %}
 {% block title %}Blend Search{% endblock %}
-{% block content %}
-<div class="container">
-  <h1 class="text-center">{{ super() }}</h1>
-  <h2 class="text-center">{{ self.title() }}</h2>
-  <div class="container">
-    <form id="searchBlendForm" method="POST" class="mt-4">
-      <label class="btn btn-outline-primary form-group" for="switch">Switch to Batch Search</label>
-      <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
-        onclick="window.location.href = '/powder/search/batch'">
+{% block subcontent %}
+<h2>{{ self.title() }}</h2>
+<form id="searchBlendForm" method="POST" class="mt-4">
+  <label class="btn btn-outline-primary form-group" for="switch">Switch to Batch Search</label>
+  <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
+    onclick="window.location.href = '/powder/search/batch'">
 
-      <div id="search" class="menus">
-        <div class="mb-3">
-          <label for="blend_id" class="form-label">Blend ID</label>
-          <input type="number" id="blend_id" name="blend_id" class="form-control" placeholder="0" />
+  <div id="search" class="menus">
+    <div class="mb-3">
+      <label for="blend_id" class="form-label">Blend ID</label>
+      <input type="number" id="blend_id" name="blend_id" class="form-control" placeholder="0" />
+    </div>
+    <div class="d-grid">
+      <button type="submit" name="search" class="btn btn-primary">
+        Search</button>
+      {% if blends %}
+      <div class="d-grid">
+        <div class="form-group">
+          <label for="printer" class="form-label mt-4">Select Printer</label>
+          <select name="printer" class="form-select" id="printer" style="text-align: center">
+            <option>Shop Floor Printer</option>
+            <option>Office Printer</option>
+          </select>
         </div>
         <div class="d-grid">
-          <button type="submit" name="search" class="btn btn-primary">
-            Search</button>
-          {% if blends %}
-          <div class="d-grid">
-            <div class="form-group">
-              <label for="printer" class="form-label mt-4">Select Printer</label>
-              <select name="printer" class="form-select" id="printer" style="text-align: center">
-                <option>Shop Floor Printer</option>
-                <option>Office Printer</option>
-              </select>
-            </div>
-            <div class="d-grid">
-              <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
-              <button type="submit" name="Print" class="btn btn-primary">
-                Print
-              </button>
-              {% endif %}
-            </div>
-          </div>
+          <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
+          <button type="submit" name="Print" class="btn btn-primary">
+            Print
+          </button>
+          {% endif %}
         </div>
       </div>
-    </form>
-    <div>
-      {% if blends %}
-      <form method="POST" target="_blank">
-        <button type="submit" name="Report" class="btn btn-primary Add">
-          Report
-        </button>
-      </form>
-      {% endif %}
-    </div>
-    <div>
-      {% if blends %}
-      <form method="POST" target="_blank">
-        <button type="submit" name="Trace" class="btn btn-primary Add">
-          Trace
-        </button>
-      </form>
-      {% endif %}
-    </div>
-    <!-- Display the Blend results here -->
-    <div class="table-responsive mt-4 container">
-      <table class="table table-hover">
-        <!-- Table headers -->
-        <thead>
-          <tr style="font-size: 20px">
-            <th scope="col">Blend ID</th>
-            <th scope="col">Material</th>
-            <th scope="col">Total Weight (kg)</th>
-            <th scope="col">Current Weight (kg)</th>
-            <th scope="col">Date Created</th>
-            <th scope="col">Created By</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Loop through the blends results -->
-          {% if blends %} {% for blend, alloy_name in blends %}
-          <tr class="table-active">
-            <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
-            <td>{{ alloy_name }}</td>
-            <td>{{ blend.TotalWeight }}</td>
-            <td>{{ blend.CurrentWeight }}</td>
-            {% set date, time = blend.BlendDate.split(' ') %}
-            <td>{{ date }}</td>
-            <td>{{blend.BlendCreatedBy}}</td>
-          </tr>
-          {% endfor %} {% endif %}
-        </tbody>
-      </table>
     </div>
   </div>
+</form>
+<div>
+  {% if blends %}
+  <form method="POST" target="_blank">
+    <button type="submit" name="Report" class="btn btn-primary Add">
+      Report
+    </button>
+  </form>
+  {% endif %}
 </div>
-{% endblock %}
+<div>
+  {% if blends %}
+  <form method="POST" target="_blank">
+    <button type="submit" name="Trace" class="btn btn-primary Add">
+      Trace
+    </button>
+  </form>
+  {% endif %}
+</div>
+<!-- Display the Blend results here -->
+<div class="table-responsive mt-4 container">
+  <table class="table table-hover">
+    <!-- Table headers -->
+    <thead>
+      <tr style="font-size: 20px">
+        <th scope="col">Blend ID</th>
+        <th scope="col">Material</th>
+        <th scope="col">Total Weight (kg)</th>
+        <th scope="col">Current Weight (kg)</th>
+        <th scope="col">Date Created</th>
+        <th scope="col">Created By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Loop through the blends results -->
+      {% if blends %} {% for blend, alloy_name in blends %}
+      <tr class="table-active">
+        <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
+        <td>{{ alloy_name }}</td>
+        <td>{{ blend.TotalWeight }}</td>
+        <td>{{ blend.CurrentWeight }}</td>
+        {% set date, time = blend.BlendDate.split(' ') %}
+        <td>{{ date }}</td>
+        <td>{{blend.BlendCreatedBy}}</td>
+      </tr>
+      {% endfor %} {% endif %}
+    </tbody>
+  </table>
+</div>
+{% endblock subcontent %}
