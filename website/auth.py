@@ -24,7 +24,7 @@ def Login():
                 login_user(user, remember=True)
                 # current_user.set_ip = request.remote_addr
                 # db.session.commit()
-                return redirect(url_for('blends.Home'))
+                return redirect(url_for('views.Home'))
             else:
                 flash('Password incorrect', category='error')
         else:
@@ -75,6 +75,6 @@ def signup():
             db.session.commit()
             flash('Account created', category='success')
             login_user(new_user, remember=True)
-            return redirect(url_for('blends.Home'))
+            return redirect(url_for('views.Home'))
 
     return render_template('sign-up.html', user=current_user)
