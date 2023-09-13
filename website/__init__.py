@@ -39,11 +39,15 @@ def CreateApp():
     from .builds import builds
     from .quote import quote
     from .dashapp import dashapp_bp
+    from .dashboards import dashboards_bp
 
-    bp_list = [auth, views, blends, builds, quote, dashapp_bp]
+    bp_list = [auth, views, builds, quote, dashapp_bp]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
+    
+    app.register_blueprint(blends, url_prefix='/powder')
+    app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
     
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
     CreateDatabase(app)
@@ -67,12 +71,12 @@ def CreateApp():
         def inaccessible_callback(self, name, **kwargs):
             if not current_user.is_authenticated or current_user.id != 1 or current_user.role != 'Admin':
                 flash('Access denied.', category='error')
-                return redirect(url_for('blends.Home'))
+                return redirect(url_for('views.Home'))
 
             if request.path.startswith(self.admin.url):
                 return super().inaccessible_callback(name, **kwargs)
             else:
-                return redirect(url_for('blends.Home'))
+                return redirect(url_for('views.Home'))
 
         def _handle_view(self, name, **kwargs):
             if not self.is_accessible():
@@ -87,10 +91,14 @@ def CreateApp():
     powder_category = MenuCategory(name='Powder')
     builds_category = MenuCategory(name='Build')
 
-    # Add the categories to the admin menu
-    admin.add_category(users_category)
-    admin.add_category(powder_category)
-    admin.add_category(builds_category)
+    category_list = [users_category, powder_category, builds_category]
+    
+    for category in category_list:
+        admin.add_category(category)
+        
+    # admin.add_category(users_category)
+    # admin.add_category(powder_category)
+    # admin.add_category(builds_category)
 
     # Users
     class UsersAdminView(ModelView):
@@ -162,13 +170,14 @@ def CreateApp():
                 return current_user.id == 1 or current_user.role == 'Admin'
             else:
                 return False
-
     admin.add_view(BuildsAdminView(BuildsTable, db.session, category=builds_category.name))
+    
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
     admin.add_view(ModelView(PowderBlendParts, db.session, category=powder_category.name))
     admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
+    # Initialize Dash app
     app = dashboard.init_dashboard(app)
 
     return app    
