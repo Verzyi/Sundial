@@ -2,10 +2,14 @@
 {% block title %}Blend Search{% endblock %}
 {% block subcontent %}
 <h2>{{ self.title() }}</h2>
+
+<label class="btn btn-outline-primary form-group" for="switch">
+  Switch to Batch Search
+</label>
+<input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
+       onclick="window.location.href = '/powder/search/batch'">
+
 <form id="searchBlendForm" method="POST" class="mt-4">
-  <label class="btn btn-outline-primary form-group" for="switch">Switch to Batch Search</label>
-  <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
-    onclick="window.location.href = '/powder/search/batch'">
 
   <div id="search" class="menus">
     <div class="mb-3">
@@ -14,7 +18,8 @@
     </div>
     <div class="d-grid">
       <button type="submit" name="search" class="btn btn-primary">
-        Search</button>
+        Search
+      </button>
       {% if blends %}
       <div class="d-grid">
         <div class="form-group">
@@ -26,19 +31,19 @@
         </div>
         <div class="d-grid">
           <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
-          <button type="submit" name="Print" class="btn btn-primary">
+          <button type="submit" name="print" class="btn btn-primary">
             Print
           </button>
-          {% endif %}
         </div>
       </div>
+      {% endif %}
     </div>
   </div>
 </form>
 <div>
   {% if blends %}
   <form method="POST" target="_blank">
-    <button type="submit" name="Report" class="btn btn-primary Add">
+    <button type="submit" name="report" class="btn btn-primary Add">
       Report
     </button>
   </form>
@@ -47,7 +52,7 @@
 <div>
   {% if blends %}
   <form method="POST" target="_blank">
-    <button type="submit" name="Trace" class="btn btn-primary Add">
+    <button type="submit" name="trace" class="btn btn-primary Add">
       Trace
     </button>
   </form>
@@ -69,7 +74,8 @@
     </thead>
     <tbody>
       <!-- Loop through the blends results -->
-      {% if blends %} {% for blend, alloy_name in blends %}
+      {% if blends %}
+      {% for blend, alloy_name in blends %}
       <tr class="table-active">
         <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
         <td>{{ alloy_name }}</td>
@@ -79,8 +85,16 @@
         <td>{{ date }}</td>
         <td>{{blend.BlendCreatedBy}}</td>
       </tr>
-      {% endfor %} {% endif %}
+      {% endfor %}
+      {% endif %}
     </tbody>
   </table>
+</div>
+<div class="container">
+  {% if tracebacks %}
+  <pre>
+  {{ tracebacks }}
+  </pre>
+  {% endif %}
 </div>
 {% endblock subcontent %}

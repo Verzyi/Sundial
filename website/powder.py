@@ -108,21 +108,21 @@ def SearchBlends():
                     else:
                         flash(f'Blend number must be positive: {blend_id}', category='error')
 
-        elif 'Trace' in request.form:
+        elif 'trace' in request.form:
             flash('Making Trace', category='success')
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')
             if blend_id:
                 return redirect(url_for('powder.BlendTrace', blend_id=blend_id, lvl=0, limit=10))
 
-        elif 'Report' in request.form:
+        elif 'report' in request.form:
             flash('Making Report', category='success')
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')
             if blend_id:
                 return redirect(url_for('powder.BlendReport', blend=blend_id))
 
-        elif 'Print' in request.form:
+        elif 'print' in request.form:
             printer_name = request.form.get('printer')
             if printer_name == 'Shop Floor Printer':
                 printer_ip = '10.101.102.21'
@@ -236,7 +236,7 @@ def CreateBlend():
         batch_blend_id = request.form.get('batch_blend_id')
         if 'add' in request.form:
             added_weight = request.form.get('added_weight')
-            if batch_blend_id is not None and added_weight is not None and batch_blend_id != "" and added_weight != "":
+            if batch_blend_id is not None and added_weight is not None and batch_blend_id != '' and added_weight != '':
                 if float(added_weight) > 1:
                     radio_option = request.form.get('option')
                     if radio_option == 'Blend':
@@ -289,6 +289,7 @@ def CreateBlend():
                                                 .filter(InventoryVirginBatch.ProductID == product_id)
                                     alloy = query.first()[1]
                                     alloy_list.append(alloy)
+                                    session['alloy_name'] = alloy
                             else:
                                 flash('Batch {batch_blend_id} does not exist.', category='error')
                     else:
@@ -300,13 +301,15 @@ def CreateBlend():
             elif all(x == alloy_list[0] for x in alloy_list):
                 alloy_name = session.get('alloy_name')
                 alloy = MaterialAlloys.query.filter_by(AlloyName=alloy_name).first()
-
-                if alloy:
+                if not alloy:
+                    flash('Selected material does not exist.', category='error')
+                else:
                     alloy_id = alloy.AlloyID
                     total_weight = sum(
                         [float(w) for w in blend_part_weights] + [float(w) for w in batch_weights])
-
-                    if total_weight > 0:
+                    if total_weight < 0:
+                        flash('Blend weight must be greater than 0 kg.', category='error')
+                    else:
                         last_blend = PowderBlends.query.order_by(
                             PowderBlends.BlendID.desc()).first()
                         last_blend_id = last_blend.BlendID if last_blend else 0
@@ -375,10 +378,6 @@ def CreateBlend():
                         batch_weights.clear()
                         alloy_list.clear()
                         session.pop('alloy_name', None)
-                    else:
-                        flash('Blend weight must be greater than 0 kg.', category='error')
-                else:
-                    flash('Selected material does not exist.', category='error')
             else:
                 flash('Selected materials do not match.', category='error')
     total_weight = sum([float(w) for w in blend_part_weights] + \
@@ -427,16 +426,13 @@ def CreateBatch():
             MaterialAlloys, 
             MaterialProducts.AlloyID == MaterialAlloys.AlloyID
             ).all()
-    # print(products_query)
     alloy_names = sorted(set([product.AlloyName for product in products_query]))
-    # print(alloy_names)
     material_products = {}
     for product in products_query:
         if product.AlloyName not in material_products:
             material_products[product.AlloyName] = []
         material_products[product.AlloyName].append(
             product.SupplierProduct)
-    # print(material_products)
     if request.method == 'POST':
         po_num = request.form.get('po_num', '')
         v_lot = request.form.get('v_lot', '')
@@ -564,7 +560,7 @@ def HistoryBatch():
         selected_alloy=alloy_name)
 
 
-@powder.route('/search/blend-report', methods=['GET', 'Post'])
+@powder.route('/search/blend-report', methods=['GET', 'POST'])
 @login_required
 def BlendReport():
     blend = request.args.get('blend')
@@ -707,12 +703,9 @@ def BlendReport():
 @powder.route('/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
 @login_required
 def BlendTrace(blend_id, lvl, limit):
-    # blendPartTable = 'powder_blend_parts'
-    powder_blend_part = pd.read_sql(
-        f"SELECT * FROM powder_blend_parts", con=db.engine)
-    # blendsTable = "powder_blends"
-    powder_blend = pd.read_sql(f"SELECT * FROM powder_blends", con=db.engine)
-    inventory_virgin_batch = pd.read_sql(f"SELECT * FROM inventory_virgin_batch", con=db.engine)
+    powder_blend_part = pd.read_sql(f'SELECT * FROM powder_blend_parts', con=db.engine)
+    powder_blend = pd.read_sql(f'SELECT * FROM powder_blends', con=db.engine)
+    inventory_virgin_batch = pd.read_sql(f'SELECT * FROM inventory_virgin_batch', con=db.engine)
 
     powder_blend_part[['PartBlendID', 'PartBatchID']] = powder_blend_part[[
         'PartBlendID', 'PartBatchID']].astype('Int64')
@@ -720,8 +713,7 @@ def BlendTrace(blend_id, lvl, limit):
     blend_df = powder_blend_part[powder_blend_part['BlendID'] == blend_id].copy()
     blend_df['TotalWeight'] = blend_df['BlendID'].map(
         powder_blend.set_index('BlendID')['TotalWeight'])
-    blend_df['PartFraction'] = blend_df['AddedWeight'] / \
-        blend_df['TotalWeight']
+    blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
 
     tracebacks = []  # List to store the tracebacks
 
@@ -764,7 +756,6 @@ def BlendTrace(blend_id, lvl, limit):
                 batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
                 tracebacks.append(
                     f'{new_lvl}: {"..." * new_lvl} Batch {batch_id} ({frac * 100:.0f}%) ({batch_weight:.1f} kg) ({batch_date})')
-
     return tracebacks
 
 
@@ -784,7 +775,6 @@ def InventoryBlend():
     
     powder_part_blend_list = [r.PartBlendID for r in db.session.query(
         PowderBlendParts.PartBlendID).distinct()]
-    print(powder_part_blend_list)
     # Create a list to store the result data
     result_data = []
     # Variables for subtotal calculation
