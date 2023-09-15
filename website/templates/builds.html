@@ -1,7 +1,6 @@
 {% extends "base_builds.html" %}
 {% block title %} Build Tracking {% endblock title %}
 {% block content %}
-<div class="container">
   <div id="build-container">
     <div id="build-info" class="build-section">
       <!-- Current Build Info -->
@@ -66,10 +65,9 @@
       </div>
     </div>
   </div>
-</div>
 
 <!-- Builds search table -->
-<div class="container">
+<div>
   <div class="row">
     <div class="col-md-6">
       <div class="searchBuilds">
@@ -99,8 +97,7 @@
             {% if selectedFacility %}
             <tbody>
               {% for build in buildsInfo %}
-              <tr class="table-active" data-buildid="{{ build.BuildIt }}" data-layer="{{ build.Layer }}"
-                onclick="showBuildInfo(event)">
+              <tr class="table-active" data-buildid="{{ build.BuildIt }}" data-layer="{{ build.Layer }}">
                 <td style="border: 1px solid #ffffff">
                   {{ build.BuildIt }}
                 </td>
@@ -401,5 +398,4 @@
     </div>
   </div>
 </div>
-
 {% endblock content %}
