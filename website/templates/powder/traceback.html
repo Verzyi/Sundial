@@ -1,61 +1,27 @@
-<!DOCTYPE html>
-<html>
+{% extends "base_powder.html" %}
+{% block title %}Powder Blend Traceback{% endblock %}
+{% block subcontent %}
+<h2>{{ self.title() }}</h2>
 
-<head>
-  <style>
-    h1 {
-      font-family: verdana;
-      text-align: center;
-      font-size: 24px;
-      font-weight: bold;
-    }
+<pre>
+  {{ tracebacks }}
+ 
+</pre>
 
-    h2 {
-      font-family: verdana;
-      text-align: center;
-      font-size: 16px;
-    }
-
-    p {
-      font-family: verdana;
-      font-size: 12px;
-      margin-bottom: 10px;
-    }
-
-    ul {
-      font-family: verdana;
-      font-size: 12px;
-      list-style-type: none;
-    }
-
-    .indent {
-      margin-left: 20px;
-    }
-  </style>
-</head>
-
-<body>
-  <h1>Blend Traceback</h1>
-
-  <div class="container">
-    <ul>
-      {% for traceback in tracebacks %}
+<!-- <ul>
+  {% for traceback in tracebacks %}
+  <li>
+    {{ traceback.blend_id }} (Weight: {{ traceback.weight }} kg, Date: {{ traceback.date_created }})
+    {% if traceback.children %}
+    <ul class="indent">
+      {% for child in traceback.children %}
       <li>
-        {{ traceback.blend_id }} (Weight: {{ traceback.weight }} kg, Date: {{ traceback.date_created }})
-        {% if traceback.children %}
+        {{ child.blend_id }} (Weight: {{ child.weight }} kg, Date: {{ child.date_created }})
+        {% if child.children %}
         <ul class="indent">
-          {% for child in traceback.children %}
+          {% for sub_child in child.children %}
           <li>
-            {{ child.blend_id }} (Weight: {{ child.weight }} kg, Date: {{ child.date_created }})
-            {% if child.children %}
-            <ul class="indent">
-              {% for sub_child in child.children %}
-              <li>
-                {{ sub_child.blend_id }} (Weight: {{ sub_child.weight }} kg, Date: {{ sub_child.date_created }})
-              </li>
-              {% endfor %}
-            </ul>
-            {% endif %}
+            {{ sub_child.blend_id }} (Weight: {{ sub_child.weight }} kg, Date: {{ sub_child.date_created }})
           </li>
           {% endfor %}
         </ul>
@@ -63,8 +29,8 @@
       </li>
       {% endfor %}
     </ul>
-  </div>
-
-</body>
-
-</html>
+    {% endif %}
+  </li>
+  {% endfor %}
+</ul> -->
+{% endblock subcontent %}

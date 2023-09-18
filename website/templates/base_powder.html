@@ -1,8 +1,7 @@
 {% extends "base.html" %}
 {% block title %} Powder Management {% endblock title %}
 {% block content %}
-<h1 class="text-center">Powder Management System</h1>
-<h2 class="text-center"></h2>
+<h1>Powder Management System</h1>
 <div class="container">
   <div class="d-flex justify-content-center mt-3">
     <div class="btn-group">
@@ -28,5 +27,11 @@
     </div>
   </div>
 </div>
+
+<div class="container">
+{% block subcontent %}
+{% endblock subcontent %}
+</div>
+
 <script src="../../../static/js/scripts.js"></script>
 {% endblock content %}

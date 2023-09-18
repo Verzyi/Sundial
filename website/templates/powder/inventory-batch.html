@@ -1,21 +1,17 @@
 {% extends "base_powder.html" %}
 {% block title %}Virgin Batch Inventory{% endblock %}
-{% block content %}
-<div class="container">
-  <h1 class="text-center">{{ super() }}</h1>
-  <h2 class="text-center">{{ self.title() }}</h2>
-</div>
-<div class="container">
-  <form action="{{ url_for('blends.InventoryBatch') }}" method="POST" class="mt-4">
+{% block subcontent %}
+  <h2>{{ self.title() }}</h2>
+  <form action="{{ url_for('powder.InventoryBatch') }}" method="POST" class="mt-4">
     <div class="container">
-      <form action="{{ url_for('blends.InventoryBatch') }}" method="POST" class="mt-4">
+      <form action="{{ url_for('powder.InventoryBatch') }}" method="POST" class="mt-4">
         <div class="d-grid">
           <label class="btn btn-outline-primary" for="switch">Switch to Powder Blend Inventory</label>
           <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
             onclick="window.location.href = '/powder/inventory/blend'"></input>
         </div>
 
-        <form action="{{ url_for('blends.InventoryBatch') }}" method="POST" class="mt-4">
+        <form action="{{ url_for('powder.InventoryBatch') }}" method="POST" class="mt-4">
           <div class="form-group">
             <select name="alloy" class="form-select" id="alloy_name" style="text-align: center"
               onchange="this.form.submit()">
@@ -65,5 +61,4 @@
   </div>
 
   <p class="text-end mt-3">Total Virgin Powder Weight: {{ "%.0f" % total_wt }} kg</p>
-</div>
-{% endblock %}
+{% endblock subcontent%}
