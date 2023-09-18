@@ -16,13 +16,8 @@ wkhtml_path = pdfkit.configuration(
 
 builds = Blueprint('builds', __name__)
 
-@builds.route('/')
-@login_required
-def builds_home():
-    return render_template('home.html', user=current_user)
 
-
-@builds.route('/builds', methods=['GET', 'POST'])
+@builds.route('/home', methods=['GET', 'POST'])
 @login_required
 def builds_page():
     # Get the selected facility and search input from the form or query parameters

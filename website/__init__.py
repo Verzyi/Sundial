@@ -40,11 +40,12 @@ def CreateApp():
     from .quote import quote
     from .dashboards import dashboards_bp
 
-    bp_list = [auth, views, builds, quote]
+    bp_list = [auth, views, quote]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
     
+    app.register_blueprint(builds, url_prefix='/builds')
     app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
     
