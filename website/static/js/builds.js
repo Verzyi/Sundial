@@ -55,10 +55,10 @@ function logout() {
 }
 const logoutButton = document.getElementById("logOut"); // replace with the actual ID of your logout button
 
-logoutButton.addEventListener("click", function() {
-    logout(); // Call the logout function when the button is clicked
+// logoutButton.addEventListener("click", function() {
+    // logout(); // Call the logout function when the button is clicked
     // Perform any other logout-related actions
-});
+// });
 
 // Add an event listener to the facility select dropdown
 const facilitySelect = document.getElementById("facilitySelect");
@@ -71,7 +71,6 @@ window.addEventListener("load", function () {
     facilitySelect.value = selectedFacility;
   }
 });
-
 
 
 function showBuildInfo(event) {
@@ -90,47 +89,36 @@ function showBuildInfo(event) {
 
   // Show the appropriate form based on the selected build state
   const buildState = event.target.name;
-  const buildSetupForm = document.getElementById("buildSetupForm");
-  const buildStartForm = document.getElementById("buildStartForm");
-  const buildFinishForm = document.getElementById("buildFinishForm");
-  
+  // Add event listeners for the build state checkboxes to show/hide the appropriate forms
+  // const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
+  buildSetupCheckbox.addEventListener("change", function (event) {
+    // Toggle the visibility of the buildSetupForm based on the checkbox state
+    const buildSetupForm = document.getElementById("buildSetupForm");
+    buildSetupForm.style.display = event.target.checked ? "block" : "none";
+  });
 
-  if (event.target.checked) {
-    if (buildState === "buildState") {
-      if (event.target.id === "buildSetupCheckbox") {
-        buildSetupForm.style.display = "block";
-        buildStartForm.style.display = "none";
-        buildFinishForm.style.display = "none";
-      } else if (event.target.id === "buildStartCheckbox") {
-        buildSetupForm.style.display = "none";
-        buildStartForm.style.display = "block";
-        buildFinishForm.style.display = "none";
-      } else if (event.target.id === "buildFinishCheckbox") {
-        buildSetupForm.style.display = "none";
-        buildStartForm.style.display = "none";
-        buildFinishForm.style.display = "block";
-      }
-    }
-  } else {
-    // If the checkbox is unchecked, hide the corresponding form
-    if (event.target.id === "buildSetupCheckbox") {
-      buildSetupForm.style.display = "none";
-    } else if (event.target.id === "buildStartCheckbox") {
-      buildStartForm.style.display = "none";
-    } else if (event.target.id === "buildFinishCheckbox") {
-      buildFinishForm.style.display = "none";
-    }
-  }
+  // const buildStartCheckbox = document.getElementById("buildStartCheckbox");
+  buildStartCheckbox.addEventListener("change", function (event) {
+    // Toggle the visibility of the buildStartForm based on the checkbox state
+    const buildStartForm = document.getElementById("buildStartForm");
+    buildStartForm.style.display = event.target.checked ? "block" : "none";
+  });
+
+  // const buildFinishCheckbox = document.getElementById("buildFinishCheckbox");
+  buildFinishCheckbox.addEventListener("change", function (event) {
+    // Toggle the visibility of the buildformFinshed based on the checkbox state
+    const buildformFinshed = document.getElementById("buildformFinshed");
+    buildformFinshed.style.display = event.target.checked ? "block" : "none";
+  });
 }
-
-// Add event listeners for the build state checkboxes to show/hide the appropriate forms
-const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
-buildSetupCheckbox.addEventListener("change", function (event) {
-  // Stop the event from propagating to the row click event handler
-  event.stopPropagation();
-  // Call the showBuildInfo function
-  showBuildInfo(event);
-});
+  // Add event listeners for the build state checkboxes to show/hide the appropriate forms
+  const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
+  buildSetupCheckbox.addEventListener("change", function (event) {
+    // Stop the event from propagating to the row click event handler
+    event.stopPropagation();
+    // Call the showBuildInfo function
+    showBuildInfo(event);
+  });
 
 const buildStartCheckbox = document.getElementById("buildStartCheckbox");
 buildStartCheckbox.addEventListener("change", function (event) {
@@ -149,7 +137,7 @@ buildFinishCheckbox.addEventListener("change", function (event) {
 });
 
 function fetchBuildInfo(buildId) {
-  fetch(`/get_build_info/${buildId}`, {
+  fetch(`get_build_info/${buildId}`, {
     method: "GET",
   })
     .then((response) => {
@@ -339,8 +327,8 @@ function fetchBuildInfo(buildId) {
       const recoaterSpeedInput = document.getElementById("RecoaterSpeedInput");
       recoaterSpeedInput.value = data.RecoaterSpeed;
 
-      const parameterRevInput = document.getElementById("ParameterRevInput");
-      parameterRevInput.value = data.ParameterRev;
+      // const parameterRevInput = document.getElementById("ParameterRevInput");
+      // parameterRevInput.value = data.ParameterRev;
 
       // const measuredLaserPowerInput = document.getElementById("measuredLaserPowerInput");
       // measuredLaserPowerInput.value = data.MeasuredLaserPower;

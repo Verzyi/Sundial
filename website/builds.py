@@ -17,7 +17,7 @@ wkhtml_path = pdfkit.configuration(
 builds = Blueprint('builds', __name__)
 
 
-@builds.route('/home', methods=['GET', 'POST'])
+@builds.route('/', methods=['GET', 'POST'])
 @login_required
 def builds_page():
     # Get the selected facility and search input from the form or query parameters
@@ -78,7 +78,7 @@ def builds_page():
                            machines=unique_machines, materials=unique_materials ,selectedFacility=selectedFacility)
 
 
-@builds.route('/get_build_info/<int:buildid>', methods=['GET'])
+@builds.route('get_build_info/<int:buildid>', methods=['GET'])
 def get_build_info(buildid):
     # Assuming you have a database table named 'BuildsTable' with a column named 'BuildId'
     build = BuildsTable.query.get(buildid)
