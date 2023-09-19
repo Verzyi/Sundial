@@ -94,10 +94,6 @@ def CreateApp():
     
     for category in category_list:
         admin.add_category(category)
-        
-    # admin.add_category(users_category)
-    # admin.add_category(powder_category)
-    # admin.add_category(builds_category)
 
     # Users
     class UsersAdminView(ModelView):
@@ -123,19 +119,18 @@ def CreateApp():
             csv_writer = csv.writer(output)
 
             # Write header row
-            header = ['id','email', 'password', 'first_name', 'last_name','role']  # Replace with your actual column names
+            header = ['id', 'email', 'password', 'first_name', 'last_name', 'role']  # Replace with your actual column names
             csv_writer.writerow(header)
 
             # Write data rows
             for record in records:
-                data_row = [record.id, record.email, record.password, record.first_name, record.last_name, record.role]  # Replace with your actual data
+                data_row = [record.id, record.email, record.password, record.first_name, record.last_name, record.role]  
                 csv_writer.writerow(data_row)
 
             # Prepare the response with CSV content
             response = Response(output.getvalue(), content_type='text/csv')
             timestamp = str(dt.datetime.now())[:10].replace(' ', '_').replace(':', '-').replace('-', '')
             response.headers['Content-Disposition'] = f'attachment; filename=Users_{timestamp}.csv'
-
             return response
     admin.add_view(UsersAdminView(Users, db.session, category=users_category.name))
 

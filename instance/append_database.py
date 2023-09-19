@@ -16,7 +16,10 @@ class DatabaseAppender:
             os.system('pause')
     
     def AppendToDatabase(self):
-        df = pd.read_csv('tables/' + self.file_name, index_col=False)
+        if self.file_name.rsplit('.')[-1] == 'csv':
+            df = pd.read_csv('tables/' + self.file_name, index_col=False)
+        elif self.file_name.rsplit('.')[-1] == 'ftr':
+            df = pd.read_feather('tables/' + self.file_name)
         df.columns = [column.strip() for column in df.columns]  # Remove leading/trailing spaces from column names
         conn = sqlite3.connect('database.db')
         c = conn.cursor()
@@ -40,7 +43,7 @@ class DatabaseAppender:
         column_types = {}
         for column in df.columns:
             dtype = df[column].dtype
-            if dtype == 'int64':
+            if (dtype == 'int64') | (dtype == 'Int64') | (dtype == 'bool'):
                 column_types[column] = 'INTEGER'
             elif dtype == 'float64':
                 column_types[column] = 'REAL'
@@ -52,12 +55,12 @@ class DatabaseAppender:
 # Dictionary of lookup tables:
 table_dict = {'users': 'Users_20230908.csv', 
               'inventory_virgin_batch': 'InventoryVirginBatch_20230912_1518.csv', 
-              'builds_table': 'MLSBuilds_20230821_Clean.csv',
+              'builds_table': 'MLSBuilds_20230919_1533.ftr',
               'powder_blends': 'PowderBlend_20230908_1337.csv',
               'powder_blend_calc': 'PowderBlendCalc_20230905_1511.csv',
               'powder_blend_parts': 'PowderBlendPart_20230713_1224.csv',
               'material_products': 'MaterialProducts_20230912.csv',
-              'material_alloys': 'MaterialAlloys_20230905.csv',
+              'material_alloys': 'MaterialAlloys_20230919.csv',
               }
 
 def main():

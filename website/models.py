@@ -1,6 +1,7 @@
-from . import db 
 from flask_login import UserMixin
 from sqlalchemy import ForeignKeyConstraint
+
+from . import db
 
 
 class Users(db.Model, UserMixin):
@@ -18,11 +19,11 @@ class MaterialProducts(db.Model):
     AlloyID = db.Column(db.Integer)
 
 class MaterialAlloys(db.Model):
+    AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
     Alloy = db.Column(db.String)
     MaterialName = db.Column(db.String(50))
-    MaterialID = db.Column(db.Integer, nullable=True)
+    MaterialID = db.Column(db.Integer)
     AlloyName = db.Column(db.String(50))
-    AlloyID = db.Column(db.Integer, primary_key=True, unique=True)
 
 class InventoryVirginBatch(db.Model):
     BatchID = db.Column(db.Integer, primary_key=True, nullable=False) 
@@ -70,10 +71,10 @@ class BuildsTable(db.Model):
     CreatedOn = db.Column(db.String)
     FacilityName = db.Column(db.String)
     SJBuild = db.Column(db.Integer)
-    Material = db.Column(db.String)
+    AlloyName = db.Column(db.String)
     MachineID = db.Column(db.String)
     BuildName = db.Column(db.String)
-    PlatformWeight = db.Column(db.Float)
+    PlateWeight = db.Column(db.Float)
     Layer = db.Column(db.Float)
     Height = db.Column(db.Float)
     Offset = db.Column(db.Float)
@@ -84,7 +85,7 @@ class BuildsTable(db.Model):
     BuildFinish = db.Column(db.String)
     BuildTime = db.Column(db.Integer)
     FinishHeight = db.Column(db.Integer)
-    FinishPlatformWeight = db.Column(db.Float)
+    FinishPlateWeight = db.Column(db.Float)
     BlendID = db.Column(db.Integer, nullable=True)
     CertificationBuild = db.Column(db.Boolean)
     FeedPowderHeight = db.Column(db.Float)
@@ -105,7 +106,7 @@ class BuildsTable(db.Model):
     MaxFinishHeight = db.Column(db.Integer)
     MaxBuildTime = db.Column(db.Integer)
     MaxDateDifference = db.Column(db.Integer)
-    PlatformTemperature = db.Column(db.Integer)
+    PlateTemperature = db.Column(db.Integer)
     StartLaserHours = db.Column(db.Integer)
     FinalLaserHours = db.Column(db.Integer)
     InertTime = db.Column(db.Integer)
@@ -141,82 +142,7 @@ class BuildsTable(db.Model):
     BuildType = db.Column(db.String)
     
     def to_dict(self):
-        # Return a dictionary representation of the object's data
         return {
-            'BuildIt': self.BuildIt,
-            'CreatedBy': self.CreatedBy,
-            'CreatedOn': self.CreatedOn,
-            'FacilityName': self.FacilityName,
-            'SJBuild': self.SJBuild,
-            'Material': self.Material,
-            'MachineID': self.MachineID,
-            'BuildName': self.BuildName,
-            'PlatformWeight': self.PlatformWeight,
-            'Layer': self.Layer,
-            'Height': self.Height,
-            'Offset': self.Offset,
-            'ScaleX': self.ScaleX,
-            'ScaleY': self.ScaleY,
-            'Note': self.Note,
-            'BuildStart': self.BuildStart,
-            'BuildFinish': self.BuildFinish,
-            'BuildTime': self.BuildTime,
-            'FinishHeight': self.FinishHeight,
-            'FinishPlatformWeight': self.FinishPlatformWeight,
-            'BlendID': self.BlendID,
-            'CertificationBuild': self.CertificationBuild,
-            'FeedPowderHeight': self.FeedPowderHeight,
-            'EndFeedPowderHeight': self.EndFeedPowderHeight,
-            'PotentialBuildHeight': self.PotentialBuildHeight,
-            'Location': self.Location,
-            'PlateThickness': self.PlateThickness,
-            'PlateSerial': self.PlateSerial,
-            'MinChargeAmount': self.MinChargeAmount,
-            'MaxChargeAmount': self.MaxChargeAmount,
-            'DosingBoostAmount': self.DosingBoostAmount,
-            'RecoaterSpeed': self.RecoaterSpeed,
-            'ParameterRev': self.ParameterRev,
-            'MeasuredLaserPower': self.MeasuredLaserPower,
-            'GasFlow': self.GasFlow,
-            'MaterialAdded': self.MaterialAdded,
-            'InitialDosingFactor': self.InitialDosingFactor,
-            'MaxFinishHeight': self.MaxFinishHeight,
-            'MaxBuildTime': self.MaxBuildTime,
-            'MaxDateDifference': self.MaxDateDifference,
-            'PlatformTemperature': self.PlatformTemperature,
-            'StartLaserHours': self.StartLaserHours,
-            'FinalLaserHours': self.FinalLaserHours,
-            'InertTime': self.InertTime,
-            'F9FilterSerial': self.F9FilterSerial,
-            'H13FilterSerial': self.H13FilterSerial,
-            'FilterLight': self.FilterLight,
-            'EndPartPistonHeight': self.EndPartPistonHeight,
-            'Breakout': self.Breakout,
-            'CompletedWithoutStoppage': self.CompletedWithoutStoppage,
-            'Humidity': self.Humidity,
-            'BuildInterrupts': self.BuildInterrupts,
-            'RecoaterType': self.RecoaterType,
-            'VeloFlowSoftwareRev': self.VeloFlowSoftwareRev,
-            'VeloFlowSoftwareBase': self.VeloFlowSoftwareBase,
-            'VeloFlowBuildTimeEstimation': self.VeloFlowBuildTimeEstimation,
-            'VeloFlowBuildTimeEstimationCore': self.VeloFlowBuildTimeEstimationCore,
-            'VeloFlowBuildTimeEstimationSkin': self.VeloFlowBuildTimeEstimationSkin,
-            'VeloFlowBuildTimeEstimationSupport': self.VeloFlowBuildTimeEstimationSupport,
-            'VeloFlowBuildTimeEstimationRecoater': self.VeloFlowBuildTimeEstimationRecoater,
-            'VeloPrintSWRev': self.VeloPrintSWRev,
-            'SieveChange': self.SieveChange,
-            'LayerCount': self.LayerCount,
-            'FilterChange': self.FilterChange,
-            'BeamStabilityTestPerformed': self.BeamStabilityTestPerformed,
-            'LaserAlignmentTestPerformed': self.LaserAlignmentTestPerformed,
-            'ThermalSensorTest': self.ThermalSensorTest,
-            'LaserFocus': self.LaserFocus,
-            'PowderBed': self.PowderBed,
-            'PowderLevel': self.PowderLevel,
-            'SieveLife': self.SieveLife,
-            'FilterPressureDrop': self.FilterPressureDrop,
-            'Platform': self.Platform,
-            'BuildType': self.BuildType,
-            # Add other attributes as needed
+            column.name: getattr(self, column.name, None)
+            for column in self.__table__.columns
         }
-
