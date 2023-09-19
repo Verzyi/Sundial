@@ -47,18 +47,22 @@ function populateSearchTable(data) {
   }
 }
 
+document.addEventListener("DOMContentLoaded", function() {
+  const logoutButton = document.getElementById("logOut");
+  if (logoutButton) {
+    logoutButton.addEventListener("click", function() {
+      logout();
+      // Perform any other logout-related actions
+    });
+  }
+});
+
 function logout() {
   // ... your logout logic here ...
-
   // Clear the selected facility from local storage
   localStorage.removeItem("selectedFacility");
 }
-const logoutButton = document.getElementById("logOut"); // replace with the actual ID of your logout button
 
-// logoutButton.addEventListener("click", function() {
-    // logout(); // Call the logout function when the button is clicked
-    // Perform any other logout-related actions
-// });
 
 // Add an event listener to the facility select dropdown
 const facilitySelect = document.getElementById("facilitySelect");
