@@ -10,24 +10,37 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
 import datetime as dt
+from .machine_dashboard import machine_dashboard
 
 from .mpd_dash import mpd_dash
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
+DB_STATUS_NAME = 'dmls_status.db'
 
 def CreateDatabase(app):
-    if not os.path.exists('website/' + DB_NAME):
+    if not os.path.exists('instance/' + DB_NAME):
         with app.app_context():
             db.create_all()
             print('Database Created!')
+            
+def CreateStatusDatabase(app):
+    if not os.path.exists('instance/' + DB_STATUS_NAME):
+        with app.app_context():
+            db.create_all()
+            print('Status Database Created!')
 
 def CreateApp():
     app = Flask(__name__)
     app.config['SECRET_KEY'] = 'jflkdsjfalksjfdsa jfsdlkjfdsljfa'
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{DB_NAME}'
+    app.config['SQLALCHEMY_BINDS'] = {
+        'dmls_status': f'sqlite:///{DB_STATUS_NAME}',  # Bind the 'dmls_status' database
+        'main': f'sqlite:///{DB_NAME}'  # Bind the main database (you can change 'main' to your preferred name)
+    }
+    
     db.init_app(app)
-
+    
     # Debug Toolbar Configuration
     app.config['DEBUG_TB_ENABLED'] = True
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
@@ -40,16 +53,26 @@ def CreateApp():
     from .quote import quote
     from .dashboards import dashboards_bp
 
-    bp_list = [auth, views, builds, quote]
+    bp_list = [auth, views, machine_dashboard, quote]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
     
+    app.register_blueprint(builds, url_prefix='/builds')
     app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
+
+
+    
+    from .models_status import StatusTable
     
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+    # Create the main database
+    CreateStatusDatabase(app)
     CreateDatabase(app)
+    
+    
+    
     
     # Login info
     login_manager = LoginManager()

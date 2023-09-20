@@ -17,7 +17,7 @@ wkhtml_path = pdfkit.configuration(
 powder = Blueprint('powder', __name__)
 
 
-@powder.route('/', methods=['GET', 'POST'])
+@powder.route('/home', methods=['GET', 'POST'])
 @login_required
 def Powder():
     return render_template('base_powder.html', user=current_user)

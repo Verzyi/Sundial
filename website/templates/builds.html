@@ -67,7 +67,7 @@
   </div>
 
 <!-- Builds search table -->
-<div>
+<div class="container"style =  "margin:0 ; padding:0;">
   <div class="row">
     <div class="col-md-6">
       <div class="searchBuilds">
@@ -97,7 +97,8 @@
             {% if selectedFacility %}
             <tbody>
               {% for build in buildsInfo %}
-              <tr class="table-active" data-buildid="{{ build.BuildIt }}" data-layer="{{ build.Layer }}">
+              <tr class="table-active" data-buildid="{{ build.BuildIt }}" data-layer="{{ build.Layer }}"
+               onclick="showBuildInfo(event)">
                 <td style="border: 1px solid #ffffff">
                   {{ build.BuildIt }}
                 </td>
@@ -398,4 +399,5 @@
     </div>
   </div>
 </div>
+<script src="../../../static/js/builds.js"></script>
 {% endblock content %}

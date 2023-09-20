@@ -10,6 +10,7 @@
           crossorigin="anonymous"></script>
   <title>{% block title %} Home {% endblock title %}</title>
   {% endblock head %}
+
 </head>
 
 <body>
@@ -27,8 +28,8 @@
             <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true"
                aria-expanded="false">Apps</a>
             <div class="dropdown-menu">
-              <a class="nav-item nav-link" id="powder_link" href="/powder">Powder Management</a>
-              <a class="nav-item nav-link" id="builds_link" href="/builds">Build Tracking</a>
+              <a class="nav-item nav-link" id="powder_link" href="/powder/home">Powder Management</a>
+              <a class="nav-item nav-link" id="builds_link" href="/builds/">Build Tracking</a>
               <a class="nav-item nav-link" id="quote_link" href="/quote">Quote Estimation</a>
             </div>
           </li>
@@ -79,6 +80,8 @@
   {% block content %}
   {% endblock content %}
   {% endblock body %}
+  <script src="../../../static/js/scripts.js"></script>
+
 </body>
 
 </html>
