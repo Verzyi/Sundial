@@ -193,7 +193,7 @@ function fetchBuildInfo(buildId) {
       
       const machineTableCell = document.getElementById("machineTableCell");
 
-      if (data.MachineID == "Velo") {
+      if (data.MachineID == "GA3") {
         // Do something specific for "Velo"
         console.log("Selected machine is Velo");
         // Get all elements with the class 'EOS'

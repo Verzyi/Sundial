@@ -35,9 +35,7 @@ def dashboard():
     austin_rows = [['Last Updated: {}'.format(datetime.now().strftime('%m/%d/%y %I:%M %p'))],
                 ['Machine', 'Status', 'Material', 'End Date & Time', 'Time Remaining (hr)', 'Current Build',
                     'Current Job(s)', 'Notes', 'Recoater Type', 'Quals', 'Job(s) in Queue', 'PM Due']]
-    belton_rows = [['Last Updated: {}'.format(datetime.now().strftime('%m/%d/%y %I:%M %p'))],
-               ['Machine', 'Status', 'Material', 'End Date & Time', 'Time Remaining (hr)', 'Current Build',
-                'Next Build', 'Next Build Info & Other Notes\n(Height, Material, etc.)', 'Recoater Type', 'PM Due']]
+
 
     # Statuses by types
     running_statuses = ['Exposure', 'Recoating', 'Next layer', 'Job start', 'ProcessResume']
@@ -45,8 +43,12 @@ def dashboard():
     # stopped_statuses = ['Connection Error', 'Exposure/Interrupt', 'Job end', 'Recoating/Interrupt', '-1', None]
 
     print(directory)
+    
+    # Calculate the path to the 'instance' folder which is up one level from the current file
+    instance_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'instance'))
+    db_file_path = os.path.join(instance_folder, 'dmls_status.db')
 
-    sqlite_conn = sqlite3.connect(directory + '../../instance/dmls_status.db')
+    sqlite_conn = sqlite3.connect(db_file_path)
     cur = sqlite_conn.cursor()
     conn = EOS_DB2_Wrapper.MachineData()
 
@@ -66,7 +68,7 @@ def dashboard():
             pass
 
         # Pull last database status entry to compare to current.
-        last_status_sql = 'SELECT id, machine, status FROM machine_status WHERE machine="{0}" ORDER BY id DESC LIMIT 1'
+        last_status_sql = 'SELECT id, machine, status FROM status_table WHERE machine="{0}" ORDER BY id DESC LIMIT 1'
         try:
             last_status = cur.execute(last_status_sql.format(machine)).fetchone()[-1]
         except TypeError:
@@ -76,11 +78,11 @@ def dashboard():
         db_finish_datetime = machine_return.finish_datetime
         db_finish_datetime = None if db_finish_datetime is None else int(db_finish_datetime.strftime('%y%m%d%H%M%S'))
         build_material = None if machine_return.material is None else machine_return.material.lower()
-        cur.execute('INSERT INTO machine_status ("timestamp", "machine", "status", "material", "end_datetime", '
-                    '"time_remaining", "build_id", "current_height") VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-                    (int(datetime.now().strftime('%y%m%d%H%M%S')), machine_return.serial_number,
-                    machine_return.current_status, build_material, db_finish_datetime,
-                    machine_return.remaining_build_time, machine_return.build_id, machine_return.current_height))
+        cur.execute('INSERT INTO status_table ("timestamp", "machine", "status", "material", "end_datetime", '
+            '"time_remaining", "build_id", "current_height") VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
+            (int(datetime.now().strftime('%y%m%d%H%M%S')), machine_return.serial_number,
+            machine_return.current_status, build_material, db_finish_datetime,
+            machine_return.remaining_build_time, machine_return.build_id, machine_return.current_height))
         
         #get workorder number
         build_id = machine_return.build_id
@@ -103,8 +105,8 @@ def dashboard():
             remaining_time = ''
         build_id = machine_return.build_id
         machine_data = [[None, status, material, finish_datetime, remaining_time, build_id]]
-        if machine_return.site == 'Belton':
-            belton_rows += machine_data
+        if machine_return.site == 'Austin':
+            austin_rows += machine_data
         else:
             austin_rows += machine_data
         sqlite_conn.commit()
