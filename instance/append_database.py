@@ -1,49 +1,58 @@
 import os
 import pandas as pd
-from sqlalchemy import create_engine
-import sqlite3
+from sqlalchemy import create_engine, inspect
 
 class DatabaseAppender:
     def __init__(self, file_name, table_name):
         self.file_name = file_name
         self.table_name = table_name
-        self.engine = create_engine('sqlite://', echo=False)
+        self.engine = create_engine('sqlite:///database.db', echo=False)
+        self.conn = None
+
+    def OpenConnection(self):
         try:
-            self.conn = sqlite3.connect('database.db')
+            self.conn = self.engine.connect()
         except Exception as e:
             print('Connection error!')
             print(e)
             os.system('pause')
+
+    def CloseConnection(self):
+        if self.conn:
+            self.conn.close()
     
     def AppendToDatabase(self):
-        if self.file_name.rsplit('.')[-1] == 'csv':
-            df = pd.read_csv('tables/' + self.file_name, index_col=False)
-        elif self.file_name.rsplit('.')[-1] == 'ftr':
-            df = pd.read_feather('tables/' + self.file_name)
+        file_path = os.path.join('tables', self.file_name)
+        if self.file_name.endswith(('csv')):
+            df = pd.read_csv(file_path)
+        elif self.file_name.endswith(('ftr', 'feather')):
+            df = pd.read_feather(file_path)
+        elif self.file_name.endswith(('pqt', 'parquet')):
+            df = pd.read_parquet(file_path)
         df.columns = [column.strip() for column in df.columns]  # Remove leading/trailing spaces from column names
-        conn = sqlite3.connect('database.db')
-        c = conn.cursor()
-        # Remove the existing table if it exists
-        c.execute(f'DROP TABLE IF EXISTS {self.table_name}')
-        # Create the table using the DataFrame columns and their corresponding types
-        self.CreateTable(df, conn)
-        # Insert the data from the DataFrame into the table
-        df.to_sql(self.table_name, conn, if_exists='append', index=False)
-
-    def CreateTable(self, df, conn):
-        c = conn.cursor()
-        # Get the column types based on the DataFrame data
-        column_types = self.GetColumnTypes(df)
-        # Create the table using the DataFrame columns and their corresponding types
-        columns_with_types = ', '.join([f'{column} {column_types[column]}' for column in df.columns])
-        create_table_query = f'CREATE TABLE {self.table_name} ({columns_with_types})'
-        c.execute(create_table_query)
+        # Cast datetime64 columns to strings
+        for column in df.select_dtypes(include=['datetime64']):
+            df[column] = df[column].astype(str)
+        # Open database connection
+        self.OpenConnection()
+        # Check if the table already exists in the database
+        inspector = inspect(self.engine)
+        table_names = inspector.get_table_names()
+        if self.table_name in table_names:
+            # Retrieve the existing table's schema
+            existing_df = pd.read_sql(self.table_name, self.conn)
+            # Check for schema compatibility
+            if not existing_df.columns.equals(df.columns) or not existing_df.dtypes.equals(df.dtypes):
+                self.CloseConnection()
+                raise ValueError(f'Schema mismatch for table "{self.table_name}". Existing schema: {existing_df.dtypes}, New schema: {df.dtypes}')
+        # Create or replace the table in the database and insert the data
+        df.to_sql(self.table_name, self.conn, if_exists='replace', index=False)
+        self.CloseConnection()
 
     def GetColumnTypes(self, df):
         column_types = {}
-        for column in df.columns:
-            dtype = df[column].dtype
-            if (dtype == 'int64') | (dtype == 'Int64') | (dtype == 'bool'):
+        for column, dtype in df.dtypes.iteritems():
+            if dtype in ['int64', 'Int64', 'bool']:
                 column_types[column] = 'INTEGER'
             elif dtype == 'float64':
                 column_types[column] = 'REAL'
@@ -51,25 +60,44 @@ class DatabaseAppender:
                 column_types[column] = 'TEXT'
         return column_types
 
-
-# Dictionary of lookup tables:
-table_dict = {'users': 'Users_20230908.csv', 
-              'inventory_virgin_batch': 'InventoryVirginBatch_20230912_1518.csv', 
-              'builds_table': 'MLSBuilds_20230919_1533.ftr',
-              'powder_blends': 'PowderBlend_20230908_1337.csv',
-              'powder_blend_calc': 'PowderBlendCalc_20230905_1511.csv',
-              'powder_blend_parts': 'PowderBlendPart_20230713_1224.csv',
-              'material_products': 'MaterialProducts_20230912.csv',
-              'material_alloys': 'MaterialAlloys_20230919.csv',
+# Dictionary of tables and filename prefixes:
+prefix_dict = {'users': 'Users_', 
+              'inventory_virgin_batch': 'InventoryVirginBatch_', 
+              'builds_table': 'MLSBuilds_',
+              'powder_blends': 'PowderBlends_',
+              'powder_blend_calc': 'PowderBlendCalc_',
+              'powder_blend_parts': 'PowderBlendParts_',
+              'material_products': 'MaterialProducts_',
+              'material_alloys': 'MaterialAlloys_',
               }
+
+def FindTables(prefix_dict):
+    table_dict = {}
+    # Define a dictionary to keep track of the prefixes and their corresponding filenames
+    prefix_files = {prefix: [] for prefix in prefix_dict}
+    # Directory containing the tables
+    table_directory = 'tables'
+    # Loop through the files in the directory
+    for filename in os.listdir(table_directory):
+        # Check if the file has a matching prefix
+        for prefix, prefix_value in prefix_dict.items():
+            if filename.startswith(prefix_value):
+                # If a file with the same prefix already exists, raise an error
+                if prefix_files[prefix]:
+                    raise ValueError(f'Multiple files found for prefix "{prefix}": {prefix_files[prefix][-1]} and {filename}')
+                # Add the filename to the dictionary
+                prefix_files[prefix].append(filename)
+                table_dict[prefix] = filename
+    return table_dict
 
 def main():
     # for loop to append all tables in `table_dict`
-    for k, v in table_dict.items():
-        appender = DatabaseAppender(v, k)
+    for table, file in FindTables(prefix_dict).items():
+        appender = DatabaseAppender(file, table)
         appender.AppendToDatabase()
+        print(f'{file} appended to database!\n')
 
-    print('Tables successfully appended to database!')
+    print('All tables successfully appended to database!')
     os.system('pause')
 
 if __name__ == "__main__":
