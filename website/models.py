@@ -1,5 +1,5 @@
 from flask_login import UserMixin
-from sqlalchemy import ForeignKeyConstraint
+from sqlalchemy import PrimaryKeyConstraint, ForeignKeyConstraint
 
 from . import db
 
@@ -26,7 +26,7 @@ class MaterialAlloys(db.Model):
     AlloyName = db.Column(db.String(50))
 
 class InventoryVirginBatch(db.Model):
-    BatchID = db.Column(db.Integer, primary_key=True, nullable=False) 
+    BatchID = db.Column(db.Integer, primary_key=True) 
     BatchCreatedBy = db.Column(db.Integer)
     BatchTimeStamp = db.Column(db.String)
     BatchFacilityID = db.Column(db.Integer)
@@ -37,40 +37,37 @@ class InventoryVirginBatch(db.Model):
     CurrentWeight = db.Column(db.Float)
 
 class PowderBlends(db.Model):
-    BlendID	= db.Column(db.Integer, primary_key=True, unique=True )
+    BlendID	= db.Column(db.Integer, primary_key=True, unique=True)
     BlendDate = db.Column(db.String)
     BlendCreatedBy = db.Column(db.Integer)
     AlloyID	= db.Column(db.Integer, nullable=True)
     TotalWeight = db.Column(db.Float)
     CurrentWeight = db.Column(db.Float)
     
-__table_args__ = (
-    ForeignKeyConstraint(
-        ['BlendID', 'PartID'], 
-        ['PowderBlends.BlendID', 'PowderBlendParts.PartID']
-        ),
-    )
-
-class PowderBlendCalc(db.Model):
-    BlendID = db.Column(db.Integer, primary_key=True)	
-    PartID = db.Column(db.Integer, primary_key=True)
-    PartWeight = db.Column(db.Float)
-    PartFraction = db.Column(db.Float)	
-    SieveCount = db.Column(db.Integer)
-    
 class PowderBlendParts(db.Model):
-    PartID = db.Column(db.Integer, primary_key=True, nullable=False) 
+    PartID = db.Column(db.Integer, primary_key=True) 
     BlendID = db.Column(db.Integer)
     PartBlendID = db.Column(db.Integer, nullable=True)
     PartBatchID = db.Column(db.Integer, nullable=True)
     AddedWeight = db.Column(db.Float)
+
+class PowderBlendCalc(db.Model):
+    __table_args__ = (
+        ForeignKeyConstraint(['BlendID'], ['PowderBlends.BlendID']),
+        ForeignKeyConstraint(['PartID'], ['PowderBlendParts.PartID']),
+    )
+    BlendID = db.Column(db.Integer, primary_key=True, unique=False)	
+    PartID = db.Column(db.Integer, primary_key=True, unique=False)
+    PartWeight = db.Column(db.Float)
+    PartFraction = db.Column(db.Float)	
+    SieveCount = db.Column(db.Integer)
 
 class BuildsTable(db.Model):
     BuildIt = db.Column(db.Integer, primary_key=True)
     CreatedBy = db.Column(db.Integer)
     CreatedOn = db.Column(db.String)
     FacilityName = db.Column(db.String)
-    SJBuild = db.Column(db.Integer)
+    SJBuild = db.Column(db.Integer, nullable=True)
     AlloyName = db.Column(db.String)
     MachineID = db.Column(db.String)
     BuildName = db.Column(db.String)
@@ -83,58 +80,58 @@ class BuildsTable(db.Model):
     Note = db.Column(db.String)
     BuildStart = db.Column(db.String)
     BuildFinish = db.Column(db.String)
-    BuildTime = db.Column(db.Integer)
-    FinishHeight = db.Column(db.Integer)
+    BuildTime = db.Column(db.Float)
+    FinishHeight = db.Column(db.Float)
     FinishPlateWeight = db.Column(db.Float)
     BlendID = db.Column(db.Integer, nullable=True)
     CertificationBuild = db.Column(db.Boolean)
     FeedPowderHeight = db.Column(db.Float)
     EndFeedPowderHeight = db.Column(db.Float)
     PotentialBuildHeight = db.Column(db.Float)
-    Location = db.Column(db.String)
-    PlateThickness = db.Column(db.Integer)
+    Location = db.Column(db.Integer)
+    PlateThickness = db.Column(db.Float)
     PlateSerial = db.Column(db.String)
     MinChargeAmount = db.Column(db.Integer)
     MaxChargeAmount = db.Column(db.Integer)
-    DosingBoostAmount = db.Column(db.Float)
+    DosingBoostAmount = db.Column(db.Integer)
     RecoaterSpeed = db.Column(db.Integer)
     ParameterRev = db.Column(db.String)
     MeasuredLaserPower = db.Column(db.Integer)
-    GasFlow = db.Column(db.Integer)
-    MaterialAdded = db.Column(db.String)
-    InitialDosingFactor = db.Column(db.Float)
+    GasFlow = db.Column(db.Float)
+    MaterialAdded = db.Column(db.Boolean)
+    InitialDosingFactor = db.Column(db.Integer)
     MaxFinishHeight = db.Column(db.Integer)
     MaxBuildTime = db.Column(db.Integer)
     MaxDateDifference = db.Column(db.Integer)
-    PlateTemperature = db.Column(db.Integer)
+    PlateTemperature = db.Column(db.Float)
     StartLaserHours = db.Column(db.Integer)
     FinalLaserHours = db.Column(db.Integer)
-    InertTime = db.Column(db.Integer)
+    InertTime = db.Column(db.String)
     F9FilterSerial = db.Column(db.String)
     H13FilterSerial = db.Column(db.String)
-    FilterLight = db.Column(db.String)
-    EndPartPistonHeight = db.Column(db.Integer)
-    Breakout = db.Column(db.Integer)
-    CompletedWithoutStoppage = db.Column(db.String)
+    FilterLight = db.Column(db.Boolean)
+    EndPartPistonHeight = db.Column(db.Float)
+    BreakoutTime = db.Column(db.String)
+    CompletedWithoutStoppage = db.Column(db.Boolean)
     Humidity = db.Column(db.Integer)
-    BuildInterrupts = db.Column(db.String)
+    BuildInterrupts = db.Column(db.Boolean)
     RecoaterType = db.Column(db.String)
     VeloFlowSoftwareRev = db.Column(db.String)
     VeloFlowSoftwareBase = db.Column(db.String)
-    VeloFlowBuildTimeEstimation = db.Column(db.String)
-    VeloFlowBuildTimeEstimationCore = db.Column(db.String)
-    VeloFlowBuildTimeEstimationSkin = db.Column(db.String)
-    VeloFlowBuildTimeEstimationSupport = db.Column(db.String)
-    VeloFlowBuildTimeEstimationRecoater = db.Column(db.String)
-    VeloPrintSWRev = db.Column(db.String)
-    SieveChange = db.Column(db.Integer)
+    VeloFlowBuildTime = db.Column(db.Float)
+    VeloFlowBuildTimeCore = db.Column(db.Float)
+    VeloFlowBuildTimeSkin = db.Column(db.Integer)
+    VeloFlowBuildTimeSupport = db.Column(db.Integer)
+    VeloFlowBuildTimeRecoater = db.Column(db.Integer)
+    VeloPrintSWRev = db.Column(db.Float)
+    SieveChange = db.Column(db.Boolean)
     LayerCount = db.Column(db.Integer)
-    FilterChange = db.Column(db.Integer)
-    BeamStabilityTestPerformed = db.Column(db.String)
-    LaserAlignmentTestPerformed = db.Column(db.String)
-    ThermalSensorTest = db.Column(db.String)
-    LaserFocus = db.Column(db.String)
-    PowderBed = db.Column(db.String)
+    FilterChange = db.Column(db.Boolean)
+    BeamStabilityTestPerformed = db.Column(db.Boolean)
+    LaserAlignmentTestPerformed = db.Column(db.Boolean)
+    ThermalSensorTest = db.Column(db.Boolean)
+    LaserFocus = db.Column(db.Boolean)
+    PowderBed = db.Column(db.Boolean)
     PowderLevel = db.Column(db.Float)
     SieveLife = db.Column(db.Float)
     FilterPressureDrop = db.Column(db.Float)

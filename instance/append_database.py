@@ -41,12 +41,29 @@ class DatabaseAppender:
         if self.table_name in table_names:
             # Retrieve the existing table's schema
             existing_df = pd.read_sql(self.table_name, self.conn)
-            # Check for schema compatibility
-            if not existing_df.columns.equals(df.columns) or not existing_df.dtypes.equals(df.dtypes):
-                self.CloseConnection()
-                raise ValueError(f'Schema mismatch for table "{self.table_name}". Existing schema: {existing_df.dtypes}, New schema: {df.dtypes}')
+            # Find column mismatches and create a series for each DataFrame
+            schema_mismatches = pd.Series(name='Schema DType')
+            file_mismatches = pd.Series(name='File DType')
+            for col in df.columns:
+                if col not in existing_df.columns or df[col].dtype != existing_df[col].dtype:
+                    schema_mismatches[col] = existing_df[col].dtype
+                    file_mismatches[col] = df[col].dtype
+            
+            merged_mismatches = pd.merge(schema_mismatches, file_mismatches, left_index=True, right_index=True, how='outer')
+            if not file_mismatches.empty:
+                print(f'Schema mismatch for table "{self.table_name}"!\n')
+                print(f'Columns with mismatches: \n{merged_mismatches}\n')
+                merged_mismatches[['Schema DType', 'File DType']] = merged_mismatches[['Schema DType', 'File DType']].astype(str)
+                merged_mismatches['File DType'] = merged_mismatches['File DType'].str.lower()
+                # filtered_mismatches = merged_mismatches[merged_mismatches.isna().any(axis=1)]
+                filtered_mismatches = pd.Series()
+                filtered_mismatches = merged_mismatches.loc[merged_mismatches.nunique(axis=1).ne(1), merged_mismatches.nunique(axis=0).ne(1)]
+                if not filtered_mismatches.empty:
+                    print(f'True mismatches: \n{filtered_mismatches}\n')
+                    self.CloseConnection()
+                    raise ValueError(f'Schema mismatch for table "{self.table_name}".')
         # Create or replace the table in the database and insert the data
-        df.to_sql(self.table_name, self.conn, if_exists='replace', index=False)
+        df.to_sql(self.table_name, self.conn, if_exists='append', index=False)
         self.CloseConnection()
 
     def GetColumnTypes(self, df):
