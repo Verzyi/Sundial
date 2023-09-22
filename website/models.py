@@ -1,5 +1,6 @@
 from flask_login import UserMixin
 from sqlalchemy import PrimaryKeyConstraint, ForeignKeyConstraint
+from sqlalchemy.orm import validates
 
 from . import db
 
@@ -53,8 +54,8 @@ class PowderBlendParts(db.Model):
 
 class PowderBlendCalc(db.Model):
     __table_args__ = (
-        ForeignKeyConstraint(['BlendID'], ['PowderBlends.BlendID']),
-        ForeignKeyConstraint(['PartID'], ['PowderBlendParts.PartID']),
+        ForeignKeyConstraint(['BlendID'], ['powder_blends.BlendID']),
+        ForeignKeyConstraint(['PartID'], ['powder_blend_parts.PartID']),
     )
     BlendID = db.Column(db.Integer, primary_key=True, unique=False)	
     PartID = db.Column(db.Integer, primary_key=True, unique=False)
@@ -78,8 +79,8 @@ class BuildsTable(db.Model):
     ScaleX = db.Column(db.Float)
     ScaleY = db.Column(db.Float)
     Note = db.Column(db.String)
-    BuildStart = db.Column(db.String)
-    BuildFinish = db.Column(db.String)
+    BuildStart = db.Column(db.String, nullable=True)
+    BuildFinish = db.Column(db.String, nullable=True)
     BuildTime = db.Column(db.Float)
     FinishHeight = db.Column(db.Float)
     FinishPlateWeight = db.Column(db.Float)
@@ -106,12 +107,12 @@ class BuildsTable(db.Model):
     PlateTemperature = db.Column(db.Float)
     StartLaserHours = db.Column(db.Integer)
     FinalLaserHours = db.Column(db.Integer)
-    InertTime = db.Column(db.String)
+    InertTime = db.Column(db.String, nullable=True)
     F9FilterSerial = db.Column(db.String)
     H13FilterSerial = db.Column(db.String)
     FilterLight = db.Column(db.Boolean)
     EndPartPistonHeight = db.Column(db.Float)
-    BreakoutTime = db.Column(db.String)
+    BreakoutTime = db.Column(db.String, nullable=True)
     CompletedWithoutStoppage = db.Column(db.Boolean)
     Humidity = db.Column(db.Integer)
     BuildInterrupts = db.Column(db.Boolean)
@@ -137,6 +138,15 @@ class BuildsTable(db.Model):
     FilterPressureDrop = db.Column(db.Float)
     Platform = db.Column(db.String)
     BuildType = db.Column(db.String)
+    
+    date_cols = ['BuildStart', 'BuildFinish', 'InertTime', 'BreakoutTime']
+    for col in date_cols:
+        @validates(col)
+        def empty_string_to_null(self, key, value):
+            if (value == 'NaT') or (value == ''):
+                return None
+            else:
+                return value
     
     def to_dict(self):
         return {
