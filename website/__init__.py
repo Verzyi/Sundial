@@ -42,7 +42,7 @@ def CreateApp():
     db.init_app(app)
     
     # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = True
+    app.config['DEBUG_TB_ENABLED'] = False
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
 
@@ -71,7 +71,7 @@ def CreateApp():
     
     # Login info
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.Login'
+    login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -116,7 +116,7 @@ def CreateApp():
     # Users
     class UsersAdminView(ModelView):
         column_display_pk = True
-        column_searchable_list = ['email', 'first_name', 'last_name', 'role']
+        column_searchable_list = ['id', 'email', 'first_name', 'last_name', 'role']
         # Define a custom action to download the table as a CSV file
         @action('download_csv', 'Download CSV', 'Download selected records as CSV')
         def download_csv(self, ids):
@@ -174,7 +174,6 @@ def CreateApp():
     
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
-    # admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
     # Initialize Dash app
     app = mpd_dash.InitDashboard(app)

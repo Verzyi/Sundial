@@ -7,7 +7,7 @@ import socket
 import pdfkit
 
 from . import db
-from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc
+from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, Users
 
 # by using configuration you can add path value.
 wkhtml_path = pdfkit.configuration(
@@ -15,11 +15,15 @@ wkhtml_path = pdfkit.configuration(
 
 powder = Blueprint('powder', __name__)
 
-
-@powder.route('/home', methods=['GET', 'POST'])
+@powder.route('/', methods=['GET', 'POST'])
 @login_required
 def Powder():
     return render_template('base_powder.html', user=current_user)
+
+@powder.route('/home', methods=['GET', 'POST'])
+@login_required
+def PowderHome():
+    return redirect(url_for('powder.Powder'))
 
 def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
     # Create a TCP/IP socket
@@ -503,16 +507,24 @@ def CreateBatch():
 @login_required
 def HistoryBlend():
     alloy_name = None
-    query = db.session.query(PowderBlends, MaterialAlloys.AlloyName)\
-        .join(MaterialAlloys, PowderBlends.AlloyID == MaterialAlloys.AlloyID)\
-        .order_by(PowderBlends.BlendID.desc())
+    query = db.session.query(
+        PowderBlends, 
+        MaterialAlloys.AlloyName, 
+        Users.first_name, Users.last_name
+        ).join(
+            MaterialAlloys, 
+            PowderBlends.AlloyID == MaterialAlloys.AlloyID
+            ).join(
+                Users, 
+                PowderBlends.BlendCreatedBy == Users.id
+                ).order_by(PowderBlends.BlendID.desc())
     if request.method == 'POST':
         alloy_name = request.form.get('alloy')
         if alloy_name:
             query = query.filter(MaterialAlloys.AlloyName == alloy_name)
     page = request.args.get('page', 1, type=int)
-    per_page = 100  # Number of rows to display per page
-    blend_table = query.paginate(page=page, per_page=per_page)
+    PER_PAGE = 100  # Number of rows to display per page
+    blend_table = query.paginate(page=page, per_page=PER_PAGE)
     alloy_names = db.session.query(MaterialAlloys.AlloyName).distinct().all()
     alloy_names = [name[0] for name in alloy_names]
 
@@ -531,22 +543,26 @@ def HistoryBatch():
     batch_query = db.session.query(
         InventoryVirginBatch, 
         MaterialAlloys.AlloyName, 
-        MaterialProducts.SupplierProduct
+        MaterialProducts.SupplierProduct, 
+        Users.first_name, Users.last_name
         ).join(
             MaterialProducts, 
             InventoryVirginBatch.ProductID == MaterialProducts.ProductID
             ).join(
                 MaterialAlloys, 
                 MaterialProducts.AlloyID == MaterialAlloys.AlloyID
-                ).order_by(InventoryVirginBatch.BatchID.desc())
+                ).join(
+                    Users, 
+                    InventoryVirginBatch.BatchCreatedBy == Users.id
+                    ).order_by(InventoryVirginBatch.BatchID.desc())
     if request.method == 'POST':
         alloy_name = request.form.get('alloy')
         if alloy_name:
             batch_query = batch_query.filter(MaterialAlloys.AlloyName == alloy_name)
     page = request.args.get('page', 1, type=int)
-    per_page = 100  # Number of rows to display per page
+    PER_PAGE = 100  # Number of rows to display per page
     # Generate Batch table
-    batch_table = batch_query.paginate(page=page, per_page=per_page)
+    batch_table = batch_query.paginate(page=page, per_page=PER_PAGE)
     alloy_names = db.session.query(
         MaterialAlloys.AlloyName).distinct().all()
     alloy_names = [name[0] for name in alloy_names]
