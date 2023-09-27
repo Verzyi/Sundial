@@ -25,60 +25,70 @@ def Powder():
 def PowderHome():
     return redirect(url_for('powder.Powder'))
 
-def PrintSticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
-    # Create a TCP/IP socket
-    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    # Connect to the printer
-    printer_address = (printer_ip, 9100)
-    sock.connect(printer_address)
-    # Send EPL commands to print the sticker
-    commands = [
-        "^XA",
-        "^LL253",
-        "^PW812",
-        "^FO30,30",
-        "^GB752,233,1,B,0",
-        f"^FO40,90",  # Adjusted X and Y values for Blend ID text
-        f"^A0N,26,19",  # Increased font size for Blend ID text
-        f"^FD{batch_or_blend} ID: {batch_blend_id}^FS",
-        f"^FO40,120",  # Adjusted X and Y values for Material text
-        f"^A0N,26,19",  # Increased font size for Material text
-        f"^FDMaterial: {material}^FS",
-        f"^FO40,150",  # Adjusted X and Y values for Weight text
-        f"^A0N,26,19",  # Increased font size for Weight text
-        f"^FDWeight: {weight} kg^FS",
-        f"^FO40,180",  # Adjusted X and Y values for Date text
-        f"^A0N,26,19",  # Increased font size for Date text
-        f"^FDDate: {date}^FS",
-        # Adjusted X and Y values for barcode (moved 0.8" to the left)
-        f"^FO260,90",
-        f"^BY1.25,2.5,60",  # Adjusted barcode width, height, and darkness
-        f"^B3N,N,100,Y,N",
-        f"^FD{batch_blend_id}^FS",
-        # Copying elements starting at 2.1" from the left edge
-        f"^FO460,90",
-        f"^A0N,26,19",
-        f"^FD{batch_or_blend} ID: {batch_blend_id}^FS",
-        f"^FO460,120",
-        f"^A0N,26,19",
-        f"^FDMaterial: {material}^FS",
-        f"^FO460,150",
-        f"^A0N,26,19",
-        f"^FDWeight: {weight} kg^FS",
-        f"^FO460,180",
-        f"^A0N,26,19",
-        f"^FDDate: {date}^FS",
-        f"^FO680,90",
-        f"^BY1.25,2.5,60",
-        f"^B3N,N,100,Y,N",
-        f"^FD{batch_blend_id}^FS",
-        f"^PQ{qty}",
-        "^XZ"
-    ]
-    command_string = '\n'.join(commands)
-    sock.sendall(command_string.encode())
-    # Close the socket
-    sock.close()
+def print_sticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
+    try:
+        # Create a TCP/IP socket
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # Connect to the printer
+        PORT = 9100
+        printer_address = (printer_ip, PORT)
+        try:
+            sock.connect(printer_address)
+        except Exception as e:
+            print(e)
+        # Send EPL commands to print the sticker
+        commands = [
+            "^XA",
+            "^LL253",
+            "^PW812",
+            "^FO30,30",
+            "^GB752,233,1,B,0",
+            f"^FO40,90",  # Adjusted X and Y values for Blend ID text
+            f"^A0N,26,19",  # Increased font size for Blend ID text
+            f"^FD{batch_or_blend} ID: {batch_blend_id}^FS",
+            f"^FO40,120",  # Adjusted X and Y values for Material text
+            f"^A0N,26,19",  # Increased font size for Material text
+            f"^FDMaterial: {material}^FS",
+            f"^FO40,150",  # Adjusted X and Y values for Weight text
+            f"^A0N,26,19",  # Increased font size for Weight text
+            f"^FDWeight: {weight} kg^FS",
+            f"^FO40,180",  # Adjusted X and Y values for Date text
+            f"^A0N,26,19",  # Increased font size for Date text
+            f"^FDDate: {date}^FS",
+            # Adjusted X and Y values for barcode (moved 0.8" to the left)
+            f"^FO260,90",
+            f"^BY1.25,2.5,60",  # Adjusted barcode width, height, and darkness
+            f"^B3N,N,100,Y,N",
+            f"^FD{batch_blend_id}^FS",
+            # Copying elements starting at 2.1" from the left edge
+            f"^FO460,90",
+            f"^A0N,26,19",
+            f"^FD{batch_or_blend} ID: {batch_blend_id}^FS",
+            f"^FO460,120",
+            f"^A0N,26,19",
+            f"^FDMaterial: {material}^FS",
+            f"^FO460,150",
+            f"^A0N,26,19",
+            f"^FDWeight: {weight} kg^FS",
+            f"^FO460,180",
+            f"^A0N,26,19",
+            f"^FDDate: {date}^FS",
+            f"^FO680,90",
+            f"^BY1.25,2.5,60",
+            f"^B3N,N,100,Y,N",
+            f"^FD{batch_blend_id}^FS",
+            f"^PQ{qty}",
+            "^XZ"
+        ]
+        command_string = '\n'.join(commands)
+        sock.sendall(command_string.encode())
+        # Close the socket
+        sock.close()
+        flash(f'Blend {batch_blend_id} sticker(s) printed: qty {qty}', category='success')
+    except Exception as e:
+        print(e)
+        flash(f'Error printing ({qty}) sticker via IP address {printer_ip}!', category='error')
+        return
 
 @powder.route('/search/blend', methods=['GET', 'POST'])
 @login_required
@@ -121,27 +131,29 @@ def SearchBlends():
                 printer_ip = '10.101.102.21'
             elif printer_name == 'Office Printer':
                 printer_ip = '10.101.102.65'
-                # Retrieve the blend number from session
-                blend_id = session.get('last_blend_id')
-                if blend_id:
-                    blend_query = db.session.query(PowderBlends, MaterialAlloys.AlloyName) \
-                        .join(MaterialAlloys, PowderBlends.AlloyID == MaterialAlloys.AlloyID) \
-                        .filter(PowderBlends.BlendID == blend_id) \
-                        .all()
-                    if blend_query:
-                        for blend, alloy_name in blend_query:
-                            weight = blend.TotalWeight
-                            date = blend.BlendDate.split(' ')[0]
-                            qty = request.form.get('qty')
-                            # Print the sticker
-                            PrintSticker(printer_ip, batch_or_blend, blend_id, alloy_name, date, weight, qty)
-                        flash(f'Blend {blend_id} sticker(s) printed: qty {qty}', category='success')
-                    else:
-                        flash(f'Blend {blend_id} not found.', category='error')
+            qty = request.form.get('qty')
+            # Retrieve the blend number from session
+            blend_id = session.get('last_blend_id')
+            if blend_id:
+                blend_query = db.session.query(
+                    PowderBlends, 
+                    MaterialAlloys.AlloyName
+                    ).join(
+                        MaterialAlloys, 
+                        PowderBlends.AlloyID == MaterialAlloys.AlloyID
+                        ).filter(
+                            PowderBlends.BlendID == blend_id
+                            ).all()
+                if blend_query:
+                    for blend, alloy_name in blend_query:
+                        weight = blend.TotalWeight
+                        date = blend.BlendDate.split(' ')[0]
+                        # Print the sticker
+                        print_sticker(printer_ip, batch_or_blend, blend_id, alloy_name, date, weight, qty)
                 else:
-                    flash(f'Blend not found in session.', category='error')
+                    flash(f'Blend {blend_id} not found.', category='error')
             else:
-                flash(f'Error: Blend sticker not printed.', category='error')
+                flash(f'Blend not found in session.', category='error')
     return render_template(
         'powder/search-blend.html', 
         user=current_user, 
@@ -188,8 +200,7 @@ def SearchBatch():
                         weight = batch.VirginWeight
                         date = batch.BatchTimeStamp.split(' ')[0]
                         # Print the sticker
-                        PrintSticker(printer_ip, batch_or_blend, batch_id, alloy_name, date, weight, qty)
-                    flash(f'Batch {batch_id} sticker(s) printed: qty {qty}', category='success')
+                        print_sticker(printer_ip, batch_or_blend, batch_id, alloy_name, date, weight, qty)
                 else:
                     flash(f'Batch {batch_id} not found.', category='error')
             else:
