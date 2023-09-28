@@ -1,4 +1,4 @@
-{% extends "base_powder.html" %}
+{% extends "powder/base_powder.html" %}
 {% block title %}Virgin Batch History{% endblock %}
 {% block subcontent %}
 <h2>{{ self.title() }}</h2>
@@ -7,7 +7,6 @@
   <div class="container">
     <form action="{{ url_for('powder.HistoryBatch') }}" method="POST" class="mt-4">
       <div class="d-grid">
-
         <label class="btn btn-outline-primary" for="switch">Switch to Blend History</label>
         <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
                onclick="window.location.href = '/powder/history/blend'">

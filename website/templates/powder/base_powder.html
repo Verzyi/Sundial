@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %} Powder Management {% endblock title %}
+{% block content %}
+<h1>Powder Management System</h1>
+<div class="container">
+  <div class="d-flex justify-content-center mt-3">
+    <div class="btn-group">
+      <input type="radio" class="btn-check" name="btnradio" id="search" autocomplete="off"
+        onclick="window.location.href = '/powder/search/blend'" />
+      <label class="btn btn-outline-primary" for="search">Search</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="create_blend" autocomplete="off"
+        onclick="window.location.href = '/powder/create/blend'" />
+      <label class="btn btn-outline-primary" for="create_blend">Create Blend</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="create_batch" autocomplete="off"
+        onclick="window.location.href = '/powder/create/batch'" />
+      <label class="btn btn-outline-primary" for="create_batch">Create Batch</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="history" autocomplete="off"
+        onclick="window.location.href = '/powder/history/blend'" />
+      <label class="btn btn-outline-primary" for="history">History</label>
+
+      <input type="radio" class="btn-check" name="btnradio" id="inventory" autocomplete="off"
+        onclick="window.location.href = '/powder/inventory/blend'" />
+      <label class="btn btn-outline-primary" for="inventory">Inventory</label>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/powder.js') }}"></script>
+<div class="container">
+{% block subcontent %}
+{% endblock subcontent %}
+</div>
+
+
+
+{% endblock content %}
