@@ -6,11 +6,17 @@
     h1 {
       font-family: verdana;
       text-align: center;
-      font-size: 24px;
+      font-size: 28px;
       font-weight: bold;
     }
 
     h2 {
+      font-family: verdana;
+      text-align: center;
+      font-size: 20px;
+    }
+
+    h3 {
       font-family: verdana;
       text-align: center;
       font-size: 16px;
@@ -41,16 +47,24 @@
     td {
       padding-right: 20px;
     }
+
+    footer {
+      font-family: verdana; 
+      font-size: 12px; 
+      float: center; 
+      text-align: center;
+    }
   </style>
 </head>
 
 <body>
-  <h1>Blend Report</h1>
+  <h1>Cumberland Additive</h1>
+  <h2>Metal Powder Blend Report</h2>
 
-  <h2>Summary</h2>
+  <h3>Blend Summary</h3>
   <table>
     <tr>
-      <th>Blend</th>
+      <th>BlendID</th>
       <td>{{ blend_summary.at['Blend', 'Value'] }}</td>
     </tr>
     <tr>
@@ -58,8 +72,8 @@
       <td>{{ blend_summary.at['Material', 'Value'] }}</td>
     </tr>
     <tr>
-      <th>Total Weight (kg)</th>
-      <td>{{ blend_summary.at['Total Weight (kg)', 'Value'] }}</td>
+      <th>Total Weight</th>
+      <td>{{ blend_summary.at['Total Weight (kg)', 'Value'] }} kg</td>
     </tr>
     <tr>
       <th>Avg. Sieve Count</th>
@@ -71,7 +85,7 @@
     </tr>
   </table>
 
-  <h2>Majority Batch</h2>
+  <h3>Majority Batch Information</h3>
   <table>
     <tr>
       <th>BatchID</th>
@@ -82,7 +96,7 @@
       <td>{{ majority_batch.at['Percentage', 'Value'] }}</td>
     </tr>
     <tr>
-      <th>Supplier Product</th>
+      <th>Supplier + Product</th>
       <td>{{ majority_batch.at['Supplier Product', 'Value'] }}</td>
     </tr>
     <tr>
@@ -95,7 +109,7 @@
     </tr>
   </table>
 
-  <h2>Blend Breakdown</h2>
+  <h3>Blend Breakdown</h3>
   <table>
     <tr>
       <th>BatchID</th>
@@ -117,9 +131,9 @@
     {% endfor %}
   </table>
 </body>
-<div style="float: center;
-  text-align: center;">
+<footer>
+  <br>
   {{ footer|safe }}
-</div>
+</footer>
 
 </html>

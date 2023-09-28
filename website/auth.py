@@ -1,6 +1,4 @@
 from flask import Blueprint, redirect, url_for, request, render_template, request, flash, redirect, url_for, session
-
-# from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt, check_password_hash 
 from flask_login import login_user, login_required, logout_user, current_user
 
@@ -12,11 +10,10 @@ bcrypt = Bcrypt()
 
 
 @auth.route('/login', methods=['GET', 'POST'])
-def Login():
+def login():
     if request.method == 'POST':
         email = request.form.get('email')
         password = request.form.get('password')
-
         user = Users.query.filter_by(email=email).first()
         if user:
             if check_password_hash(user.password, password):
@@ -38,7 +35,7 @@ def logout():
     logout_user()
     session.clear()
     session['_remember'] = 'clear'
-    return redirect(url_for('auth.Login'))
+    return redirect(url_for('auth.login'))
 
 @auth.route('/sign-up', methods=['GET', 'POST'])
 def signup():
@@ -55,16 +52,21 @@ def signup():
         elif len(email) < 4:
             flash('Email must be greater than 4 characters.', category='error')
         elif len(first_name) < 2:
-            flash('First name must be greater than 2 characters.', category='error')
+            flash('First name must be greater than 1 character.', category='error')
         elif len(last_name) < 2:
-            flash('Last name must be greater than 2 characters.', category='error')
+            flash('Last name must be greater than 1 character.', category='error')
         elif password1 != password2:
             flash('Passwords do not match', category='error')
         elif len(password1) < 6:
             flash('Password must be greater than 6 characters.', category='error')
         else:
             hashed_password = bcrypt.generate_password_hash(password1).decode('utf-8')
+            # Append Users
+            last_user = Users.query.order_by(Users.id.desc()).first()
+            last_id = last_user.id if last_user else 0
+            new_id = last_id + 1
             new_user = Users(
+                id=new_id,
                 email=email,
                 first_name=first_name,
                 last_name=last_name,

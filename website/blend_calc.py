@@ -2,13 +2,13 @@ from . import db
 from .models import PowderBlends, PowderBlendCalc
 
 
-class BlendDatabaseUpdater:
+class BlendCalcUpdater:
     def __init__(self, blend_limit=500, frac_limit=0.0001):
         self.blend_limit = blend_limit
         self.frac_limit = frac_limit
         self.db = db
 
-    def UpdateBlendDatabase(self, blend_numbers, blend_weights):
+    def UpdatePowderBlendCalc(self, blend_numbers, blend_weights):
         blend_fractions = []
         blend_part_ids = []
         calculated_weights = []

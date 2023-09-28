@@ -42,7 +42,7 @@ def CreateApp():
     db.init_app(app)
     
     # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = True
+    app.config['DEBUG_TB_ENABLED'] = False
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
 
@@ -63,20 +63,15 @@ def CreateApp():
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
 
 
-    
     from .models_status import StatusTable
-    
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
     # Create the main database
     CreateStatusDatabase(app)
     CreateDatabase(app)
     
-    
-    
-    
     # Login info
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.Login'
+    login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -117,48 +112,33 @@ def CreateApp():
     
     for category in category_list:
         admin.add_category(category)
-        
-    # admin.add_category(users_category)
-    # admin.add_category(powder_category)
-    # admin.add_category(builds_category)
 
     # Users
     class UsersAdminView(ModelView):
-        column_searchable_list = ['email', 'first_name', 'last_name', 'role']
-
-        def is_accessible(self):
-            if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == 'Admin'
-            else:
-                return False
+        column_display_pk = True
+        column_searchable_list = ['id', 'email', 'first_name', 'last_name', 'role']
         # Define a custom action to download the table as a CSV file
         @action('download_csv', 'Download CSV', 'Download selected records as CSV')
         def download_csv(self, ids):
             if not ids:
                 flash('No records selected.', 'error')
                 return redirect(request.referrer)
-
             # Get the selected records from the database
             records = self.model.query.filter(self.model.id.in_(ids)).all()
-
             # Create a CSV file
             output = io.StringIO()
             csv_writer = csv.writer(output)
-
             # Write header row
-            header = ['id','email', 'password', 'first_name', 'last_name','role']  # Replace with your actual column names
+            header = ['id', 'email', 'password', 'first_name', 'last_name', 'role']  # Replace with your actual column names
             csv_writer.writerow(header)
-
             # Write data rows
             for record in records:
-                data_row = [record.id, record.email, record.password, record.first_name, record.last_name, record.role]  # Replace with your actual data
+                data_row = [record.id, record.email, record.password, record.first_name, record.last_name, record.role]  
                 csv_writer.writerow(data_row)
-
             # Prepare the response with CSV content
             response = Response(output.getvalue(), content_type='text/csv')
             timestamp = str(dt.datetime.now())[:10].replace(' ', '_').replace(':', '-').replace('-', '')
             response.headers['Content-Disposition'] = f'attachment; filename=Users_{timestamp}.csv'
-
             return response
     admin.add_view(UsersAdminView(Users, db.session, category=users_category.name))
 
@@ -166,38 +146,34 @@ def CreateApp():
     class BlendAdminView(ModelView):
         column_display_pk = True
         column_searchable_list = ['BlendID', 'BlendDate', 'BlendCreatedBy']
-        def is_accessible(self):
-            if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == 'Admin'
-            else:
-                return False
     admin.add_view(BlendAdminView(PowderBlends, db.session, category=powder_category.name))
 
     # Batch
     class BatchAdminView(ModelView):
         column_display_pk = True
         column_searchable_list = ['BatchID', 'ProductID', 'BatchCreatedBy']
-        def is_accessible(self):
-            if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == 'Admin'
-            else:
-                return False
     admin.add_view(BatchAdminView(InventoryVirginBatch, db.session, category=powder_category.name))
+    
+    # PowderBlendParts
+    class BlendPartsAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['PartID', 'BlendID']
+    admin.add_view(BlendPartsAdminView(PowderBlendParts, db.session, category=powder_category.name))
+    
+    # PowderBlendCalc
+    class BlendCalcAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['BlendID']
+    admin.add_view(BlendCalcAdminView(PowderBlendCalc, db.session, category=powder_category.name))
 
     # Build
     class BuildsAdminView(ModelView):
         column_display_pk = True
-        def is_accessible(self):
-            if current_user.is_authenticated:
-                return current_user.id == 1 or current_user.role == 'Admin'
-            else:
-                return False
+        column_searchable_list = ['BuildIt']
     admin.add_view(BuildsAdminView(BuildsTable, db.session, category=builds_category.name))
     
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
-    admin.add_view(ModelView(PowderBlendParts, db.session, category=powder_category.name))
-    admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
     # Initialize Dash app
     app = mpd_dash.InitDashboard(app)

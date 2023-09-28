@@ -10,7 +10,7 @@
 
         <label class="btn btn-outline-primary" for="switch">Switch to Blend History</label>
         <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
-          onclick="window.location.href = '/powder/history/blend'">
+               onclick="window.location.href = '/powder/history/blend'">
       </div>
       <div class="form-group">
         <select name="alloy" class="form-select" id="alloy" style="text-align: center" onchange="this.form.submit()">
@@ -40,7 +40,7 @@
           </tr>
         </thead>
         <tbody>
-          {% for batch, alloy_names, supplier_product in batch_table.items %}
+          {% for batch, alloy_names, supplier_product, first_name, last_name in batch_table.items %}
           <tr class="table-active">
             <td>{{ batch.BatchID }}</td>
             <td>{{ alloy_names }}</td>
@@ -49,8 +49,8 @@
             <td>{{ batch.VirginLot }}</td>
             <td>{{ "%.0f" % batch.VirginWeight }}</td>
             {% set date, time = batch.BatchTimeStamp.split(' ') %}
-            <td>{{ date}}</td>
-            <td>{{ batch.BatchCreatedBy }}</td>
+            <td>{{ date }}</td>
+            <td>{{ first_name }} {{ last_name }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -61,10 +61,10 @@
     <nav class="mt-4">
       {% if batch_table.has_prev %}
       <a class="btn btn-primary"
-        href="{{ url_for('powder.HistoryBatch', page=batch_table.prev_num, search=search) }}">Previous</a>
+         href="{{ url_for('powder.HistoryBatch', page=batch_table.prev_num, search=search) }}">Previous</a>
       {% endif %} {% if batch_table.has_next %}
       <a class="btn btn-primary"
-        href="{{ url_for('powder.HistoryBatch', page=batch_table.next_num, search=search) }}">Next</a>
+         href="{{ url_for('powder.HistoryBatch', page=batch_table.next_num, search=search) }}">Next</a>
       {% endif %}
     </nav>
   </div>
