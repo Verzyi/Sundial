@@ -18,7 +18,7 @@ powder = Blueprint('powder', __name__)
 @powder.route('/', methods=['GET', 'POST'])
 @login_required
 def Powder():
-    return render_template('base_powder.html', user=current_user)
+    return render_template('powder/base_powder.html', user=current_user)
 
 @powder.route('/home', methods=['GET', 'POST'])
 @login_required
@@ -103,10 +103,17 @@ def SearchBlends():
                     # Store the blend number in session
                     session['last_blend_id'] = blend_id
                     if int(request.form.get('blend_id')) > 1:
-                        blend_query = db.session.query(PowderBlends, MaterialAlloys.AlloyName) \
-                            .join(MaterialAlloys, PowderBlends.AlloyID == MaterialAlloys.AlloyID) \
-                            .filter(PowderBlends.BlendID == blend_id)\
-                            .all()
+                        blend_query = db.session.query(
+                            PowderBlends, 
+                            MaterialAlloys.AlloyName, 
+                            Users.first_name, Users.last_name
+                            ).join(
+                                MaterialAlloys, 
+                                PowderBlends.AlloyID == MaterialAlloys.AlloyID
+                                ).join(
+                                    Users, 
+                                    PowderBlends.BlendCreatedBy == Users.id
+                                    ).filter(PowderBlends.BlendID == blend_id).all()
                         if blend_query:
                             flash(f'Blend {blend_id} found.', category='success')
                         else:
@@ -157,7 +164,196 @@ def SearchBlends():
     return render_template(
         'powder/search-blend.html', 
         user=current_user, 
-        blends=blend_query)
+        blend_query=blend_query)
+
+
+@powder.route('/search/blend-report', methods=['GET', 'POST'])
+@login_required
+def BlendReport():
+    blend = request.args.get('blend')
+    blend = int(blend)
+    with db.engine.connect() as conn: 
+        # import `powder_blend_calc`
+        powder_blend_calc = pd.read_sql_query(
+            text(f'SELECT * FROM powder_blend_calc'), conn)
+        powder_blend_calc[['BlendID', 'PartID']] = powder_blend_calc[['BlendID', 'PartID']].astype('Int64')
+        # import `inventory_virgin_batch`
+        inventory_virgin_batch = pd.read_sql_query(
+            text(f'SELECT * FROM inventory_virgin_batch'), conn)
+        inventory_virgin_batch[['BatchID', 'ProductID']] = inventory_virgin_batch[['BatchID', 'ProductID']].astype('Int64')
+        # import `material_alloys`
+        material_alloys = pd.read_sql_query(
+            text(f'SELECT * FROM material_alloys'), conn)
+        material_alloys[['AlloyID']] = material_alloys[['AlloyID']].astype('Int64')
+        # import `material_alloys`
+        material_products = pd.read_sql_query(
+            text(f'SELECT * FROM material_products'), conn)
+        material_products[['ProductID']] = material_products[[
+            'ProductID']].astype('Int64')
+        # import `powder_blends`
+        powder_blends = pd.read_sql_query(
+            text(f'SELECT * FROM powder_blends'), conn)
+        powder_blends[['AlloyID', 'BlendID']] = powder_blends[[
+            'AlloyID', 'BlendID']].astype('Int64')
+        # import `powder_blend_parts`
+        powder_blend_parts = pd.read_sql_query(
+            text(f'SELECT * FROM powder_blend_parts'), conn)
+        powder_blend_parts[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']] \
+            = powder_blend_parts[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']].astype('Int64')
+
+    # create new DF for requested Blend
+    blend_data = powder_blend_calc[powder_blend_calc['BlendID'] == blend].copy(
+    )
+    blend_data = blend_data.merge(powder_blend_parts[['PartID', 'PartBatchID']],
+                                  on=['PartID'], how='left', validate='m:1')
+    blend_data.rename(columns={'PartBatchID': 'BatchID'}, inplace=True)
+    blend_data = blend_data.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID']], on=['BatchID'], how='left', validate='m:1')
+    blend_data.sort_values(by=['PartFraction'], ascending=False, inplace=True)
+
+    product_dict = material_products[['ProductID', 'SupplierProduct']].drop_duplicates(keep='first') \
+        .set_index('ProductID')['SupplierProduct'].to_dict()
+    blend_data['SupplierProduct'] = blend_data['ProductID'].map(product_dict)
+
+    alloy_id = powder_blends.set_index('BlendID')['AlloyID'].to_dict()[blend]
+    alloy_name = material_alloys.set_index('AlloyID')['AlloyName'].to_dict()[alloy_id]
+    # material = alloy_id.map(mat_dict)
+    total_wt = powder_blends[powder_blends['BlendID']
+                                == blend]['TotalWeight'].iloc[0]
+    count_avg = round((blend_data['PartFraction']
+                      * blend_data['SieveCount']).sum())
+    count_max = blend_data['SieveCount'].max()
+
+    summary_dict = {'Blend': blend,
+                    'Material': alloy_name,
+                    'Total Weight (kg)': total_wt,
+                    'Avg. Sieve Count': count_avg,
+                    'Max. Sieve Count': count_max,
+                    }
+    blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
+    blend_summary.fillna(value='---', inplace=True)
+    # blend_summary.reset_index(names='Summary', inplace=True)
+
+    # Create new DF for data grouped by Batch
+    grouped = blend_data.groupby(by=['BatchID'], as_index=False).sum(
+        numeric_only=True)[['BatchID', 'PartFraction']].copy()
+    grouped.sort_values(by=['PartFraction'], ascending=False, inplace=True)
+    grouped = grouped.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID',]],
+                            on=['BatchID'], how='left', validate='m:1')
+    grouped['SupplierProduct'] = grouped['ProductID'].map(product_dict)
+    maj = grouped.iloc[0]
+    maj_batch = maj['BatchID'].astype(str).replace('.0', '')
+    maj_prod = maj['SupplierProduct']
+    maj_po = maj['VirginPO']
+    maj_lot = maj['VirginLot']
+    maj_per = maj['PartFraction'] * 100
+    maj_per = f'{maj_per:.1f}%'
+
+    majority_dict = {'BatchID': maj_batch,
+                     'Percentage': maj_per,
+                     'Supplier Product': maj_prod,
+                     'Purchase Order': maj_po,
+                     'Virgin Lot': maj_lot,
+                     }
+    majority_batch = pd.DataFrame(majority_dict, index=['Value']).T
+    majority_batch.fillna(value='---', inplace=True)
+
+    # Create a DF of the top 20 blend constituents
+    top = 30
+    blend_breakdown = blend_data.head(top).copy()
+    blend_breakdown['Percent'] = blend_breakdown['PartFraction'] * 100
+    blend_breakdown = blend_breakdown[['BatchID', 'SupplierProduct', 'VirginPO', 'VirginLot', 'Percent',
+                                       'SieveCount']]
+    blend_breakdown.rename(columns={'SupplierProduct': 'Product',
+                                    'VirginPO': 'Purchase Order',
+                                    'VirginLot': 'Virgin Lot',
+                                    'SieveCount': 'Sieve Count',
+                                    }, inplace=True)
+    other_per = 100.000001 - blend_breakdown['Percent'].sum()
+    blend_breakdown[['BatchID']] = blend_breakdown[['BatchID']].astype(str)
+    blend_breakdown.reset_index(drop=True, inplace=True)
+    blend_breakdown.loc[blend_breakdown.shape[0]] = [
+        '', '', 'Other', '', other_per, '']
+    blend_breakdown['Percent'] = blend_breakdown['Percent'].map(
+        '{:.1f}%'.format)
+    blend_breakdown.fillna(value='---', inplace=True)
+    
+    footer = f'Report generated on: {dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
+
+    rendered = render_template(
+        'powder/blend-report.html',
+        blend_summary=blend_summary,
+        majority_batch=majority_batch,
+        blend_breakdown=blend_breakdown,
+        footer=footer)
+    pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
+
+    response = make_response(pdf)
+    response.headers['Content-type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
+    return response
+
+
+@powder.route('/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
+@login_required
+def BlendTrace(blend_id, lvl, limit):
+    with db.engine.connect() as conn: 
+        powder_blend_parts = pd.read_sql(
+           text(f'SELECT * FROM powder_blend_parts'), conn)
+        powder_blends = pd.read_sql(
+            text(f'SELECT * FROM powder_blends'), conn)
+        inventory_virgin_batch = pd.read_sql(
+            text(f'SELECT * FROM inventory_virgin_batch'), conn)
+
+    powder_blend_parts[['PartBlendID', 'PartBatchID']] = powder_blend_parts[[
+        'PartBlendID', 'PartBatchID']].astype('Int64')
+
+    blend_df = powder_blend_parts[powder_blend_parts['BlendID'] == blend_id].copy()
+    blend_df['TotalWeight'] = blend_df['BlendID'].map(
+        powder_blends.set_index('BlendID')['TotalWeight'])
+    blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
+
+    tracebacks = []  # List to store the tracebacks
+
+    if lvl == 0:
+        total_wt = blend_df['TotalWeight'].max()
+        blend_date = powder_blends.loc[powder_blends['BlendID'] == blend_id, 'BlendDate'].values[0]
+        blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
+        tracebacks.append(
+            f'{lvl}: Blend {blend_id} ({total_wt:.2f} kg) ({blend_date})')
+
+    if limit > 0:
+        for i, r in blend_df.iterrows():
+            old_blend = r['PartBlendID']
+            batch_id = r['PartBatchID']
+            frac = r['PartFraction']
+            new_lvl = lvl + 1
+
+            if old_blend is not pd.NA:
+                blend_weight = powder_blend_parts.loc[
+                    (powder_blend_parts['BlendID'] == blend_id) &
+                    (powder_blend_parts['PartBlendID'] == old_blend), 
+                    'AddedWeight'].values[0]
+                blend_date = powder_blends.loc[
+                    powder_blends['BlendID']== old_blend, 
+                    'BlendDate'].values[0]
+                blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
+                tracebacks.append(
+                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) ({blend_weight:.1f} kg) ({blend_date})')
+                new_limit = limit - 1
+                tracebacks.extend(BlendTrace(old_blend, new_lvl, new_limit))
+
+            elif old_blend is pd.NA:
+                batch_weight = powder_blend_parts.loc[
+                    (powder_blend_parts['BlendID'] == blend_id) &
+                    (powder_blend_parts['PartBatchID'] == batch_id), 
+                    'AddedWeight'].values[0]
+                batch_date = inventory_virgin_batch.loc[
+                    inventory_virgin_batch['BatchID']== batch_id, 
+                    'BatchTimeStamp'].values[0]
+                batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
+                tracebacks.append(
+                    f'{new_lvl}: {"..." * new_lvl} Batch {batch_id} ({frac * 100:.0f}%) ({batch_weight:.1f} kg) ({batch_date})')
+    return tracebacks
 
 
 @powder.route('/search/batch', methods=['GET', 'POST'])
@@ -169,11 +365,25 @@ def SearchBatch():
         if 'search' in request.form:
             batch_id = request.form.get('batch_id')
             if batch_id:
-                batch_query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName, MaterialProducts.SupplierProduct) \
-                    .join(MaterialProducts, InventoryVirginBatch.ProductID == MaterialProducts.ProductID) \
-                        .join(MaterialAlloys, MaterialProducts.AlloyID == MaterialAlloys.AlloyID) \
-                    .order_by(InventoryVirginBatch.BatchID.desc()) \
-                    .filter(InventoryVirginBatch.BatchID == batch_id).all()
+                batch_query = db.session.query(
+                    InventoryVirginBatch, 
+                    MaterialAlloys.AlloyName, 
+                    MaterialProducts.SupplierProduct,  
+                    Users.first_name, Users.last_name
+                    ).join(
+                        MaterialProducts, 
+                        InventoryVirginBatch.ProductID == MaterialProducts.ProductID
+                        ).join(
+                            MaterialAlloys, 
+                            MaterialProducts.AlloyID == MaterialAlloys.AlloyID
+                            ).join(
+                                Users, 
+                                InventoryVirginBatch.BatchCreatedBy == Users.id
+                                ).order_by(
+                                    InventoryVirginBatch.BatchID.desc()
+                                    ).filter(
+                                        InventoryVirginBatch.BatchID == batch_id
+                                        ).all()
                 if batch_query:
                     flash(f'Batch {batch_id} found.', category='success')
                     # Store the blend number in session
@@ -209,7 +419,7 @@ def SearchBatch():
     return render_template(
         'powder/search-batch.html', 
         user=current_user, 
-        batch=batch_query)
+        batch_query=batch_query)
 
 
 blend_list = []
@@ -590,194 +800,6 @@ def HistoryBatch():
         selected_alloy=alloy_name)
 
 
-@powder.route('/search/blend-report', methods=['GET', 'POST'])
-@login_required
-def BlendReport():
-    blend = request.args.get('blend')
-    blend = int(blend)
-    with db.engine.connect() as conn: 
-        # import `powder_blend_calc`
-        powder_blend_calc = pd.read_sql_query(
-            text(f'SELECT * FROM powder_blend_calc'), conn)
-        powder_blend_calc[['BlendID', 'PartID']] = powder_blend_calc[['BlendID', 'PartID']].astype('Int64')
-        # import `inventory_virgin_batch`
-        inventory_virgin_batch = pd.read_sql_query(
-            text(f'SELECT * FROM inventory_virgin_batch'), conn)
-        inventory_virgin_batch[['BatchID', 'ProductID']] = inventory_virgin_batch[['BatchID', 'ProductID']].astype('Int64')
-        # import `material_alloys`
-        material_alloys = pd.read_sql_query(
-            text(f'SELECT * FROM material_alloys'), conn)
-        material_alloys[['AlloyID']] = material_alloys[['AlloyID']].astype('Int64')
-        # import `material_alloys`
-        material_products = pd.read_sql_query(
-            text(f'SELECT * FROM material_products'), conn)
-        material_products[['ProductID']] = material_products[[
-            'ProductID']].astype('Int64')
-        # import `powder_blends`
-        powder_blends = pd.read_sql_query(
-            text(f'SELECT * FROM powder_blends'), conn)
-        powder_blends[['AlloyID', 'BlendID']] = powder_blends[[
-            'AlloyID', 'BlendID']].astype('Int64')
-        # import `powder_blend_parts`
-        powder_blend_parts = pd.read_sql_query(
-            text(f'SELECT * FROM powder_blend_parts'), conn)
-        powder_blend_parts[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']] \
-            = powder_blend_parts[['BlendID', 'PartID', 'PartBlendID', 'PartBatchID']].astype('Int64')
-
-    # create new DF for requested Blend
-    blend_data = powder_blend_calc[powder_blend_calc['BlendID'] == blend].copy(
-    )
-    blend_data = blend_data.merge(powder_blend_parts[['PartID', 'PartBatchID']],
-                                  on=['PartID'], how='left', validate='m:1')
-    blend_data.rename(columns={'PartBatchID': 'BatchID'}, inplace=True)
-    blend_data = blend_data.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID']], on=['BatchID'], how='left', validate='m:1')
-    blend_data.sort_values(by=['PartFraction'], ascending=False, inplace=True)
-
-    product_dict = material_products[['ProductID', 'SupplierProduct']].drop_duplicates(keep='first') \
-        .set_index('ProductID')['SupplierProduct'].to_dict()
-    blend_data['SupplierProduct'] = blend_data['ProductID'].map(product_dict)
-
-    alloy_id = powder_blends.set_index('BlendID')['AlloyID'].to_dict()[blend]
-    alloy_name = material_alloys.set_index('AlloyID')['AlloyName'].to_dict()[alloy_id]
-    # material = alloy_id.map(mat_dict)
-    total_wt = powder_blends[powder_blends['BlendID']
-                                == blend]['TotalWeight'].iloc[0]
-    count_avg = round((blend_data['PartFraction']
-                      * blend_data['SieveCount']).sum())
-    count_max = blend_data['SieveCount'].max()
-
-    summary_dict = {'Blend': blend,
-                    'Material': alloy_name,
-                    'Total Weight (kg)': total_wt,
-                    'Avg. Sieve Count': count_avg,
-                    'Max. Sieve Count': count_max,
-                    }
-    blend_summary = pd.DataFrame(summary_dict, index=['Value']).T
-    blend_summary.fillna(value='---', inplace=True)
-    # blend_summary.reset_index(names='Summary', inplace=True)
-
-    # Create new DF for data grouped by Batch
-    grouped = blend_data.groupby(by=['BatchID'], as_index=False).sum(
-        numeric_only=True)[['BatchID', 'PartFraction']].copy()
-    grouped.sort_values(by=['PartFraction'], ascending=False, inplace=True)
-    grouped = grouped.merge(inventory_virgin_batch[['BatchID', 'VirginPO', 'VirginLot', 'ProductID',]],
-                            on=['BatchID'], how='left', validate='m:1')
-    grouped['SupplierProduct'] = grouped['ProductID'].map(product_dict)
-    maj = grouped.iloc[0]
-    maj_batch = maj['BatchID'].astype(str).replace('.0', '')
-    maj_prod = maj['SupplierProduct']
-    maj_po = maj['VirginPO']
-    maj_lot = maj['VirginLot']
-    maj_per = maj['PartFraction'] * 100
-    maj_per = f'{maj_per:.1f}%'
-
-    majority_dict = {'BatchID': maj_batch,
-                     'Percentage': maj_per,
-                     'Supplier Product': maj_prod,
-                     'Purchase Order': maj_po,
-                     'Virgin Lot': maj_lot,
-                     }
-    majority_batch = pd.DataFrame(majority_dict, index=['Value']).T
-    majority_batch.fillna(value='---', inplace=True)
-
-    # Create a DF of the top 20 blend constituents
-    top = 30
-    blend_breakdown = blend_data.head(top).copy()
-    blend_breakdown['Percent'] = blend_breakdown['PartFraction'] * 100
-    blend_breakdown = blend_breakdown[['BatchID', 'SupplierProduct', 'VirginPO', 'VirginLot', 'Percent',
-                                       'SieveCount']]
-    blend_breakdown.rename(columns={'SupplierProduct': 'Product',
-                                    'VirginPO': 'Purchase Order',
-                                    'VirginLot': 'Virgin Lot',
-                                    'SieveCount': 'Sieve Count',
-                                    }, inplace=True)
-    other_per = 100.000001 - blend_breakdown['Percent'].sum()
-    blend_breakdown[['BatchID']] = blend_breakdown[['BatchID']].astype(str)
-    blend_breakdown.reset_index(drop=True, inplace=True)
-    blend_breakdown.loc[blend_breakdown.shape[0]] = [
-        '', '', 'Other', '', other_per, '']
-    blend_breakdown['Percent'] = blend_breakdown['Percent'].map(
-        '{:.1f}%'.format)
-    blend_breakdown.fillna(value='---', inplace=True)
-    
-    footer = f'Report generated on: {dt.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}'
-
-    rendered = render_template(
-        'powder/blend-report.html',
-        blend_summary=blend_summary,
-        majority_batch=majority_batch,
-        blend_breakdown=blend_breakdown,
-        footer=footer)
-    pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
-
-    response = make_response(pdf)
-    response.headers['Content-type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
-    return response
-
-
-@powder.route('/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
-@login_required
-def BlendTrace(blend_id, lvl, limit):
-    with db.engine.connect() as conn: 
-        powder_blend_parts = pd.read_sql(
-           text(f'SELECT * FROM powder_blend_parts'), conn)
-        powder_blends = pd.read_sql(
-            text(f'SELECT * FROM powder_blends'), conn)
-        inventory_virgin_batch = pd.read_sql(
-            text(f'SELECT * FROM inventory_virgin_batch'), conn)
-
-    powder_blend_parts[['PartBlendID', 'PartBatchID']] = powder_blend_parts[[
-        'PartBlendID', 'PartBatchID']].astype('Int64')
-
-    blend_df = powder_blend_parts[powder_blend_parts['BlendID'] == blend_id].copy()
-    blend_df['TotalWeight'] = blend_df['BlendID'].map(
-        powder_blends.set_index('BlendID')['TotalWeight'])
-    blend_df['PartFraction'] = blend_df['AddedWeight'] / blend_df['TotalWeight']
-
-    tracebacks = []  # List to store the tracebacks
-
-    if lvl == 0:
-        total_wt = blend_df['TotalWeight'].max()
-        blend_date = powder_blends.loc[powder_blends['BlendID'] == blend_id, 'BlendDate'].values[0]
-        blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
-        tracebacks.append(
-            f'{lvl}: Blend {blend_id} ({total_wt:.2f} kg) ({blend_date})')
-
-    if limit > 0:
-        for i, r in blend_df.iterrows():
-            old_blend = r['PartBlendID']
-            batch_id = r['PartBatchID']
-            frac = r['PartFraction']
-            new_lvl = lvl + 1
-
-            if old_blend is not pd.NA:
-                blend_weight = powder_blend_parts.loc[
-                    (powder_blend_parts['BlendID'] == blend_id) &
-                    (powder_blend_parts['PartBlendID'] == old_blend), 
-                    'AddedWeight'].values[0]
-                blend_date = powder_blends.loc[
-                    powder_blends['BlendID']== old_blend, 
-                    'BlendDate'].values[0]
-                blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
-                tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Blend {old_blend} ({frac * 100:.0f}%) ({blend_weight:.1f} kg) ({blend_date})')
-                new_limit = limit - 1
-                tracebacks.extend(BlendTrace(old_blend, new_lvl, new_limit))
-
-            elif old_blend is pd.NA:
-                batch_weight = powder_blend_parts.loc[
-                    (powder_blend_parts['BlendID'] == blend_id) &
-                    (powder_blend_parts['PartBatchID'] == batch_id), 
-                    'AddedWeight'].values[0]
-                batch_date = inventory_virgin_batch.loc[
-                    inventory_virgin_batch['BatchID']== batch_id, 
-                    'BatchTimeStamp'].values[0]
-                batch_date = dt.datetime.strptime(batch_date, '%Y-%m-%d %H:%M:%S').date()
-                tracebacks.append(
-                    f'{new_lvl}: {"..." * new_lvl} Batch {batch_id} ({frac * 100:.0f}%) ({batch_weight:.1f} kg) ({batch_date})')
-    return tracebacks
-
 
 @powder.route('/inventory/blend', methods=['GET', 'POST'])
 @login_required
@@ -817,13 +839,14 @@ def InventoryBlend():
         if blend_date is not None:
             blend_date = dt.datetime.strptime(blend_date, '%Y-%m-%d %H:%M:%S').date()
         # Add blend row if BlendDate is after 8/1/2021 and CurrentWeight > 20 and Blend ID not in set
+        WEIGHT_THRESHOLD = 10
         if (
             blend_date is not None
             and blend_date > dt.date(2021, 8, 1)
             and current_wt is not None
-            and current_wt > 20
+            and current_wt > WEIGHT_THRESHOLD
             and blend_id not in blend_ids_set
-            # and blend_id not in powder_part_blend_list
+            and blend_id not in powder_part_blend_list
         ):
             blend_row = (blend_id, alloy_name, current_wt)
             result_data.append(blend_row)

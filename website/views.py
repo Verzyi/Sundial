@@ -40,9 +40,3 @@ def Settings():
         db.session.commit()
         flash('Account updated.', category='success')
     return render_template('settings.html', user=current_user)
-
-
-@views.route('/printers')
-@login_required
-def PrinterDash():
-    return render_template('printers.html', user=current_user)
