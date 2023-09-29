@@ -3,13 +3,12 @@
 {% block subcontent %}
 <h2>{{ self.title() }}</h2>
 
-<label class="btn btn-outline-primary form-group" for="switch">
-  Switch to Batch Search
-</label>
-<input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
-       onclick="window.location.href = '/powder/search/batch'">
-
 <form id="searchBlendForm" method="POST" class="mt-4">
+  <label class="btn btn-outline-primary form-group" for="switch">
+    Switch to Batch Search
+  </label>
+  <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
+         onclick="window.location.href = '/powder/search/batch'">
   <div id="search" class="menus">
     <div class="mb-3">
       <label for="blend_id" class="form-label">Blend ID</label>
@@ -22,8 +21,41 @@
     </div>
   </div>
 </form>
+
+<!-- Display the Blend results here -->
+<div class="table-responsive mt-4 container">
+  <table class="table table-hover">
+    <!-- Table headers -->
+    <thead>
+      <tr style="font-size: 20px">
+        <th scope="col">Blend ID</th>
+        <th scope="col">Material</th>
+        <th scope="col">Total Weight (kg)</th>
+        <th scope="col">Current Weight (kg)</th>
+        <th scope="col">Date Created</th>
+        <th scope="col">Created By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <!-- Loop through the blend_query results -->
+      {% if blend_query %}
+      {% for blend, alloy_name, first_name, last_name in blend_query %}
+      <tr class="table-active">
+        <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
+        <td>{{ alloy_name }}</td>
+        <td>{{ blend.TotalWeight }}</td>
+        <td>{{ blend.CurrentWeight }}</td>
+        {% set date, time = blend.BlendDate.split(' ') %}
+        <td>{{ date }}</td>
+        <td>{{first_name}} {{last_name}}</td>
+      </tr>
+      {% endfor %}
+      {% endif %}
+    </tbody>
+  </table>
+</div>
 <div>
-  {% if blends %}
+  {% if blend_query %}
   <form method="POST">
     <div class="form-group">
       <label for="printer" class="form-label mt-4">Select Printer</label>
@@ -42,7 +74,7 @@
   {% endif %}
 </div>
 <div>
-  {% if blends %}
+  {% if blend_query %}
   <form method="POST" target="_blank">
     <button type="submit" name="report" class="btn btn-primary Add">
       Generate Blend Report
@@ -51,45 +83,13 @@
   {% endif %}
 </div>
 <div>
-  {% if blends %}
+  {% if blend_query %}
   <form method="POST" target="_blank">
     <button type="submit" name="trace" class="btn btn-primary Add">
       Generate Blend Traceback
     </button>
   </form>
   {% endif %}
-</div>
-<!-- Display the Blend results here -->
-<div class="table-responsive mt-4 container">
-  <table class="table table-hover">
-    <!-- Table headers -->
-    <thead>
-      <tr style="font-size: 20px">
-        <th scope="col">Blend ID</th>
-        <th scope="col">Material</th>
-        <th scope="col">Total Weight (kg)</th>
-        <th scope="col">Current Weight (kg)</th>
-        <th scope="col">Date Created</th>
-        <th scope="col">Created By</th>
-      </tr>
-    </thead>
-    <tbody>
-      <!-- Loop through the blends results -->
-      {% if blends %}
-      {% for blend, alloy_name in blends %}
-      <tr class="table-active">
-        <td name="blendID" id="blendID">{{ blend.BlendID }}</td>
-        <td>{{ alloy_name }}</td>
-        <td>{{ blend.TotalWeight }}</td>
-        <td>{{ blend.CurrentWeight }}</td>
-        {% set date, time = blend.BlendDate.split(' ') %}
-        <td>{{ date }}</td>
-        <td>{{blend.BlendCreatedBy}}</td>
-      </tr>
-      {% endfor %}
-      {% endif %}
-    </tbody>
-  </table>
 </div>
 <div class="container">
   {% if tracebacks %}
