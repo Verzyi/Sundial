@@ -177,8 +177,8 @@ function fetchBuildInfo(BuildIDInput) {
             const BuildNameInput = document.getElementById("BuildNameInput");
             BuildNameInput.value = data.BuildName;
 
-            const machineIdInput = document.getElementById("machineIdInput");
-            machineIdInput.value = data.MachineID;
+            const MachineIDInput = document.getElementById("MachineIDInput");
+            MachineIDInput.value = data.MachineID;
 
             const machineTableCell = document.getElementById("machineTableCell");
 
@@ -214,8 +214,8 @@ function fetchBuildInfo(BuildIDInput) {
             }
             // console.log(data.Platform); // Check if this is not null
 
-            machineIdInput.addEventListener("change", function () {
-                if (machineIdInput.value === "GA3") {
+            MachineIDInput.addEventListener("change", function () {
+                if (MachineIDInput.value === "GA3") {
                     // Do something specific for "Velo"
                     console.log("Selected machine is Velo");
                     // Get all elements with the class 'Velo'
