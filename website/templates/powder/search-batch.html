@@ -6,7 +6,7 @@
 <form id="searchBlendForm" method="POST" class="mt-4">
   <label class="btn btn-outline-primary form-group" for="switch">Switch to Blend Search</label>
   <input type="radio" class="btn-check" name="btnradio" id="switch" autocomplete="off"
-    onclick="window.location.href = '/powder/search/blend'" />
+         onclick="window.location.href = '/powder/search/blend'" />
 
   <div id="search" class="menus">
     <div class="mb-3">
@@ -17,24 +17,8 @@
       <button type="submit" name="search" class="btn btn-primary">
         Search
       </button>
-      {% if batch %}
-      <div class="d-grid">
-        <div class="form-group">
-          <label for="printer" class="form-label mt-4">Select Printer</label>
-          <select name="printer" class="form-select" id="printer" style="text-align: center">
-            <option>Shop Floor Printer</option>
-            <option>Office Printer</option>
-          </select>
-        </div>
-        <div class="d-grid">
-          <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
-          <button type="submit" name="print" class="btn btn-primary">
-            Print
-          </button>
-          {% endif %}
-        </div>
-      </div>
     </div>
+  </div>
   </div>
 </form>
 <!-- Display the blend results here -->
@@ -56,8 +40,8 @@
     </thead>
     <tbody>
       <!-- Loop through the Batch Search results -->
-      {% if batch %}
-      {% for batch_result, alloy_name, supplier_product in batch %}
+      {% if batch_query %}
+      {% for batch_result, alloy_name, supplier_product, first_name, last_name in batch_query %}
       <tr class="table-active">
         <td>{{ batch_result.BatchID }}</td>
         <td>{{ alloy_name }}</td>
@@ -67,10 +51,27 @@
         <td>{{ batch_result.VirginWeight }}</td>
         <td>{{ batch_result.CurrentWeight }}</td>
         <td>{{ batch_result.BatchTimeStamp }}</td>
-        <td>{{ batch_result.BatchCreatedBy }}</td>
+        <td>{{ first_name }} {{ last_name }}</td>
       </tr>
       {% endfor %} {% endif %}
     </tbody>
   </table>
+</div>
+<div class="container">
+  {% if batch_query %}
+  <div class="form-group">
+    <label for="printer" class="form-label mt-4">Select Printer</label>
+    <select name="printer" class="form-select" id="printer" style="text-align: center">
+      <option>Shop Floor Printer</option>
+      <option>Office Printer</option>
+    </select>
+  </div>
+  <div class="d-grid">
+    <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
+    <button type="submit" name="print" class="btn btn-primary">
+      Print
+    </button>
+    {% endif %}
+  </div>
 </div>
 {% endblock subcontent %}

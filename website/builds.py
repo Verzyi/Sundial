@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify, Response, make_response
 from flask_login import login_required, current_user
-from datetime import datetime
+import datetime as dt
 from sqlalchemy import func, desc, or_
 import pandas as pd
 import math
@@ -47,7 +47,7 @@ def builds_page():
     unique_machines = list(set(machines))
     unique_materials = list(set(materials))
     # Fetch the build information from the database based on the selected build ID (use the selectedBuildID variable)
-    selectedBuildID = request.form.get('buildIdInput')
+    selectedBuildID = request.form.get('BuildIDInput')
     selectedBuild = BuildsTable.query.filter_by(BuildID=selectedBuildID).first()
     selectedBuildCreatedOn = None
     
@@ -97,7 +97,7 @@ def get_build_info(build_id):
         # Return the filtered build information as JSON
         build.CreatedBy = f'{first_name} {last_name}'
         build_data = build.to_dict()
-        session['buildIdInput'] = build_id
+        session['BuildIDInput'] = build_id
         return jsonify(build_data)
     else:
         # If build ID is not found, return an empty response with 404 status code
@@ -171,7 +171,7 @@ def new_build():
         BuildID=new_build_id, 
         FacilityName=selectedFacility, 
         CreatedBy=current_user.id, 
-        CreatedOn=datetime.now())
+        CreatedOn=dt.datetime.now())
     db.session.add(new_build)
     db.session.commit()
     # Redirect to the builds page with the new build selected
@@ -181,7 +181,7 @@ def new_build():
 @login_required
 def copy_build():
     # Get the selected build ID from the form
-    selected_build_id = session.get('buildIdInput')
+    selected_build_id = session.get('BuildIDInput')
     print(selected_build_id)
     if selected_build_id:
         try:
@@ -201,9 +201,9 @@ def copy_build():
             new_build = BuildsTable(
                 BuildID=new_build_id,
                 CreatedBy=current_user.id,
-                CreatedOn=datetime.now(),
+                CreatedOn=dt.datetime.now(),
                 FacilityName=existing_build.FacilityName,
-                BuildName=existing_build.BuildName + '_Copy',
+                BuildName=str(existing_build.BuildName).split('_')[0] + dt.datetime.now(),
                 MachineID=existing_build.MachineID,
                 AlloyName=existing_build.AlloyName,
                 ScaleX=existing_build.ScaleX,
@@ -224,8 +224,39 @@ def copy_build():
             # Redirect to the builds page with the new build selected
             return redirect(url_for('builds.builds_page', selectedBuildID=new_build_id))
     # Handle the case when 'BuildsID' is not present in the form
-    flash('No Build ID found in the form.', category='error')
-    return redirect(url_for('builds.builds_page'))
+    flash('No BuildID found in the form.', category='error')
+    return redirect(url_for('builds.builds_page', selectedBuildID=selected_build_id))
+
+def set_attributes(existing_build, attributes, dtype, buildform_data):
+    for attr in attributes:
+        if (dtype == 'str') or (dtype == 'string'):
+            try:
+                value = str(buildform_data.get(f'{attr}'))
+            except (TypeError, ValueError) as e:
+                value = ''  # Default value
+        elif (dtype == 'float'):
+            try:
+                value = float(buildform_data.get(f'{attr}'))
+            except (TypeError, ValueError) as e:
+                value = None  # Default value
+        elif (dtype == 'int') or (dtype == 'integer'):
+            try:
+                value = int(buildform_data.get(f'{attr}'))
+            except (TypeError, ValueError) as e:
+                value = 0  # Default value
+        elif (dtype == 'bool'):
+            try:
+                value = bool(buildform_data.get(f'{attr}'))
+            except (TypeError, ValueError) as e:
+                value = False  # Default value
+        attr = attr.replace('Input', '')
+        if not hasattr(existing_build, attr):
+            print(f'Bad Attribute! "{attr}": {value}')
+            flash(f'BuildsTable has no attribute "{attr}"!', category='error')
+        else:
+            setattr(existing_build, attr, value)
+            # Save the changes to the database
+            db.session.commit()
 
 @builds.route('/setup_form', methods=['GET', 'POST'])
 @login_required
@@ -233,35 +264,23 @@ def setup_form():
     # Get the build form data from the session
     buildform_data = session.get('buildformSetup')
     # Get the selected build id
-    selected_build_id = session.get('buildIdInput')
+    selected_build_id = session.get('BuildIDInput')
     # Retrieve the existing build record from the database
     existing_build = BuildsTable.query.filter_by(BuildID=selected_build_id).first()
-
     # Update the attributes of the existing build with the new values
     if existing_build:
-        # Populate data from buildSetup
-        existing_build.BuildName = buildform_data.get('buildNameInput')
-        existing_build.MachineID = buildform_data.get('machineIdInput')
-        existing_build.AlloyName = buildform_data.get('materialInput')
-        existing_build.ParameterRev = buildform_data.get('parameterRevInput')
-        existing_build.RecoaterType = buildform_data.get('recoaterTypeInput')
-        
-        # Iterate through the attributes that might have float values
-        float_attributes = ['ScaleX', 'ScaleY', 'Offset', 'Layer' , 'PlateTemperature', 'PotentialBuildHeight', 'MinChargeAmount', 'MaxChargeAmount', 'DosingBoostAmount', 'RecoaterSpeed']
-        for attr in float_attributes:
-            try:
-                value = float(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
-            except ValueError:
-                value = 0  # Default value in case of ValueError
-            setattr(existing_build, attr, value)
-        # Save the changes to the database
-        db.session.commit()
+        # Iterate through the attributes that have string values
+        str_attributes = ['BuildNameInput', 'MachineIDInput', 'AlloyNameInput', 'ParameterRevInput', 'RecoaterTypeInput']
+        set_attributes(existing_build, str_attributes, 'str', buildform_data)
+        # Iterate through the attributes that have float values
+        float_attributes = ['ScaleXInput', 'ScaleYInput', 'OffsetInput', 'LayerInput', 'PlateTemperatureInput', 'PotentialBuildHeightInput', 'MinChargeAmountInput', 'MaxChargeAmountInput', 'DosingBoostAmountInput', 'RecoaterSpeedInput']
+        set_attributes(existing_build, float_attributes, 'float', buildform_data)
+        flash(f'Build Setup information updated successfully for BuildID {selected_build_id}.', category='success')
         # Redirect to the builds page or any other page as needed
-        flash('Build Setup information updated successfully.', category='success')
         return redirect(url_for('builds.builds_page'))
     # Handle the case when the existing build is not found
-    flash('Build not found.', category='error')
-    return redirect(url_for('builds.builds_page'))
+    flash(f'BuildID {selected_build_id} not found.', category='error')
+    return redirect(url_for('builds.builds_page', selectedBuildID=selected_build_id))
 
 
 @builds.route('/start_form', methods=['GET', 'POST'])
@@ -270,50 +289,33 @@ def start_form():
     # Get the build form data from the session
     buildform_data = session.get('buildformStart')
     # Get the selected build id
-    selected_build_id = session.get('buildIdInput')
+    selected_build_id = session.get('BuildIDInput')
     # Retrieve the existing build record from the database
     existing_build = BuildsTable.query.filter_by(BuildID=selected_build_id).first()
-
     # Update the attributes of the existing build with the new values
     if existing_build:
-        #Populate data from buildStart
-        existing_build.InertTime = buildform_data.get('inertTimeInput')
-        existing_build.F9FilterSerial = buildform_data.get('f9FilterSerialInput')
-        existing_build.H13FilterSerial = buildform_data.get('h13FilterSerialInput')    
-        existing_build.BuildStart = buildform_data.get('buildStartInput')
-        
+        # Populate data from buildStartForm (float attributes)
+        str_attrs = ['PlateSerialInput', 'InertTimeInput', 'F9FilterSerialInput', 'H13FilterSerialInput', 'BuildStartTimeInput']
+        set_attributes(existing_build, str_attrs, 'str', buildform_data)
+        # Populate data from buildStartForm (bool attributes)
         VeloInSpec = buildform_data.get('InSpec')
-        
         existing_build.BeamStabilityTestPerformed = VeloInSpec
         existing_build.LaserAlignmentTestPerformed = VeloInSpec
         existing_build.ThermalSensorTest = VeloInSpec
         existing_build.LaserFocus = VeloInSpec
-        
-        print('Build InSpec Input:', VeloInSpec)
+        print('Velo Build InSpec Input:', VeloInSpec)
         # Populate data from buildStartForm (float attributes)
-        start_form_float_attributes = ['PlateThickness', 'PlateWeight', 'FeedPowderHeight', 'StartLaserHours', 'PowderLevel', 'SieveLife', 'FilterPressure']
-        for attr in start_form_float_attributes:
-            try:
-                value = float(buildform_data.get(f'{attr}Input', 55))  # Use 0 as default if conversion fails
-            except ValueError:
-                print('error')
-                value = 0  # Default value in case of ValueError
-            setattr(existing_build, attr, value)
+        float_attrs = ['PlateThicknessInput', 'PlateWeightInput', 'FeedPowderHeightInput', 'StartLaserHoursInput', 'PowderLevelInput', 'SieveLifeInput', 'FilterPressureDropInput']
+        set_attributes(existing_build, float_attrs, 'float', buildform_data)
         # Populate data from buildStartForm (integer attributes)
-        integer_attributes = ['BlendID', 'PlateSerial']
-        for attr in integer_attributes:
-            try:
-                value = int(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
-            except ValueError:
-                value = 0  # Default value in case of ValueError
-            setattr(existing_build, attr, value)
-        db.session.commit()
+        int_attrs = ['BlendIDInput']
+        set_attributes(existing_build, int_attrs, 'int', buildform_data)
         # Redirect to the builds page or any other page as needed
-        flash('Build Start information updated successfully.', category='success')
+        flash(f'Build Start information updated successfully for BuildID {selected_build_id}.', category='success')
         return redirect(url_for('builds.builds_page'))
     # Handle the case when the existing build is not found
     flash('Build not found.', category='error')
-    return redirect(url_for('builds.builds_page'))
+    return redirect(url_for('builds.builds_page', selectedBuildID=selected_build_id))
 
 
 @builds.route('/finish_form', methods=['GET', 'POST'])
@@ -322,28 +324,27 @@ def finish_form():
     # Get the build form data from the session
     buildform_data = session.get('buildformFinish')
     # Get the selected build id
-    selected_build_id = session.get('buildIdInput')
+    selected_build_id = session.get('BuildIDInput')
     # Retrieve the existing build record from the database
     existing_build = BuildsTable.query.filter_by(BuildID=selected_build_id).first()
     # Update the attributes of the existing build with the new values
     if existing_build:
-        existing_build.BreakoutTime = buildform_data.get('breakoutTimeInput') 
-        existing_build.MaterialAdded = bool(buildform_data.get('materialAddedInput') == 'True')
+        # Populate string data from buildFinishForm
+        str_attrs = ['BreakoutTimeInput', 'BuildFinishTimeInput']
+        set_attributes(existing_build, str_attrs, 'str', buildform_data)
+        # Populate bool data from buildFinishForm
+        bool_attrs = ['MaterialAddedInput', 'BuildInterruptsInput']
+        set_attributes(existing_build, bool_attrs, 'bool', buildform_data)
+        # existing_build.MaterialAdded = bool(buildform_data.get('MaterialAddedInput') == 'True')
+        # existing_build.BuildInterrupts = bool(buildform_data.get('BuildInterruptsInput') == 'True')
         print('Material Added Input:', existing_build.MaterialAdded)
-        existing_build.BuildInterrupts = bool(buildform_data.get('buildInterruptsInput')== 'True')
         print('Build Interrupts Input:', existing_build.BuildInterrupts)
-        # Populate data from buildFinishForm
-        finish_form_float_attributes = ['FinishHeight', 'EndPartPistonHeight', 'EndFeedPowderHeight', 'BuildTime', 'FinalLaserHours','FinishPlatformWeight']
-        for attr in finish_form_float_attributes:
-            try:
-                value = float(buildform_data.get(f'{attr}Input', 0))  # Use 0 as default if conversion fails
-            except ValueError:
-                value = 0  # Default value in case of ValueError
-            setattr(existing_build, attr, value)
-        db.session.commit()
+        # Populate floatdata from buildFinishForm
+        float_attrs = ['FinishHeightInput', 'EndPartPistonHeightInput', 'EndFeedPowderHeightInput', 'BuildTimeInput', 'FinalLaserHoursInput','FinishPlateWeightInput']
+        set_attributes(existing_build, float_attrs, 'float', buildform_data)
         # Redirect to the builds page or any other page as needed
-        flash('Build Finish information updated successfully.', category='success')
+        flash(f'Build Finish information updated successfully for BuildID {selected_build_id}.', category='success')
         return redirect(url_for('builds.builds_page'))
     # Handle the case when the existing build is not found
     flash('Build not found.', category='error')
-    return redirect(url_for('builds.builds_page'))
+    return redirect(url_for('builds.builds_page', selectedBuildID=selected_build_id))

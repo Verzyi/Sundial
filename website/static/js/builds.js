@@ -84,12 +84,12 @@ function showBuildInfo(event) {
         return;
     }
 
-    // Get the buildIdInput from the first column (index 0) of the row
-    const buildIdInput = row.getElementsByTagName("td")[0].textContent.trim();
-    // console.log("BuildID:", buildIdInput);
+    // Get the BuildIDInput from the first column (index 0) of the row
+    const BuildIDInput = row.getElementsByTagName("td")[0].textContent.trim();
+    // console.log("BuildID:", BuildIDInput);
 
     // Fetch additional build information and display it
-    fetchBuildInfo(buildIdInput);
+    fetchBuildInfo(BuildIDInput);
 
     // Show the appropriate form based on the selected build state
     const buildState = event.target.name;
@@ -140,8 +140,8 @@ buildFinishCheckbox.addEventListener("change", function (event) {
     showBuildInfo(event);
 });
 
-function fetchBuildInfo(buildIdInput) {
-    fetch(`get_build_info/${buildIdInput}`, {
+function fetchBuildInfo(BuildIDInput) {
+    fetch(`get_build_info/${BuildIDInput}`, {
         method: "GET",
     })
         .then((response) => {
@@ -171,11 +171,11 @@ function fetchBuildInfo(buildIdInput) {
             createdOnInput.textContent = formattedDate;
 
             // Build Setup Form
-            const buildIdInput = document.getElementById("buildIdInput")
-            buildIdInput.value = data.BuildID
+            const BuildIDInput = document.getElementById("BuildIDInput")
+            BuildIDInput.value = data.BuildID
 
-            const buildNameInput = document.getElementById("buildNameInput");
-            buildNameInput.value = data.BuildName;
+            const BuildNameInput = document.getElementById("BuildNameInput");
+            BuildNameInput.value = data.BuildName;
 
             const machineIdInput = document.getElementById("machineIdInput");
             machineIdInput.value = data.MachineID;
@@ -246,109 +246,109 @@ function fetchBuildInfo(buildIdInput) {
                 }
             });
 
-            const materialInput = document.getElementById("materialInput");
-            materialInput.value = data.AlloyName;
+            const AlloyNameInput = document.getElementById("AlloyNameInput");
+            AlloyNameInput.value = data.AlloyName;
 
-            const scaleXInput = document.getElementById("scaleXInput");
-            scaleXInput.value = data.ScaleX;
+            const ScaleXInput = document.getElementById("ScaleXInput");
+            ScaleXInput.value = data.ScaleX;
 
-            const scaleYInput = document.getElementById("scaleYInput");
-            scaleYInput.value = data.ScaleY;
+            const ScaleYInput = document.getElementById("ScaleYInput");
+            ScaleYInput.value = data.ScaleY;
 
-            const offsetInput = document.getElementById("offsetInput");
-            offsetInput.value = data.Offset;
+            const OffsetInput = document.getElementById("OffsetInput");
+            OffsetInput.value = data.Offset;
 
-            const layerInput = document.getElementById("layerInput");
-            layerInput.value = data.Layer;
+            const LayerInput = document.getElementById("LayerInput");
+            LayerInput.value = data.Layer;
 
-            const plateTemperatureInput = document.getElementById("plateTemperatureInput");
-            plateTemperatureInput.value = data.PlateTemperature;
+            const PlateTemperatureInput = document.getElementById("PlateTemperatureInput");
+            PlateTemperatureInput.value = data.PlateTemperature;
 
-            const potentialBuildHeightInput = document.getElementById("potentialBuildHeightInput");
-            potentialBuildHeightInput.value = data.PotentialBuildHeight;
+            const PotentialBuildHeightInput = document.getElementById("PotentialBuildHeightInput");
+            PotentialBuildHeightInput.value = data.PotentialBuildHeight;
 
-            const minChargeAmountInput = document.getElementById("minChargeAmountInput");
-            minChargeAmountInput.value = data.MinChargeAmount;
+            const MinChargeAmountInput = document.getElementById("MinChargeAmountInput");
+            MinChargeAmountInput.value = data.MinChargeAmount;
 
-            const maxChargeAmountInput = document.getElementById("maxChargeAmountInput");
-            maxChargeAmountInput.value = data.MaxChargeAmount;
+            const MaxChargeAmountInput = document.getElementById("MaxChargeAmountInput");
+            MaxChargeAmountInput.value = data.MaxChargeAmount;
 
-            const dosingBoostAmountInput = document.getElementById("dosingBoostAmountInput");
-            dosingBoostAmountInput.value = data.DosingBoostAmount;
+            const DosingBoostAmountInput = document.getElementById("DosingBoostAmountInput");
+            DosingBoostAmountInput.value = data.DosingBoostAmount;
 
-            const recoaterSpeedInput = document.getElementById("recoaterSpeedInput");
-            recoaterSpeedInput.value = data.RecoaterSpeed;
+            const RecoaterSpeedInput = document.getElementById("RecoaterSpeedInput");
+            RecoaterSpeedInput.value = data.RecoaterSpeed;
 
-            const recoaterTypeInput = document.getElementById("recoaterTypeInput");
-            recoaterTypeInput.value = data.RecoaterType;
+            const RecoaterTypeInput = document.getElementById("RecoaterTypeInput");
+            RecoaterTypeInput.value = data.RecoaterType;
 
-            const parameterRevInput = document.getElementById("parameterRevInput");
-            // parameterRevInput.textContent = data.ParameterRev;
+            const ParameterRevInput = document.getElementById("ParameterRevInput");
+            // ParameterRevInput.textContent = data.ParameterRev;
 
             const parameterRevDisplay = document.getElementById("parameterRevDisplay")
             parameterRevDisplay.value = data.ParameterRev
 
             // Build Start Form
-            const blendIDInput = document.getElementById("blendIdInput");
-            blendIDInput.value = data.BlendID;
+            const BlendIDInput = document.getElementById("blendIdInput");
+            BlendIDInput.value = data.BlendID;
 
-            const plateSerialInput = document.getElementById("plateSerialInput");
-            plateSerialInput.value = data.PlateSerial;
+            const PlateSerialInput = document.getElementById("PlateSerialInput");
+            PlateSerialInput.value = data.PlateSerial;
 
-            const plateThicknessInput = document.getElementById("plateThicknessInput");
-            plateThicknessInput.value = data.PlateThickness;
+            const PlateThicknessInput = document.getElementById("PlateThicknessInput");
+            PlateThicknessInput.value = data.PlateThickness;
 
-            const plateWeightInput = document.getElementById("plateWeightInput");
-            plateWeightInput.value = data.PlateWeight;
+            const PlateWeightInput = document.getElementById("PlateWeightInput");
+            PlateWeightInput.value = data.PlateWeight;
 
-            const feedPowderHeightInput = document.getElementById("feedPowderHeightInput");
-            feedPowderHeightInput.value = data.FeedPowderHeight;
+            const FeedPowderHeightInput = document.getElementById("FeedPowderHeightInput");
+            FeedPowderHeightInput.value = data.FeedPowderHeight;
 
-            const inertTimeInput = document.getElementById("inertTimeInput");
-            inertTimeInput.value = data.InertTime;
+            const InertTimeInput = document.getElementById("InertTimeInput");
+            InertTimeInput.value = data.InertTime;
 
-            const f9FilterSerialInput = document.getElementById("f9FilterSerialInput");
-            f9FilterSerialInput.value = data.F9FilterSerial;
+            const F9FilterSerialInput = document.getElementById("F9FilterSerialInput");
+            F9FilterSerialInput.value = data.F9FilterSerial;
 
-            const h13FilterSerialInput = document.getElementById("h13FilterSerialInput");
-            h13FilterSerialInput.value = data.H13FilterSerial;
+            const H13FilterSerialInput = document.getElementById("H13FilterSerialInput");
+            H13FilterSerialInput.value = data.H13FilterSerial;
 
-            const startLaserHoursInput = document.getElementById("startLaserHoursInput");
-            startLaserHoursInput.value = data.StartLaserHours;
+            const StartLaserHoursInput = document.getElementById("StartLaserHoursInput");
+            StartLaserHoursInput.value = data.StartLaserHours;
 
-            const buildStartInput = document.getElementById("buildStartInput");
-            buildStartInput.value = data.BuildStartTime;
+            const BuildStartTimeInput = document.getElementById("BuildStartTimeInput");
+            BuildStartTimeInput.value = data.BuildStartTime;
             
             // Build Finish Form
-            const materialAddedInput = document.getElementById("materialAddedInput");
-            materialAddedInput.value = data.MaterialAdded ? "True" : "False";
+            const MaterialAddedInput = document.getElementById("MaterialAddedInput");
+            MaterialAddedInput.value = data.MaterialAdded ? "True" : "False";
 
-            const buildFinishInput = document.getElementById("buildFinishInput");
-            buildFinishInput.value = data.BuildFinishTime;
+            const BuildFinishTimeInput = document.getElementById("BuildFinishTimeInput");
+            BuildFinishTimeInput.value = data.BuildFinishTime;
 
-            const buildTimeInput = document.getElementById("buildTimeInput");
-            buildTimeInput.value = data.BuildTime;
+            const BuildTimeInput = document.getElementById("BuildTimeInput");
+            BuildTimeInput.value = data.BuildTime;
 
-            const finalLaserHoursInput = document.getElementById("finalLaserHoursInput");
-            finalLaserHoursInput.value = data.FinalLaserHours;
+            const FinalLaserHoursInput = document.getElementById("FinalLaserHoursInput");
+            FinalLaserHoursInput.value = data.FinalLaserHours;
 
-            const finishHeightInput = document.getElementById("finishHeightInput");
-            finishHeightInput.value = data.FinishHeight;
+            const FinishHeightInput = document.getElementById("FinishHeightInput");
+            FinishHeightInput.value = data.FinishHeight;
 
-            const endPartPistonHeightInput = document.getElementById("endPartPistonHeightInput");
-            endPartPistonHeightInput.value = data.EndPartPistonHeight;
+            const EndPartPistonHeightInput = document.getElementById("EndPartPistonHeightInput");
+            EndPartPistonHeightInput.value = data.EndPartPistonHeight;
 
-            const endFeedPowderHeightInput = document.getElementById("endFeedPowderHeightInput");
-            endFeedPowderHeightInput.value = data.EndFeedPowderHeight;
+            const EndFeedPowderHeightInput = document.getElementById("EndFeedPowderHeightInput");
+            EndFeedPowderHeightInput.value = data.EndFeedPowderHeight;
 
-            const breakoutTimeInput = document.getElementById("breakoutTimeInput");
-            breakoutTimeInput.value = data.BreakoutTime;
+            const BreakoutTimeInput = document.getElementById("BreakoutTimeInput");
+            BreakoutTimeInput.value = data.BreakoutTime;
 
-            const finishPlateWeightInput = document.getElementById("finishPlateWeightInput");
-            finishPlateWeightInput.value = data.FinishPlateWeight;
+            const FinishPlateWeightInput = document.getElementById("FinishPlateWeightInput");
+            FinishPlateWeightInput.value = data.FinishPlateWeight;
 
-            const buildInterruptsInput = document.getElementById("buildInterruptsInput");
-            buildInterruptsInput.value = data.BuildInterrupts ? "True" : "False";
+            const BuildInterruptsInput = document.getElementById("BuildInterruptsInput");
+            BuildInterruptsInput.value = data.BuildInterrupts ? "True" : "False";
 
             // const measuredLaserPowerInput = document.getElementById("measuredLaserPowerInput");
             // measuredLaserPowerInput.value = data.MeasuredLaserPower;
@@ -397,14 +397,14 @@ function fetchBuildInfo(buildIdInput) {
                 inSpec.value = false; // Assign the boolean value false
             }
 
-            const powderLevel = document.getElementById("powderLevelInput");
-            powderLevel.value = data.PowderLevel;
+            const PowderLevelInput = document.getElementById("PowderLevelInput");
+            PowderLevelInput.value = data.PowderLevel;
 
-            const sieveLife = document.getElementById("sieveLifeInput");
-            sieveLife.value = data.SieveLife;
+            const SieveLifeInput = document.getElementById("SieveLifeInput");
+            SieveLifeInput.value = data.SieveLife;
 
-            const filterPressure = document.getElementById("filterPressureInput");
-            filterPressure.value = data.FilterPressureDrop;
+            const FilterPressureDrop = document.getElementById("FilterPressureDropInput");
+            FilterPressureDrop.value = data.FilterPressureDrop;
 
             /*
             const veloFlowSoftwareRevInput = document.getElementById("veloFlowSoftwareRevInput");
@@ -460,11 +460,11 @@ function filterBuilds() {
 
     for (let i = 0; i < buildRows.length; i++) {
         const buildName = buildRows[i].getElementsByTagName("td")[1];
-        const buildIdInput = buildRows[i].getElementsByTagName("td")[0];
+        const BuildIDInput = buildRows[i].getElementsByTagName("td")[0];
 
-        if (buildName && buildIdInput) {
+        if (buildName && BuildIDInput) {
             const buildNameText = buildName.textContent || buildName.innerText;
-            const buildIdText = buildIdInput.textContent || buildIdInput.innerText;
+            const buildIdText = BuildIDInput.textContent || BuildIDInput.innerText;
 
             if (
                 buildNameText.toUpperCase().indexOf(searchInput) > -1 ||

@@ -103,10 +103,17 @@ def SearchBlends():
                     # Store the blend number in session
                     session['last_blend_id'] = blend_id
                     if int(request.form.get('blend_id')) > 1:
-                        blend_query = db.session.query(PowderBlends, MaterialAlloys.AlloyName) \
-                            .join(MaterialAlloys, PowderBlends.AlloyID == MaterialAlloys.AlloyID) \
-                            .filter(PowderBlends.BlendID == blend_id)\
-                            .all()
+                        blend_query = db.session.query(
+                            PowderBlends, 
+                            MaterialAlloys.AlloyName, 
+                            Users.first_name, Users.last_name
+                            ).join(
+                                MaterialAlloys, 
+                                PowderBlends.AlloyID == MaterialAlloys.AlloyID
+                                ).join(
+                                    Users, 
+                                    PowderBlends.BlendCreatedBy == Users.id
+                                    ).filter(PowderBlends.BlendID == blend_id).all()
                         if blend_query:
                             flash(f'Blend {blend_id} found.', category='success')
                         else:
@@ -157,7 +164,7 @@ def SearchBlends():
     return render_template(
         'powder/search-blend.html', 
         user=current_user, 
-        blends=blend_query)
+        blend_query=blend_query)
 
 
 @powder.route('/search/blend-report', methods=['GET', 'POST'])
@@ -358,11 +365,25 @@ def SearchBatch():
         if 'search' in request.form:
             batch_id = request.form.get('batch_id')
             if batch_id:
-                batch_query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName, MaterialProducts.SupplierProduct) \
-                    .join(MaterialProducts, InventoryVirginBatch.ProductID == MaterialProducts.ProductID) \
-                        .join(MaterialAlloys, MaterialProducts.AlloyID == MaterialAlloys.AlloyID) \
-                    .order_by(InventoryVirginBatch.BatchID.desc()) \
-                    .filter(InventoryVirginBatch.BatchID == batch_id).all()
+                batch_query = db.session.query(
+                    InventoryVirginBatch, 
+                    MaterialAlloys.AlloyName, 
+                    MaterialProducts.SupplierProduct,  
+                    Users.first_name, Users.last_name
+                    ).join(
+                        MaterialProducts, 
+                        InventoryVirginBatch.ProductID == MaterialProducts.ProductID
+                        ).join(
+                            MaterialAlloys, 
+                            MaterialProducts.AlloyID == MaterialAlloys.AlloyID
+                            ).join(
+                                Users, 
+                                InventoryVirginBatch.BatchCreatedBy == Users.id
+                                ).order_by(
+                                    InventoryVirginBatch.BatchID.desc()
+                                    ).filter(
+                                        InventoryVirginBatch.BatchID == batch_id
+                                        ).all()
                 if batch_query:
                     flash(f'Batch {batch_id} found.', category='success')
                     # Store the blend number in session
@@ -398,7 +419,7 @@ def SearchBatch():
     return render_template(
         'powder/search-batch.html', 
         user=current_user, 
-        batch=batch_query)
+        batch_query=batch_query)
 
 
 blend_list = []
