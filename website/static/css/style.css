@@ -70,15 +70,9 @@ th {
 .form-label2 {
     text-align: left;
     display: flex;
+    white-space: nowrap;
     align-items: center;
     width: auto
-}
-
-.form-label2 {
-    margin-right: 10px;
-    display: inline;
-    white-space: nowrap;
-    width: auto;
 }
 
 .form-group {

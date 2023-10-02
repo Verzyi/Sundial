@@ -13,15 +13,15 @@
       <tbody style="font-size: 14px;"> <!-- Updated font-size to 12px -->
         <tr>
           <td><b>Build ID</b></td>
-          <td><span id="buildIdDisplay"></span></td>
+          <td><span id="BuildIDDisplay"></span></td>
         </tr>
         <tr>
           <td><b>Created By</b></td>
-          <td><span id="createdByInput"></span></td>
+          <td><span id="CreatedByInput"></span></td>
         </tr>
         <tr>
           <td><b>Created On</b></td>
-          <td><span id="createdOnInput"></span></td>
+          <td><span id="CreatedOnInput"></span></td>
         </tr>
       </tbody>
     </table>
@@ -233,8 +233,7 @@
               <div class="mb-3 form-label2 text-center EOS">
                 <label for="ParameterRevInput" class="form-label2">Parameter Rev</label>
                 <div style="display:block">
-                  <input type="text" class="form-control" id="parameterRevDisplay" name="parameterRevDisplay"
-                         disabled />
+                  <input type="text" class="form-control readonly-field" id="ParameterRevDisplay" name="ParameterRevDisplay" readonly onclick='return false;'/>
                 </div>
                 <div class="input-group">
                   <div class="custom-file">
@@ -258,8 +257,8 @@
           <div class="row" class="container">
             <div class="col-md-6">
               <div class="mb-3 form-label2 text-center">
-                <label for="blendIdInput" class="form-label2">BlendID</label>
-                <input type="number" class="form-control text-center" id="blendIdInput" name="blendIdInput" />
+                <label for="BlendIDInput" class="form-label2">BlendID</label>
+                <input type="number" class="form-control text-center" id="BlendIDInput" name="BlendIDInput" />
               </div>
               <div class="mb-3 form-label2 text-center">
                 <label for="PlateSerialInput" class="form-label2">Plate Serial</label>

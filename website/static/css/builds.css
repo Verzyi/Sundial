@@ -145,3 +145,9 @@ body {
     margin-left: 5px;
   }
 }
+
+.readonly-field{
+    pointer-events:none;
+    color: #4e5d6c;
+    background-color: #ebebeb;
+    }
