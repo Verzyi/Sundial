@@ -1,43 +1,43 @@
-{% extends "base_powder.html" %}
+{% extends "powder/base_powder.html" %}
 {% block title %} Create Batch {% endblock %}
 {% block subcontent %}
-  <h2>{{ self.title() }}</h2>
-  <div class="container-fluid">
-    <form id="createBlendForm" method="POST" class="mt-4">
-      <div id="blendFields" class="mb-3">
-        <!-- Form fields for PO Number, Virgin Lot, Weight -->
-        <label for="po_num" class="form-label">PO Number</label>
-        <input type="number" class="form-control" name="po_num" id="po_num" placeholder="0">
+<h2>{{ self.title() }}</h2>
+<div class="container-fluid">
+  <form id="createBlendForm" method="POST" class="mt-4">
+    <div id="blendFields" class="mb-3">
+      <!-- Form fields for PO Number, Virgin Lot, Weight -->
+      <label for="po_num" class="form-label">PO Number</label>
+      <input type="number" class="form-control" name="po_num" id="po_num" placeholder="0">
 
-        <label for="v_lot" class="form-label">Virgin Lot</label>
-        <input type="text" class="form-control" name="v_lot" id="v_lot" placeholder="0">
+      <label for="v_lot" class="form-label">Virgin Lot</label>
+      <input type="text" class="form-control" name="v_lot" id="v_lot" placeholder="0">
 
-        <label for="weight" class="form-label">Weight (kg)</label>
-        <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
+      <label for="weight" class="form-label">Weight (kg)</label>
+      <input type="number" step="0.01" class="form-control" name="weight" id="weight" placeholder="0">
+    </div>
+
+    <div class="d-grid">
+      <div class="form-group">
+        <select name="alloy" class="form-select" id="alloy" style="text-align: center"
+                onchange="UpdateProductDropdown()">
+          <option value="" disabled selected>Select Material</option>
+          {% for alloy in alloy_names %}
+          <option value="{{ alloy }}">{{ alloy }}</option>
+          {% endfor %}
+        </select>
+        <br>
+        <select name="product" class="form-select" id="product" style="text-align: center">
+          <option value="" disabled selected>Select Product</option>
+        </select>
       </div>
 
       <div class="d-grid">
-        <div class="form-group">
-          <select name="alloy" class="form-select" id="alloy" style="text-align: center"
-            onchange="UpdateProductDropdown()">
-            <option value="" disabled selected>Select Material</option>
-            {% for alloy in alloy_names %}
-            <option value="{{ alloy }}">{{ alloy }}</option>
-            {% endfor %}
-          </select>
-          <br>
-          <select name="product" class="form-select" id="product" style="text-align: center">
-            <option value="" disabled selected>Select Product</option>
-          </select>
-        </div>
-
-        <div class="d-grid">
-          <!-- Submit button -->
-          <button type="submit" id="createButton" class="btn btn-primary" name="create">Create Batch</button>
-        </div>
+        <!-- Submit button -->
+        <button type="submit" id="createButton" class="btn btn-primary" name="create">Create Batch</button>
       </div>
-    </form>
-  </div>
+    </div>
+  </form>
+</div>
 
 <script>
   function UpdateProductDropdown() {

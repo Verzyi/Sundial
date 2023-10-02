@@ -38,7 +38,6 @@ def CreateApp():
         'dmls_status': f'sqlite:///{DB_STATUS_NAME}',  # Bind the 'dmls_status' database
         'main': f'sqlite:///{DB_NAME}'  # Bind the main database (you can change 'main' to your preferred name)
     }
-    
     db.init_app(app)
     
     # Debug Toolbar Configuration
@@ -71,7 +70,7 @@ def CreateApp():
     
     # Login info
     login_manager = LoginManager()
-    login_manager.login_view = 'auth.Login'
+    login_manager.login_view = 'auth.login'
     login_manager.init_app(app)
 
     @login_manager.user_loader
@@ -116,7 +115,7 @@ def CreateApp():
     # Users
     class UsersAdminView(ModelView):
         column_display_pk = True
-        column_searchable_list = ['email', 'first_name', 'last_name', 'role']
+        column_searchable_list = ['id', 'email', 'first_name', 'last_name', 'role']
         # Define a custom action to download the table as a CSV file
         @action('download_csv', 'Download CSV', 'Download selected records as CSV')
         def download_csv(self, ids):
@@ -169,12 +168,11 @@ def CreateApp():
     # Build
     class BuildsAdminView(ModelView):
         column_display_pk = True
-        column_searchable_list = ['BuildIt']
+        column_searchable_list = ['BuildID']
     admin.add_view(BuildsAdminView(BuildsTable, db.session, category=builds_category.name))
     
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
-    # admin.add_view(ModelView(PowderBlendCalc, db.session, category=powder_category.name))
 
     # Initialize Dash app
     app = mpd_dash.InitDashboard(app)
