@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+            <html>
+            <head>
+                <title>Maintenance Requests</title>
+            </head>
+            <body>
+                <h1>Maintenance Requests</h1>
+                <form method="GET" action="{{ url_for('maintenance') }}">
+                    <label for="requested_by">Requested By:</label>
+                    <input type="text" name="requested_by" id="requested_by">
+
+                    <label for="additional_worker">Additional Worker:</label>
+                    <input type="text" name="additional_worker" id="additional_worker">
+
+                    <label for="created_date_start">Created Date Start:</label>
+                    <input type="date" name="created_date_start" id="created_date_start">
+
+                    <label for="created_date_end">Created Date End:</label>
+                    <input type="date" name="created_date_end" id="created_date_end">
+
+                    <label for="completed_date_start">Completed Date Start:</label>
+                    <input type="date" name="completed_date_start" id="completed_date_start">
+
+                    <label for="completed_date_end">Completed Date End:</label>
+                    <input type="date" name="completed_date_end" id="completed_date_end">
+
+                    <label for="last_updated_date_start">Last Updated Date Start:</label>
+                    <input type="date" name="last_updated_date_start" id="last_updated_date_start">
+
+                    <label for="last_updated_date_end">Last Updated Date End:</label>
+                    <input type="date" name="last_updated_date_end" id="last_updated_date_end">
+
+                    <label for="location">Location:</label>
+                    <input type="text" name="location" id="location">
+
+                    <label for="status">Status:</label>
+                    <input type="text" name="status" id="status">
+
+                    <label for="priority">Priority:</label>
+                    <input type="text" name="priority" id="priority">
+
+                    <label for="bookmarked">Bookmarked:</label>
+                    <input type="checkbox" name="bookmarked" id="bookmarked">
+
+                    <input type="submit" value="Filter">
+                </form>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Requested By</th>
+                            <th>Additional Workers</th>
+                            <th>Created On</th>
+                            <th>Completed On</th>
+                            <th>Updated On</th>
+                            <th>Location Name</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Bookmarked</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for request in requests %}
+                        <tr>
+                            <td>{{ request.Requested_By }}</td>
+                            <td>{{ request.Additional_Workers }}</td>
+                            <td>{{ request.Created_On }}</td>
+                            <td>{{ request.Completed_On }}</td>
+                            <td>{{ request.Updated_On }}</td>
+                            <td>{{ request.Location_Name }}</td>
+                            <td>{{ request.Status }}</td>
+                            <td>{{ request.Priority }}</td>
+                            <td>{{ request.Bookmarked }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </body>
+            </html>

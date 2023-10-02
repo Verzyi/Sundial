@@ -5,7 +5,7 @@ from flask import Flask, redirect, url_for, flash, request, Response
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager, current_user
 from flask_debugtoolbar import DebugToolbarExtension
-from flask_admin import Admin, AdminIndexView
+from flask_admin import Admin, AdminIndexView, expose
 from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
@@ -51,6 +51,7 @@ def CreateApp():
     from .builds import builds
     from .quote import quote
     from .dashboards import dashboards_bp
+    # from .maintenance import maintenance_bp
 
     bp_list = [auth, views, machine_dashboard, quote]
     
@@ -106,8 +107,9 @@ def CreateApp():
     users_category = MenuCategory(name='Users')
     powder_category = MenuCategory(name='Powder')
     builds_category = MenuCategory(name='Build')
+    fix_category = MenuCategory(name='Fix-tools')
 
-    category_list = [users_category, powder_category, builds_category]
+    category_list = [users_category, powder_category, builds_category, fix_category]
     
     for category in category_list:
         admin.add_category(category)
@@ -173,6 +175,41 @@ def CreateApp():
     
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
+    
+    class FixToolView(AdminIndexView):
+        # column_display_pk = True
+        column_searchable_list = ['BlendID']
+        
+        
+
+        def get_list(self, page, sort_column, sort_desc, search, filters, page_size=None):
+            # Call the parent get_list method if a search query is present
+            if search is not None and search.strip() != '':
+                return super().get_list(page, sort_column, sort_desc, search, filters, page_size)
+
+            # Get all records from the database
+            count, data = self.get_list_page(0, None, None, None, None)
+
+            # Return all records if no search query is present
+            return data, count, {}
+        
+        def fixtool():
+            @expose('/fix-tool/')
+            def index(self):
+                return self.render_template('admin/fix_tool.html')  
+    
+        
+    @expose('/')
+    def index(self):
+        return self.render_template('admin/index.html')
+    
+    
+      
+
+    # Add the FixToolView to the admin panel
+    admin.add_view(FixToolView(name='Fix Tool', endpoint='fix-tool', category=powder_category.name, url='/fix-tool/' , menu_icon_type='glyph', menu_icon_value='glyphicon-wrench'))
+
+
 
     # Initialize Dash app
     app = mpd_dash.InitDashboard(app)

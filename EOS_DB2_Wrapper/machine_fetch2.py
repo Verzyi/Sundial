@@ -1,5 +1,5 @@
 import sqlite3
-# import ibm_db_dbi as db
+import ibm_db_dbi as db
 import pandas as pd
 import datetime as dt
 import xmltodict

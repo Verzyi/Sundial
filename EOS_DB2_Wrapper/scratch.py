@@ -1,7 +1,7 @@
 import ibm_db_dbi as ibm_db
 import pandas as pd
 import xmltodict
-# import EOS_DB2_Wrapper.machine_fetch as fetch
+import EOS_DB2_Wrapper.machine_fetch as fetch
 
 
 ibm_sql = 'DATABASE=LOGDB; HOSTNAME={0}; PORT=49999; PROTOCOL=TCPIP; UID=LogDBAdmin; PWD=%admin4L0gDB.#'

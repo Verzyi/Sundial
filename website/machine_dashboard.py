@@ -12,17 +12,17 @@ from flask_admin.menu import MenuCategory
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt, check_password_hash 
-# from . import db
+import ibm_db
+
 
 # Create a Blueprint for your views
 machine_dashboard = Blueprint('machine_dashboard', __name__)
 bcrypt = Bcrypt()
-
 @machine_dashboard.route('/machine')
 @login_required
 def builds_home():
-    dashboard()
-    return render_template('home.html', user=current_user)
+    data = dashboard()
+    return render_template('dashboards/printers.html', user=current_user, machine_return=data)
 
 
 def dashboard():

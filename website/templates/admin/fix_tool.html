@@ -1,0 +1,89 @@
+{% extends 'admin/base.html' %}
+
+{% block body %}
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <h1 class="page-header">{{ page_title }}</h1>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <form class="form-inline" method="get" action="{{ url }}">
+                    <div class="form-group">
+                        <label for="search">Search:</label>
+                        <input type="text" class="form-control" id="search" name="search" value="{{ search }}" placeholder="Enter blend number">
+                    </div>
+                    <button type="submit" class="btn btn-primary">Search</button>
+                </form>
+            </div>
+        </div>
+        {% if data %}
+            <div class="row">
+                <div class="col-md-12">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Blend/Batch Number</th>
+                                <th>Constituents</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in data %}
+                                <tr>
+                                    <td>{{ item.blend_number }}</td>
+                                    <td>
+                                        <ul>
+                                            {% for part in item.parts %}
+                                                <li>{{ part.name }} - {{ part.weight }} Kg</li>
+                                            {% endfor %}
+                                            <li>
+                                                <form method="post" action="{{ url_for('add_part', blend_id=item.id) }}">
+                                                    <div class="form-group">
+                                                        <label for="part_name">Constituent Name:</label>
+                                                        <input type="text" class="form-control" id="part_name" name="part_name" placeholder="Enter constituent name">
+                                                    </div>
+                                                    <div class="form-group">
+                                                        <label for="part_weight">Weight (Kg):</label>
+                                                        <input type="number" class="form-control" id="part_weight" name="part_weight" placeholder="Enter weight in Kg">
+                                                    </div>
+                                                    <button type="submit" class="btn btn-primary">Add</button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </td>
+                                    <td>
+                                        <form method="post" action="{{ url_for('remove_blend', blend_id=item.id) }}">
+                                            <button type="submit" class="btn btn-danger">Remove</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                    <form method="post" action="{{ url_for('save_blends') }}">
+                        <button type="submit" class="btn btn-primary">Save</button>
+                    </form>
+                </div>
+            </div>
+            {% if has_next %}
+                <div class="row">
+                    <div class="col-md-12">
+                        <a href="{{ next_url }}" class="btn btn-primary">Next</a>
+                    </div>
+                </div>
+            {% endif %}
+        {% else %}
+            <div class="row">
+                <div class="col-md-12">
+                    <p>No results found.</p>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
