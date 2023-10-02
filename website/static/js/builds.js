@@ -115,30 +115,30 @@ function showBuildInfo(event) {
         buildformFinshed.style.display = event.target.checked ? "block" : "none";
     });
 }
-// Add event listeners for the build state checkboxes to show/hide the appropriate forms
-const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
-buildSetupCheckbox.addEventListener("change", function (event) {
-    // Stop the event from propagating to the row click event handler
-    event.stopPropagation();
-    // Call the showBuildInfo function
-    showBuildInfo(event);
-});
+// // Add event listeners for the build state checkboxes to show/hide the appropriate forms
+// const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
+// buildSetupCheckbox.addEventListener("change", function (event) {
+//     // Stop the event from propagating to the row click event handler
+//     event.stopPropagation();
+//     // Call the showBuildInfo function
+//     showBuildInfo(event);
+// });
 
-const buildStartCheckbox = document.getElementById("buildStartCheckbox");
-buildStartCheckbox.addEventListener("change", function (event) {
-    // Stop the event from propagating to the row click event handler
-    event.stopPropagation();
-    // Call the showBuildInfo function
-    showBuildInfo(event);
-});
+// const buildStartCheckbox = document.getElementById("buildStartCheckbox");
+// buildStartCheckbox.addEventListener("change", function (event) {
+//     // Stop the event from propagating to the row click event handler
+//     event.stopPropagation();
+//     // Call the showBuildInfo function
+//     showBuildInfo(event);
+// });
 
-const buildFinishCheckbox = document.getElementById("buildFinishCheckbox");
-buildFinishCheckbox.addEventListener("change", function (event) {
-    // Stop the event from propagating to the row click event handler
-    event.stopPropagation();
-    // Call the showBuildInfo function
-    showBuildInfo(event);
-});
+// const buildFinishCheckbox = document.getElementById("buildFinishCheckbox");
+// buildFinishCheckbox.addEventListener("change", function (event) {
+//     // Stop the event from propagating to the row click event handler
+//     event.stopPropagation();
+//     // Call the showBuildInfo function
+//     showBuildInfo(event);
+// });
 
 function fetchBuildInfo(BuildIDInput) {
     fetch(`get_build_info/${BuildIDInput}`, {
@@ -155,20 +155,23 @@ function fetchBuildInfo(BuildIDInput) {
             // Populate the rest of the form fields with the retrieved data
 
             // Current Build Info
-            const buildIdDisplay = document.getElementById("buildIdDisplay")
-            buildIdDisplay.textContent = data.BuildID
+            const BuildIDDisplay = document.getElementById("BuildIDDisplay")
+            BuildIDDisplay.textContent = data.BuildID
 
-            const createdByInput = document.getElementById("createdByInput");
-            createdByInput.textContent = data.CreatedBy;
+            // const BuildNameDisplay = document.getElementById("BuildNameDisplay")
+            // BuildNameDisplay.textContent = data.BuildName
 
-            const createdOnInput = document.getElementById("createdOnInput");
+            const CreatedByInput = document.getElementById("CreatedByInput");
+            CreatedByInput.textContent = data.CreatedBy;
+
+            const CreatedOnInput = document.getElementById("CreatedOnInput");
             const datetimeString = data.CreatedOn;
             // Parse the datetime string into a Date object
             const datetime = new Date(datetimeString);
             // Format the date as "M D Y"
             const options = { year: 'numeric', month: 'short', day: 'numeric' };
             const formattedDate = datetime.toLocaleDateString('en-US', options);
-            createdOnInput.textContent = formattedDate;
+            CreatedOnInput.textContent = formattedDate;
 
             // Build Setup Form
             const BuildIDInput = document.getElementById("BuildIDInput")
@@ -177,8 +180,8 @@ function fetchBuildInfo(BuildIDInput) {
             const BuildNameInput = document.getElementById("BuildNameInput");
             BuildNameInput.value = data.BuildName;
 
-            const machineIdInput = document.getElementById("machineIdInput");
-            machineIdInput.value = data.MachineID;
+            const MachineIDInput = document.getElementById("MachineIDInput");
+            MachineIDInput.value = data.MachineID;
 
             const machineTableCell = document.getElementById("machineTableCell");
 
@@ -214,8 +217,8 @@ function fetchBuildInfo(BuildIDInput) {
             }
             // console.log(data.Platform); // Check if this is not null
 
-            machineIdInput.addEventListener("change", function () {
-                if (machineIdInput.value === "GA3") {
+            MachineIDInput.addEventListener("change", function () {
+                if (MachineIDInput.value === "GA3") {
                     // Do something specific for "Velo"
                     console.log("Selected machine is Velo");
                     // Get all elements with the class 'Velo'
@@ -285,11 +288,11 @@ function fetchBuildInfo(BuildIDInput) {
             const ParameterRevInput = document.getElementById("ParameterRevInput");
             // ParameterRevInput.textContent = data.ParameterRev;
 
-            const parameterRevDisplay = document.getElementById("parameterRevDisplay")
-            parameterRevDisplay.value = data.ParameterRev
+            const ParameterRevDisplay = document.getElementById("ParameterRevDisplay")
+            ParameterRevDisplay.value = data.ParameterRev
 
             // Build Start Form
-            const BlendIDInput = document.getElementById("blendIdInput");
+            const BlendIDInput = document.getElementById("BlendIDInput");
             BlendIDInput.value = data.BlendID;
 
             const PlateSerialInput = document.getElementById("PlateSerialInput");

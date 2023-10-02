@@ -41,7 +41,7 @@ def CreateApp():
     db.init_app(app)
     
     # Debug Toolbar Configuration
-    app.config['DEBUG_TB_ENABLED'] = True
+    app.config['DEBUG_TB_ENABLED'] = False
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False
     toolbar = DebugToolbarExtension(app)
 

@@ -588,7 +588,7 @@ def CreateBlend():
                                 db.session.add(new_calc)
                             elif old_blend:
                                 calc_query = PowderBlendCalc.query.filter_by(
-                                BlendID=old_blend).all()
+                                BlendID=old_blend).order_by(PowderBlendCalc.BlendID, PowderBlendCalc.PartID).all()
                                 for r2 in calc_query:
                                     part_id2 = r2.PartID
                                     frac2 = r2.PartFraction

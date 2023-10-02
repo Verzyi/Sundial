@@ -270,11 +270,26 @@ def setup_form():
     # Update the attributes of the existing build with the new values
     if existing_build:
         # Iterate through the attributes that have string values
-        str_attributes = ['BuildNameInput', 'MachineIDInput', 'AlloyNameInput', 'ParameterRevInput', 'RecoaterTypeInput']
+        str_attributes = ['BuildNameInput', 'MachineIDInput', 'AlloyNameInput','RecoaterTypeInput']
         set_attributes(existing_build, str_attributes, 'str', buildform_data)
         # Iterate through the attributes that have float values
         float_attributes = ['ScaleXInput', 'ScaleYInput', 'OffsetInput', 'LayerInput', 'PlateTemperatureInput', 'PotentialBuildHeightInput', 'MinChargeAmountInput', 'MaxChargeAmountInput', 'DosingBoostAmountInput', 'RecoaterSpeedInput']
         set_attributes(existing_build, float_attributes, 'float', buildform_data)
+        # Parameter Rev
+        param_rev = buildform_data.get('ParameterRevInput')
+        try:
+            param_rev = str(param_rev)
+            if (param_rev == '') or (param_rev == 'None'):
+                try: 
+                    param_rev = str(buildform_data.get('ParameterRevDisplay'))
+                except (TypeError, ValueError) as e: param_rev = ''
+        except (TypeError, ValueError) as e:
+            try: 
+                param_rev = str(buildform_data.get('ParameterRevDisplay'))
+                print(f'Display input: {param_rev}')
+            except (TypeError, ValueError) as e: param_rev = ''
+        setattr(existing_build, 'ParameterRev', param_rev)
+        db.session.commit()
         flash(f'Build Setup information updated successfully for BuildID {selected_build_id}.', category='success')
         # Redirect to the builds page or any other page as needed
         return redirect(url_for('builds.builds_page'))
