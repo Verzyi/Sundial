@@ -75,17 +75,6 @@ class DatabaseAppender:
         print(f'{self.file_name} appended to database!\n\n')
         self.CloseConnection()
 
-    # def GetColumnTypes(self, df):
-    #     column_types = {}
-    #     for column, dtype in df.dtypes.iteritems():
-    #         if dtype in ['int64', 'Int64', 'bool']:
-    #             column_types[column] = 'INTEGER' 
-    #         elif dtype == 'float64':
-    #             column_types[column] = 'REAL'
-    #         else:
-    #             column_types[column] = 'TEXT'
-    #     return column_types
-
 # Dictionary of tables and filename prefixes:
 prefix_dict = {'users': 'Users_', 
               'inventory_virgin_batch': 'InventoryVirginBatch_', 

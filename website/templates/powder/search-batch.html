@@ -59,19 +59,21 @@
 </div>
 <div class="container">
   {% if batch_query %}
-  <div class="form-group">
-    <label for="printer" class="form-label mt-4">Select Printer</label>
-    <select name="printer" class="form-select" id="printer" style="text-align: center">
-      <option>Shop Floor Printer</option>
-      <option>Office Printer</option>
-    </select>
-  </div>
-  <div class="d-grid">
-    <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
-    <button type="submit" name="print" class="btn btn-primary">
-      Print
-    </button>
-    {% endif %}
-  </div>
+  <form method="POST">
+    <div class="form-group">
+      <label for="printer" class="form-label mt-4">Select Printer</label>
+      <select name="printer" class="form-select" id="printer" style="text-align: center">
+        <option>Shop Floor Printer</option>
+        <option>Office Printer</option>
+      </select>
+    </div>
+    <div class="d-grid">
+      <input type="number" id="qty" name="qty" class="form-control" placeholder="1" />
+      <button type="submit" name="print" class="btn btn-primary">
+        Print Batch Sticker
+      </button>
+    </div>
+  </form>
+  {% endif %}
 </div>
 {% endblock subcontent %}

@@ -26,6 +26,8 @@ def PowderHome():
     return redirect(url_for('powder.Powder'))
 
 def print_sticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
+    if (qty == '') | (qty == None):
+        qty = 1
     try:
         # Create a TCP/IP socket
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -84,10 +86,10 @@ def print_sticker(printer_ip, batch_or_blend, batch_blend_id, material, date, we
         sock.sendall(command_string.encode())
         # Close the socket
         sock.close()
-        flash(f'Blend {batch_blend_id} sticker(s) printed: qty {qty}', category='success')
+        flash(f'({qty}) {batch_or_blend} {batch_blend_id} sticker(s) printed.', category='success')
     except Exception as e:
         print(e)
-        flash(f'Error printing ({qty}) sticker via IP address {printer_ip}!', category='error')
+        flash(f'Error printing ({qty}) sticker(s) via IP address {printer_ip}!', category='error')
         return
 
 @powder.route('/search/blend', methods=['GET', 'POST'])
@@ -115,11 +117,11 @@ def SearchBlends():
                                     PowderBlends.BlendCreatedBy == Users.id
                                     ).filter(PowderBlends.BlendID == blend_id).all()
                         if blend_query:
-                            flash(f'Blend {blend_id} found.', category='success')
+                            flash(f'{batch_or_blend} {blend_id} found.', category='success')
                         else:
-                            flash(f'Blend {blend_id} not found.', category='error')
+                            flash(f'{batch_or_blend} {blend_id} not found.', category='error')
                     else:
-                        flash(f'Blend number must be positive: {blend_id}', category='error')
+                        flash(f'{batch_or_blend} ID must be positive: {blend_id}', category='error')
         elif 'trace' in request.form:
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')
@@ -142,7 +144,7 @@ def SearchBlends():
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')
             if blend_id:
-                blend_query = db.session.query(
+                blend_sticker_query = db.session.query(
                     PowderBlends, 
                     MaterialAlloys.AlloyName
                     ).join(
@@ -151,16 +153,16 @@ def SearchBlends():
                         ).filter(
                             PowderBlends.BlendID == blend_id
                             ).all()
-                if blend_query:
-                    for blend, alloy_name in blend_query:
+                if blend_sticker_query:
+                    for blend, alloy_name in blend_sticker_query:
                         weight = blend.TotalWeight
                         date = blend.BlendDate.split(' ')[0]
                         # Print the sticker
                         print_sticker(printer_ip, batch_or_blend, blend_id, alloy_name, date, weight, qty)
                 else:
-                    flash(f'Blend {blend_id} not found.', category='error')
+                    flash(f'{batch_or_blend} {blend_id} not found.', category='error')
             else:
-                flash(f'Blend not found in session.', category='error')
+                flash(f'{batch_or_blend} not found in session.', category='error')
     return render_template(
         'powder/search-blend.html', 
         user=current_user, 
@@ -389,7 +391,7 @@ def SearchBatch():
                     # Store the blend number in session
                     session['last_batch_id'] = batch_id
                 else:
-                    flash(f'Batch {batch_id} not found.', category='error')
+                    flash(f'{batch_or_blend} {batch_id} not found.', category='error')
         elif 'print' in request.form:
             printer_name = request.form.get('printer')
             qty = request.form.get('qty')
@@ -399,22 +401,22 @@ def SearchBatch():
                 printer_ip = '10.101.102.65'
             batch_id = session.get('last_batch_id')
             if batch_id:
-                batch_query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName, MaterialProducts.SupplierProduct) \
+                batch_sticker_query = db.session.query(InventoryVirginBatch, MaterialAlloys.AlloyName, MaterialProducts.SupplierProduct) \
                     .join(MaterialProducts, InventoryVirginBatch.ProductID == MaterialProducts.ProductID) \
                         .join(MaterialAlloys, MaterialProducts.AlloyID == MaterialAlloys.AlloyID) \
                     .order_by(InventoryVirginBatch.BatchID.desc()) \
                     .filter(InventoryVirginBatch.BatchID == batch_id).all()
-                if batch_query:
-                    for batch, alloy_name, supplier_product in batch_query:
+                if batch_sticker_query:
+                    for batch, alloy_name, supplier_product in batch_sticker_query:
                         batch_id = batch.BatchID
                         weight = batch.VirginWeight
                         date = batch.BatchTimeStamp.split(' ')[0]
                         # Print the sticker
                         print_sticker(printer_ip, batch_or_blend, batch_id, alloy_name, date, weight, qty)
                 else:
-                    flash(f'Batch {batch_id} not found.', category='error')
+                    flash(f'{batch_or_blend} {batch_id} not found.', category='error')
             else:
-                flash('Batch number not found in session', category='error')
+                flash(f'{batch_or_blend} ID not found in session', category='error')
 
     return render_template(
         'powder/search-batch.html', 
