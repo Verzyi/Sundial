@@ -1,0 +1,74 @@
+﻿ProductID,SupplierProduct,AlloyID
+110,Other (AlSi10Mg),110
+111,EOS 9011-0024,110
+112,Carpenter LPW-ALSI10MG,110
+113,Carpenter LPW-ALSI10MG-AABJ,110
+114,Carpenter LPW-ALSI10MG-AALO,110
+115,Carpenter LPW-ALSI10MG-ASJC,110
+116,Valimet AM103C,110
+117,Vulcan Labs (AlSi10Mg),110
+131,Elementum A6061-RAM2,130
+141,Elementum A7050-RAM2,140
+210,Other (NA625),210
+211,ATI A625,210
+212,Carpenter LPW-625,210
+213,Carpenter LPW-625-AACR,210
+214,Carpenter Micro-Melt 625AM,210
+215,Carpenter PowderRange 625 F,210
+216,Praxair TruForm 625-2 / NI-328-2,210
+217,Standard Steels i625-15,210
+220,Other (NA718),220
+221,Carpenter LPW-718-2,220
+222,ATI A718,220
+223,Oerlikon MetcoAdd 718C,220
+224,P&W HMI 718-4,220
+225,Praxair NI-1302-L74,220
+226,Praxair TruForm 718-N63,220
+230,Other (NA718-API),220
+231,Carpenter LPW-718API-AAPB,220
+232,ATI API 6A718,220
+233,Praxair TruForm 718 API / NI-1302,220
+241,Praxair TruForm K500 / CU-149-4,240
+251,Praxair TruForm HX-12 / NI-111-12,250
+261,Carpenter LPW-939-1,260
+262,Carpenter CT-PSM130-AAAA,260
+263,Carpenter Micro-Melt PSM Mod 939,260
+310,Other (SS174),310
+311,Carpenter LPW-174-AR,310
+312,Carpenter LPW-174AR-AAAN,310
+313,Praxair TruForm 174-2,310
+314,Oerlikon MetcoAdd 17-4PH-A,310
+320,Other (SS316L),320
+321,Carpenter LPW-316-AAAV,320
+322,Carpenter PowderRange 316L F,320
+323,Praxair TruForm 316-3,320
+324,Oerlikon MetcoAdd 316L-A,320
+325,Vulcan Labs (SS316L),320
+331,Praxair TruForm 36 / FE-353,330
+341,Praxair FE-386,340
+350,Other (S4140),350
+351,Praxair FE-379,350
+361,QuesTek Ferrium C64,360
+362,Carpenter Ferrium C64,360
+363,Praxair Ferrium C64,360
+371,Carpenter Invar 49,370
+381,Sandvik SAF25104,380
+410,Other (Ti64),410
+411,AP&C Ti-6Al-4V,410
+412,Carpenter LPW-TI64GD5,410
+413,Carpenter LPW-TI64GD5-AAFG,410
+414,Carpenter LPW-TI64GD5-AAOK,410
+415,Praxair TruForm 6-4 / TI-105-1,410
+416,Vulcan Labs (Ti64),410
+421,Hoeganaes ANCOR TI GR23A,420
+422,Oerlikon MetcoAdd Ti-6Al-4V ELI,420
+423,AP&C (Ti64-G23),420
+510,Other (CoCrMo),510
+511,EOS (CoCrMo),510
+512,ATI CCM,510
+513,Carpenter LPW-COCR-2LC,510
+514,Carpenter LPW-COCR-2MC,510
+515,Praxair TruForm CCM / CO-538-1,510
+610,Other (C18150),610
+611,Praxair TruForm CuCrZr / CU-169,610
+621,ATI GRCop-84,620
