@@ -49,3 +49,4 @@ urllib3==2.0.5
 Werkzeug==2.2.3
 WTForms==3.0.1
 xmltodict==0.13.0
+apscheduler==3.10.4

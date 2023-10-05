@@ -20,24 +20,27 @@
   </thead>
   <tbody>
     <tr>
-      <td>M1 - Si1849</td>
-      <td style="color: {{ 'green' if machine_return.current_status in running_statuses else 'red' if machine_return.current_status in stopped_statuses else 'gray' }};">{{ machine_return.current_status }}</td>
-      <td style="color: {{ 'white' if build_material in ['alsi', 'in625', 'in939', 'hastx'] else 'black' }}; background-color: {{ 'dark gray 1' if build_material == 'alsi' else 'blue' if build_material == 'in625' else 'black' if build_material == 'in939' or build_material == 'hastx' else 'light red berry 1' if build_material == 'ss316' else 'dark green 1' if build_material == 'cocr' else 'orange' if build_material == 'c18150' else 'yellow' if build_material == 'ss17-4' else 'purple' if build_material == 'k500' else 'dark purple 2' if build_material == 'ti64' else 'white' }};">{{ build_material }}</td>
-      <td>{{ end_date_time }}</td>
-      <td>{{ machine_return.remaining_build_time }}</td>
-      <td>{{ machine_return.build_id }}</td>
-      <td>{{ current_jobs }}</td>
-      <td>{{ notes }}</td>
-      <td>
-        <select name="recoater_type">
-          <option value="option1">Option 1</option>
-          <option value="option2">Option 2</option>
-          <option value="option3">Option 3</option>
-        </select>
-      </td>
-      <td>{{ jobs_in_queue }}</td>
-      <td>{{ pm_due }}</td>
-    </tr>
+      {% for item in machine_return %}
+        <tr>
+            <td>M{{ loop.index }} - Si{{ item[0] }} </td>
+          <td style="background-color: {{ 'green' if item[1] == Running else 'gray' if item[1] == Idle else 'red'}}"></td>
+            <td style="color: {{ 'white' if item[2] in ['AlSi', 'IN625', 'IN939', 'Hastx'] else 'black' }}; background-color: {{ 'dark gray 1' if item[2] in ['AlSi'] else 'blue' if item[2] in ['IN625'] else 'black' if item[2] in ['IN939'] or item[2] in ['Hastx'] else 'light red berry 1' if item[2] in ['SS316'] else 'dark green 1' if item[2] in ['CoCr'] else 'orange' if item[2] in ['c18150'] else 'yellow' if item[2] in ['SS17-4'] else 'purple' if item[2] in ['K500'] else 'dark purple 2' if item[2] in ['Ti64'] else 'dark orange 15' if item[2] in ['IN718'] else 'white' }};">{{ item[2] }}</td>
+          <td>{{ item[3] }}</td>
+          <td>{{ item[4] }}</td>
+          <td>{{ item[5] }}</td>
+          <td>{{ item[6] }}</td>
+          <td>{{ item[7] }}</td>
+          <td>
+            <select name="recoater_type">
+              <option value="option1">Option 1</option>
+              <option value="option2">Option 2</option>
+              <option value="option3">Option 3</option>
+            </select>
+          </td>
+          <td>{{ item[8] }}</td>
+          <td>{{ item[9] }}</td>
+        </tr>
+      {% endfor %}
     <!-- Add more rows here -->
   </tbody>
 </table>

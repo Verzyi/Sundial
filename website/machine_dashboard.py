@@ -13,18 +13,20 @@ from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt, check_password_hash 
 import ibm_db
+from apscheduler.schedulers.background import BackgroundScheduler
+from sqlalchemy import text
 
+
+
+# from .models_status import StatusTable
 
 # Create a Blueprint for your views
 machine_dashboard = Blueprint('machine_dashboard', __name__)
 bcrypt = Bcrypt()
-@machine_dashboard.route('/machine')
-@login_required
-def builds_home():
-    data = dashboard()
-    return render_template('dashboards/printers.html', user=current_user, machine_return=data)
 
 
+
+# Define the dashboard function
 def dashboard():
     directory = os.path.dirname(os.path.realpath(__file__))
 
@@ -32,15 +34,15 @@ def dashboard():
     logging.debug('\n{0}; Importing local libraries'.format(datetime.now()))
 
 
-    austin_rows = [['Last Updated: {}'.format(datetime.now().strftime('%m/%d/%y %I:%M %p'))],
-                ['Machine', 'Status', 'Material', 'End Date & Time', 'Time Remaining (hr)', 'Current Build',
-                    'Current Job(s)', 'Notes', 'Recoater Type', 'Quals', 'Job(s) in Queue', 'PM Due']]
+    austin_rows = [
+    ['Last Updated: {}'.format(datetime.now().strftime('%m/%d/%y %I:%M %p'))],
+    ['Machine', 'Status', 'Material', 'End Date & Time', 'Time Remaining (hr)', 'Current Build',
+     'Current Job(s)', 'Notes', 'Recoater Type', 'Job(s) in Queue', 'PM Due']]
 
 
     # Statuses by types
     running_statuses = ['Exposure', 'Recoating', 'Next layer', 'Job start', 'ProcessResume']
     stopped_statuses = ['Exposure/Interrupt', 'Job end', 'Recoating/Interrupt', '-1', None]
-    # stopped_statuses = ['Connection Error', 'Exposure/Interrupt', 'Job end', 'Recoating/Interrupt', '-1', None]
 
     print(directory)
     
@@ -48,14 +50,14 @@ def dashboard():
     instance_folder = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'instance'))
     db_file_path = os.path.join(instance_folder, 'dmls_status.db')
 
-    sqlite_conn = sqlite3.connect(db_file_path)
-    cur = sqlite_conn.cursor()
     conn = EOS_DB2_Wrapper.MachineData()
 
     for machine in conn.machines:
         logging.info('\n{0}; Connecting to machine {1}'.format(datetime.now(), machine))
         machine_return = getattr(conn, 'si{0}'.format(machine))
         try:
+            from .models_status import StatusTable
+            from .models_status import db
             machine_return.fetch_status()
         except EOS_DB2_Wrapper.DB2ConnectionError:
             # Log connection error
@@ -68,21 +70,34 @@ def dashboard():
             pass
 
         # Pull last database status entry to compare to current.
-        last_status_sql = 'SELECT id, machine, status FROM status_table WHERE machine="{0}" ORDER BY id DESC LIMIT 1'
+        last_status_sql = text('SELECT id, machine, status, material FROM status_table WHERE machine=:machine ORDER BY id DESC LIMIT 1')
         try:
-            last_status = cur.execute(last_status_sql.format(machine)).fetchone()[-1]
+            from .models_status import db
+            # Get a database connection from the engine
+            with db.get_engine(bind='dmls_status').connect() as connection:
+                # Execute the SQL statement with parameters
+                result = connection.execute(last_status_sql, {'machine': machine})
+                # Fetch the result row
+                last_status = result.fetchone()[-2]
+                last_material = result.fetchone()[-1]
+                
         except TypeError:
             last_status = None
+            last_material= None
 
         # Insert data into database before updating dashboard
         db_finish_datetime = machine_return.finish_datetime
         db_finish_datetime = None if db_finish_datetime is None else int(db_finish_datetime.strftime('%y%m%d%H%M%S'))
-        build_material = None if machine_return.material is None else machine_return.material.lower()
-        cur.execute('INSERT INTO status_table ("timestamp", "machine", "status", "material", "end_datetime", '
-            '"time_remaining", "build_id", "current_height") VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-            (int(datetime.now().strftime('%y%m%d%H%M%S')), machine_return.serial_number,
-            machine_return.current_status, build_material, db_finish_datetime,
-            machine_return.remaining_build_time, machine_return.build_id, machine_return.current_height))
+        build_material = last_material if machine_return.material is None else machine_return.material.lower()
+        status_table = StatusTable(timestamp=int(datetime.now().strftime('%y%m%d%H%M%S')),
+                                   machine=machine_return.serial_number,
+                                   status=machine_return.current_status,
+                                   material=build_material,
+                                   end_datetime=db_finish_datetime,
+                                   time_remaining=machine_return.remaining_build_time,
+                                   build_id=machine_return.build_id,
+                                   current_height=machine_return.current_height)
+        
         
         #get workorder number
         build_id = machine_return.build_id
@@ -103,47 +118,43 @@ def dashboard():
             remaining_time = '%.2f' % machine_return.remaining_build_time
         else:
             remaining_time = ''
-        build_id = machine_return.build_id
-        machine_data = [[None, status, material, finish_datetime, remaining_time, build_id]]
-        if machine_return.site == 'Austin':
+            build_id = machine_return.build_id
+        machine_data = [[machine, status, material, finish_datetime, remaining_time, build_id]]
+        if machine_return.site == 'Belton':
             austin_rows += machine_data
         else:
             austin_rows += machine_data
-        sqlite_conn.commit()
 
-        # Send updates for a status change
-        if last_status == machine_return.current_status:
-            # This continues if there is no change from the last status to the current. This prevents sending out messages
-            # if users have already been notified.
-            continue
+            
+        db.session.add(status_table)
+        db.session.commit()    
 
-        if last_status in running_statuses and machine_return.current_status in running_statuses:
-            # This continues if the machine continues to run whether scanning, recoating, etc.
-            continue
+    # Return the data
+    # print(austin_rows)
+    return austin_rows
 
-        if last_status in running_statuses and machine_return.current_status in stopped_statuses:
-            # This identifies if the machine goes from a "good" state to a "bad" state
 
-            title = 'SI{0}'.format(machine)
-            body = 'Status change: {0} to {1}'.format(last_status, machine_return.current_status)
+# Create a scheduler instance
+scheduler = BackgroundScheduler()
 
-            if machine_return.site == 'Belton':
-                # update for Belton channel
-                logging.info('\n{0}; Sending Belton Notification'.format(datetime.now()))
-                try:
-                    # Put an action in here if notifications are to be added
-                    pass
-                except requests.exceptions.ConnectionError:
-                    logging.warning('\n{0}; Belton Notification Failed to send'.format(datetime.now()))
-                    pass
-            if machine_return.site == 'Austin':
-                # Update for Austin channel
-                logging.warning('\n{0}; Sending Austin Notification'.format(datetime.now()))
-                try:
-                    # Put an action in here if notifications are to be added
-                    pass
-                except requests.exceptions.ConnectionError:
-                    logging.info('\n{0}; Austin Notification Failed to send'.format(datetime.now()))
-                    pass
+# Schedule the dashboard function to run every 5 minutes
+scheduler.add_job(dashboard, 'interval', minutes=5)
 
-    sqlite_conn.close()
+# Define the route for the dashboard
+@machine_dashboard.route('/machine')
+@login_required
+def builds_home():
+    # Get the data from the scheduler
+    dataa=dashboard()
+    for stuff in dataa:
+        print(stuff)
+    # df.pd = dashboard()
+    
+    data = scheduler.get_job('dashboard')
+    if data is not None:
+        data = data.run()
+        print(data)
+    return render_template('dashboards/printers.html', user=current_user, machine_return=dataa[2:])
+
+
+
