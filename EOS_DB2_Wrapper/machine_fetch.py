@@ -275,7 +275,7 @@ class Machine:
 if __name__ == '__main__':
     test = MachineData()
     machine = test.si2642
-    print(test.upkeep_ids)
+    # print(test.upkeep_ids)
 
 
 

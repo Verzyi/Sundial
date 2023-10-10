@@ -5,6 +5,7 @@ from . import db
 from .mpd_dash import mpd_dash
 import pandas as pd
 from sqlalchemy import func
+from datetime import datetime
 
 # Create a Blueprint for your views
 dashboards_bp = Blueprint('dashboards_bp', __name__)
@@ -19,7 +20,7 @@ def PrinterDash():
         from .models_status import db
 
         # Get the latest status for each machine
-        latest_statuses = db.session.query(StatusTable).distinct(StatusTable.machine).group_by(StatusTable.machine).order_by(StatusTable.timestamp.desc()).first()
+        latest_statuses = db.session.query(StatusTable).distinct(StatusTable.machine).group_by(StatusTable.machine).order_by(StatusTable.timestamp.asc()).first()
         
         # Define your machines mapping
         machines_mapping = {
@@ -41,6 +42,11 @@ def PrinterDash():
             "M16": "3607",
             "M17": "2813"
         }
+        
+        formatted_end_datetime = " "
+        running_statuses = ['Exposure', 'Recoating', 'Next layer', 'Job start', 'ProcessResume']
+        stopped_statuses = ['Exposure/Interrupt', 'Job paused' , 'Recoating/Interrupt', '-1', None]
+        idel = ['Job end','Idle']
 
         # Create a list to store data for each machine
         machine_data = []
@@ -50,31 +56,59 @@ def PrinterDash():
             si_number = machines_mapping.get(machine, None)
             if si_number:
                 latest_data = db.session.query(StatusTable).filter_by(machine=si_number).order_by(StatusTable.timestamp.desc()).first()
-                print(latest_data)
+                # print(latest_data)
                 if latest_data:
+                    try:
+                        # Assuming latest_data.end_datetime is a float representing a timestamp
+                        end_timestamp = latest_data.end_datetime
+
+                        # Convert the float timestamp to a string
+                        end_timestamp_str = str(int(end_timestamp))
+
+                        # Parse the string timestamp into a datetime object using the specified format
+                        parsed_datetime = datetime.strptime(end_timestamp_str, '%y%m%d%H%M%S')
+
+                        # Format the parsed datetime object into the desired string format
+                        formatted_end_datetime = parsed_datetime.strftime('%m/%d/%y %I:%M:%S %p')
+                        # Statuses by types
+                        
+                    except Exception as e:
+                        # print(e)
+                        formatted_end_datetime = ''
+                        
+
+                    # Now, formatted_end_datetime contains the properly formatted datetime string
                     machine_data.append({
                         'Alias': machine,
                         'Si Number': f"Si{latest_data.machine}",
-                        'Status': latest_data.status if latest_data.status else '',
+                        'Status': 'Running' if latest_data.status in running_statuses else 'Interrupt' if latest_data.status in stopped_statuses else 'Idle' if latest_data.status in idel else 'Error',
+                        'Material': latest_data.material.upper() if latest_data.material else 'N/A',
+                        'End Date Time': formatted_end_datetime,
+                        'Time Remaining':round(latest_data.time_remaining,2) if latest_data.time_remaining else " ",
+                        'Current Build':latest_data.build_id if latest_data.build_id else 'N/A',
                         # Add other columns as needed from latest_data
                     })
                 else:
                     machine_data.append({
                         'Alias': machine,
                         'Si Number': f"Si{si_number}",
-                        'Status': 'N/A',  # Or any other default value to indicate no data
+                        'Status': 'N/A', 
+                        'Material': 'N/A',
+                        'End Date Time':' ',
+                        'Time Remaining ':' ',
+                        'Current Build':' ',
                         # Add other columns as needed with default values
                     })
         # Create a DataFrame from the machine data
         df = pd.DataFrame(machine_data)
 
         # Print the DataFrame for debugging
-        print(df)
+        # print(df)
 
         # Pass the DataFrame to the template
         return render_template('dashboards/printers.html', user=current_user, machine_return=df)
 
     except Exception as e:
         # Log connection error or other exceptions
-        app.logger.error(f"An error occurred: {e}")
+        # print(e)        
         return render_template('dashboards/printers.html', user=current_user)

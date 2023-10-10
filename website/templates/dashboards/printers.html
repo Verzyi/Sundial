@@ -1,17 +1,16 @@
-{% extends "base.html" %}
-{% block title %} Austin Printer Status {% endblock %}
+{% extends "dashboards/base_dashboards.html" %}
+<title>{% block title %} Austin Printer Status {% endblock %}</titel>
 {% block content %}
 <h1>{{ self.title() }}</h1>
-<table>
+<table class = "table table-hover">
   <thead>
-    <tr>
+    <tr class="table-active">
       <th>Machine</th>
       <th>Status</th>
       <th>Material</th>
       <th>End Date & Time</th>
-      <th>Time Remaining (hr)</th>
+      <th >Time Remaining (hr)</th>
       <th>Current Build</th>
-      <th>Current Job(s)</th>
       <th>Notes</th>
       <th>Recoater Type</th>
       <th>Job(s) in Queue</th>
@@ -20,25 +19,38 @@
   </thead>
   <tbody>
     <tr>
-      {% for item in machine_return %}
+      {% for index, item in machine_return.iterrows() %}
         <tr>
-            <td>M{{ loop.index }} - Si{{ item[0] }} </td>
-          <td style="background-color: {{ 'green' if item[1] == Running else 'gray' if item[1] == Idle else 'red'}}"></td>
-            <td style="color: {{ 'white' if item[2] in ['AlSi', 'IN625', 'IN939', 'Hastx'] else 'black' }}; background-color: {{ 'dark gray 1' if item[2] in ['AlSi'] else 'blue' if item[2] in ['IN625'] else 'black' if item[2] in ['IN939'] or item[2] in ['Hastx'] else 'light red berry 1' if item[2] in ['SS316'] else 'dark green 1' if item[2] in ['CoCr'] else 'orange' if item[2] in ['c18150'] else 'yellow' if item[2] in ['SS17-4'] else 'purple' if item[2] in ['K500'] else 'dark purple 2' if item[2] in ['Ti64'] else 'dark orange 15' if item[2] in ['IN718'] else 'white' }};">{{ item[2] }}</td>
-          <td>{{ item[3] }}</td>
-          <td>{{ item[4] }}</td>
-          <td>{{ item[5] }}</td>
-          <td>{{ item[6] }}</td>
-          <td>{{ item[7] }}</td>
+          <td>M{{ loop.index }} - {{ item['Si Number'] }}</td>
+          <td style="color:black ; background-color: {% if item['Status'] == 'Running' %}green{% elif item['Status'] == 'Idle' %}gray{% elif item['Status'] == 'N/A' %}red{% elif item['Status'] == 'Error' %}yellow{% endif  %}">{{ item['Status'] }}</td>
+          <td style="color: {{ 'white' if item['Material'] in ['ALSI', 'IN625', 'IN939', 'Hastx', 'TI64', 'C64', 'SS316'] else 'black' }}; background-color: {{ 'DarkGray' if item['Material'] in ['ALSI'] else 'blue' if item['Material'] in ['IN625'] else 'black' if item['Material'] in ['IN939'] or item['Material'] in ['Hastx'] else 'Crimson' if item['Material'] in ['SS316'] else 'dark green 1' if item['Material'] in ['CoCr'] else 'DarkOrange' if item['Material'] in ['c18150'] else 'yellow' if item['Material'] in ['SS17-4'] else 'purple' if item['Material'] in ['K500'] else 'midnightBlue' if item['Material'] in ['TI64'] else 'orange' if item['Material'] in ['IN718'] else 'DeepPink' if item['Material'] in ['C64'] else 'white' }};">{{ item['Material'] }}</td>
+          <td>{{ item['End Date Time'] }}</td>
+          <td style="background-color: 
+    {% if item['Time Remaining'] is not none and item['Time Remaining']|float is not none and item['Time Remaining']|float > 0 %}
+        {% if item['Time Remaining']|float < 2 %}red
+        {% elif item['Time Remaining']|float < 8 %}yellow
+        {% elif item['Time Remaining']|float < 24 %}green
+        {% endif %}
+    {% endif %};">
+    {{ item['Time Remaining'] }}
+</td>
+
+
+          <td style="color: {{ 'transparent' if item['Status'] == "Idle"}};">{{ item['Current Build'] }}</td>
           <td>
-            <select name="recoater_type">
-              <option value="option1">Option 1</option>
-              <option value="option2">Option 2</option>
-              <option value="option3">Option 3</option>
+              <textarea class="form-control expandable-textarea" id="exampleTextarea" rows="1" spellcheck="true"></textarea>
+          </td>
+          
+          <td>
+            <select class='recoater_type' name="recoater_type">
+              <option value="Steel">Steel</option>
+              <option value="Brush">Brush</option>
+              <option value="NBR">NBR (black)</option>
+              <option value="Silicon">Silicon (clear)</option>
             </select>
           </td>
-          <td>{{ item[8] }}</td>
-          <td>{{ item[9] }}</td>
+          <td></td>
+          <td></td>
         </tr>
       {% endfor %}
     <!-- Add more rows here -->

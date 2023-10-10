@@ -10,7 +10,9 @@ from flask_admin.contrib.sqla import ModelView
 from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
 import datetime as dt
+from apscheduler.schedulers.background import BackgroundScheduler
 from .machine_dashboard import machine_dashboard
+from .machine_dashboard import dashboard  # Import the dashboard function
 
 from .mpd_dash import mpd_dash
 
@@ -29,6 +31,18 @@ def CreateStatusDatabase(app):
         with app.app_context():
             db.create_all()
             print('Status Database Created!')
+            
+def Createscheduler(app):
+    # Create a scheduler instance
+    scheduler = BackgroundScheduler()
+
+    # Schedule the dashboard function to run every 5 minutes
+    scheduler.add_job(lambda: dashboard(app), 'interval', minutes=5, id='dashboard_job')
+
+    # Start the scheduler within the Flask app context
+    with app.app_context():
+        scheduler.start()
+
 
 def CreateApp():
     app = Flask(__name__)
@@ -68,6 +82,10 @@ def CreateApp():
     # Create the main database
     CreateStatusDatabase(app)
     CreateDatabase(app)
+    
+    Createscheduler(app)
+
+    
     
     # Login info
     login_manager = LoginManager()

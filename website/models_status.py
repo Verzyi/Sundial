@@ -11,7 +11,7 @@ class StatusTable(db.Model):
     __bind_key__= "dmls_status"
     __tablename__ = 'status_table' 
 
-    id = db.Column(db.Integer, primary_key=True,autoincrement=True)
+    id = db.Column(db.Integer, primary_key=True)
     timestamp = db.Column(db.Integer)
     machine = db.Column(db.Integer)
     status = db.Column(db.Text)
@@ -20,6 +20,3 @@ class StatusTable(db.Model):
     time_remaining = db.Column(db.REAL)
     build_id = db.Column(db.Text)
     current_height = db.Column(db.REAL)
-
-    def __repr__(self):
-        return f"<StatusTable(id={self.id}, machine={self.machine}, status={self.status}, ...)>"  # Include other columns for representation

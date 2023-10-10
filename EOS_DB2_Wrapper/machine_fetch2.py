@@ -10,7 +10,7 @@ def machine_info(machine_data):
     pd.set_option('display.width', 2000)
     pd.set_option('display.max_rows', 1000)
     (machine_id, ip_address, manufacturer, model, site, cell) = machine_data
-    print(machine_id)
+    # print(machine_id)
     sqlite_sql = 'INSERT INTO status (machine_id, now, current_height, total_time, remaining_time, ' \
                  'completed_datetime, layer_count, file_name, material, layer_thickness, material_thickness, ' \
                  'event_id, module_id, level, state, start_height, end_height, bottom_offset, top_offset, ' \
@@ -29,7 +29,7 @@ def machine_info(machine_data):
             # ibm_cur.execute("SELECT * FROM EOSLOG.STATUS_TBL")
             break
         except db.OperationalError:
-            print('OperationalError')
+            # print('OperationalError')
 
             if x is 2:
                 data_values = (machine_id, now) + (None,) * 17 + ('Connection Error', 25) + (None,)
@@ -40,7 +40,7 @@ def machine_info(machine_data):
     status.drop(['SE_CRY', 'APP_ID', 'SE_BINDATA', 'SE_NVAL', 'SE_TIMESTAMP'], axis=1, inplace=True)
     status = status.sort_values(by='ST_ID').set_index('ST_ID')
     status['MA_ID'] = status['MA_ID'].map(lambda x: x.strip())
-    print(status)
+    # print(status)
     #print(ibm_conn)
     status_indices = status.index.tolist()
 
@@ -89,9 +89,9 @@ def machine_info(machine_data):
     if 3 in status_indices:  # and status.loc[3]['MA_ID'] == machine_id.upper():
         test = status.loc[3]
         # test = test[test['MA_ID'] == 'SI{0}'.format(machine_id)]
-        print(test)
+        # print(test)
         test = xmltodict.parse(str(test['SE_TEXTDATA']))
-        print(test['SE_TEXTDATA'])
+        # print(test['SE_TEXTDATA'])
         text = xmltodict.parse(status.loc[3]['SE_TEXTDATA'])['Events']['LastEvent']
         event_id = text['EventId']
         module_id = text['ModuleId']
