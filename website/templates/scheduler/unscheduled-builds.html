@@ -1,0 +1,46 @@
+{% extends "scheduler/base_scheduler.html" %}
+{% block title %} Scheduler Tool {% endblock title %}
+{% block content %}
+<div class="container">
+<H1>Unscheduled Builds</H1>
+<div class="container">
+    <table class = "table table-hover">
+        <thead>
+          <tr class="table-active">
+            <th class="text-center">BuildID</th>
+            <th class="text-center">Machine</th>
+            <th class="text-center">Material</th>
+            <th class="text-center">Build Time (Hr)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            {% for item in builds %}
+              <tr class="text-center">
+                <td id="buildId" name="buildId" value = {{item['BuildID']}}>{{item['BuildID']}}</td>
+                <td><select class="form-select text-center" id="machineIdInput" name="machineIdInput" onchange="updateDatabase(this.value, 'machineIdInput')">
+                  <option value="" disabled selected>Select Machine</option>
+                  {% for machine in machines %}
+                  <option value="{{ machine }}">{{ machine }}</option>
+                  {% endfor %}
+                </select></td>
+                <td><select class="form-select text-center" id="AlloyNameInput" name="AlloyNameInput" onchange="updateDatabase(this.value, 'AlloyNameInput')">
+                    <option value="" disabled>Select Material</option>
+                    {% for material in materials %}
+                      {% if item['AlloyName']  == material %}
+                        <option value="{{ material }}" selected>{{ material }}</option>
+                      {% else %}
+                        <option value="{{ material }}">{{ material }}</option>
+                      {% endif %}
+                    {% endfor %}
+                  </select>
+                </td>
+                <td></td>
+              </tr>
+            {% endfor %}
+          <!-- Add more rows here -->
+        </tbody>
+      </table>    
+</div>
+
+{% endblock content %}

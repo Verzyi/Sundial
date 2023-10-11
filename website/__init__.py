@@ -65,9 +65,10 @@ def CreateApp():
     from .builds import builds
     from .quote import quote
     from .dashboards import dashboards_bp
+    from .scheduler import scheduler
     # from .maintenance import maintenance_bp
 
-    bp_list = [auth, views, machine_dashboard, quote]
+    bp_list = [auth, views, machine_dashboard, quote, scheduler]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
