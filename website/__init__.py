@@ -13,8 +13,10 @@ import datetime as dt
 from apscheduler.schedulers.background import BackgroundScheduler
 from .machine_dashboard import machine_dashboard
 from .machine_dashboard import dashboard  # Import the dashboard function
-
+from flask_migrate import Migrate
 from .mpd_dash import mpd_dash
+
+
 
 db = SQLAlchemy()
 DB_NAME = 'database.db'
@@ -53,7 +55,12 @@ def CreateApp():
         'dmls_status': f'sqlite:///{DB_STATUS_NAME}',  # Bind the 'dmls_status' database
         'main': f'sqlite:///{DB_NAME}'  # Bind the main database (you can change 'main' to your preferred name)
     }
+    # Initialize SQLAlchemy with the app
     db.init_app(app)
+    
+    migrate = Migrate(app, db)
+    
+    
     
     # Debug Toolbar Configuration
     app.config['DEBUG_TB_ENABLED'] = False
@@ -67,6 +74,7 @@ def CreateApp():
     from .quote import quote
     from .dashboards import dashboards_bp
     from .scheduler import scheduler
+    from .migrate import migrate_bp
     # from .maintenance import maintenance_bp
 
     bp_list = [auth, views, machine_dashboard, quote, scheduler]
@@ -77,16 +85,23 @@ def CreateApp():
     app.register_blueprint(builds, url_prefix='/builds')
     app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
+    app.register_blueprint(migrate_bp, url_prefix='/migrate')
 
 
     from .models_status import StatusTable
-    from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+    from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable 
+    from .models import TaskTypes, Tasks, ScheduleTasks, Machines, Location
     # Create the main database
     CreateStatusDatabase(app)
     CreateDatabase(app)
     
     Createscheduler(app)
 
+
+
+
+
+    
     
     
     # Login info

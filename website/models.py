@@ -1,7 +1,7 @@
 from flask_login import UserMixin
 from sqlalchemy import PrimaryKeyConstraint, ForeignKeyConstraint
 from sqlalchemy.orm import validates
-
+from flask_migrate import Migrate
 from . import db
 
 
@@ -54,7 +54,7 @@ class PowderBlendParts(db.Model):
 
 class PowderBlendCalc(db.Model):
     __table_args__ = (
-        PrimaryKeyConstraint('BlendID', 'PartID', name='BlendPartID'),
+        PrimaryKeyConstraint('BlendID', 'PartID', name='pk_blend_part'),
         # ForeignKeyConstraint(['BlendID', 'PartID'], ['powder_blend_parts.BlendID', 'powder_blend_parts.PartID']),
     )
     BlendID = db.Column(db.Integer, primary_key=True, unique=False)	
@@ -139,66 +139,6 @@ class BuildsTable(db.Model):
     Platform = db.Column(db.String)
     BuildType = db.Column(db.String)
     
-    # class Maintenance(db.Model):
-    #     __tablename__ = 'maintenance'
-    #     ID = db.Column(db.Integer, primary_key=True)
-    #     Work_Order = db.Column(db.String(50))
-    #     Created_On = db.Column(db.DateTime, default=datetime.utcnow)
-    #     Due_Date = db.Column(db.DateTime)
-    #     Next_Due_Date = db.Column(db.DateTime)
-    #     End_Due_Date = db.Column(db.DateTime)
-    #     Updated_On = db.Column(db.DateTime, default=datetime.utcnow)
-    #     Completed_On = db.Column(db.DateTime)
-    #     Work_Order_Title = db.Column(db.String(100))
-    #     Work_Order_Description = db.Column(db.String(500))
-    #     Additional_Cost = db.Column(db.Float)
-    #     Labor_Cost = db.Column(db.Float)
-    #     Parts_Cost = db.Column(db.Float)
-    #     Total_Cost = db.Column(db.Float)
-    #     Time = db.Column(db.Float)
-    #     Status = db.Column(db.String(20))
-    #     Category = db.Column(db.String(50))
-    #     Reschedule_Based_On_Completion = db.Column(db.Boolean)
-    #     Repeating_Schedule = db.Column(db.Boolean)
-    #     Root_Work_Order_Exists = db.Column(db.Boolean)
-    #     Asset_ID = db.Column(db.Integer)
-    #     Asset_Name = db.Column(db.String(100))
-    #     Asset_Category = db.Column(db.String(50))
-    #     Asset_Area = db.Column(db.String(50))
-    #     Asset_Barcode = db.Column(db.String(50))
-    #     Location_Name = db.Column(db.String(100))
-    #     Location_Address = db.Column(db.String(200))
-    #     Location_ID = db.Column(db.Integer)
-    #     Completed_By = db.Column(db.String(100))
-    #     Completed_By_ID = db.Column(db.Integer)
-    #     Requires_Signature = db.Column(db.Boolean)
-    #     Signature_Image = db.Column(db.String(200))
-    #     Assigned_By = db.Column(db.String(100))
-    #     Assigned_By_ID = db.Column(db.Integer)
-    #     Assigned_To = db.Column(db.String(100))
-    #     Assigned_To_ID = db.Column(db.Integer)
-    #     Team_Assigned = db.Column(db.String(100))
-    #     Team_Assigned_ID = db.Column(db.Integer)
-    #     Parts = db.Column(db.String(500))
-    #     Purchase_Orders = db.Column(db.String(500))
-    #     Estimated_Duration = db.Column(db.Float)
-    #     Updates = db.Column(db.String(500))
-    #     Priority = db.Column(db.String(20))
-    #     Archived_Status = db.Column(db.Boolean)
-    #     Images = db.Column(db.String(500))
-    #     Checklist_ID = db.Column(db.Integer)
-    #     Task_Data = db.Column(db.String(500))
-    #     Task_Images = db.Column(db.String(500))
-    #     Additional_Workers = db.Column(db.String(500))
-    #     Additional_Worker_IDs = db.Column(db.String(500))
-    #     Requested_By = db.Column(db.String(100))
-    #     Requested_By_ID = db.Column(db.Integer)
-    #     Requested_By_Email_Address = db.Column(db.String(100))
-    #     Part_IDs = db.Column(db.String(500))
-    #     Part_Quantities = db.Column(db.String(500))
-    #     File_IDs = db.Column(db.String(500))
-
-    
     date_cols = ['BuildStart', 'BuildFinish', 'InertTime', 'BreakoutTime']
     for col in date_cols:
         @validates(col)
@@ -213,3 +153,46 @@ class BuildsTable(db.Model):
             column.name: getattr(self, column.name, None)
             for column in self.__table__.columns
         }
+
+   
+
+class TaskTypes(db.Model):
+    TaskTypeID = db.Column(db.Integer, primary_key=True)
+    TaskTypeName = db.Column(db.String(50))
+    
+class Tasks(db.Model):
+    TaskID = db.Column(db.Integer, primary_key=True)
+    TaskTypeID = db.Column(db.Integer)
+    TaskName = db.Column(db.String(50))
+    TaskEstimateLength = db.Column(db.Float)
+    
+class ScheduleTasks(db.Model):
+    ScheduleID = db.Column(db.Integer, primary_key=True)
+    TaskID = db.Column(db.Integer)
+    TaskOrder = db.Column(db.Integer)
+    MachineID = db.Column(db.Integer)
+    AlloyID = db.Column(db.Integer)
+    TaskAssignmentStart = db.Column(db.String)
+    TaskAssignmentFinish = db.Column(db.String)
+    TaskAssignmentLength = db.Column(db.Float)
+    
+
+class Machines(db.Model):
+    MachineID = db.Column(db.Integer, primary_key=True)
+    MachineSerial = db.Column(db.Integer)
+    LocationID =  db.Column(db.Integer)
+    MachineName = db.Column(db.String(50))
+    MachineAlias = db.Column(db.String(50))
+    MachineType = db.Column(db.String(50))
+    
+class Location(db.Model):
+    LocationID = db.Column(db.Integer, primary_key=True)
+    LocationName = db.Column(db.String(50))
+    LocationAlias = db.Column(db.String(50))
+    
+
+
+
+
+    
+    
