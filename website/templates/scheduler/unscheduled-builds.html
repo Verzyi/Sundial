@@ -17,7 +17,7 @@
           <tr>
             {% for item in builds %}
               <tr class="text-center">
-                <td id="buildId" name="buildId" value = {{item['BuildID']}}>{{item['BuildID']}}</td>
+                <td  id="buildId" name="buildId" value = {{item['BuildID']}}>{{item['BuildID']}}</td>
                 <td><select class="form-select text-center" id="machineIdInput" name="machineIdInput" onchange="updateDatabase(this.value, 'machineIdInput')">
                   <option value="" disabled selected>Select Machine</option>
                   {% for machine in machines %}
@@ -35,7 +35,7 @@
                     {% endfor %}
                   </select>
                 </td>
-                <td></td>
+                <td><input class="form-control text-center" id="buildTime" name="buildTime" placeholder = '8' type="number" step = '0.01' onchange="updateDatabase(this.value, 'buildTime')">{{item['buildTime']}}</td>
               </tr>
             {% endfor %}
           <!-- Add more rows here -->
