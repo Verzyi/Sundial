@@ -142,7 +142,9 @@ def CreateApp():
     users_category = MenuCategory(name='Users')
     powder_category = MenuCategory(name='Powder')
     builds_category = MenuCategory(name='Build')
+    extra_category = MenuCategory(name='ExtraTables')
     fix_category = MenuCategory(name='Fix-tools')
+    
 
     category_list = [users_category, powder_category, builds_category, fix_category]
     
@@ -201,6 +203,24 @@ def CreateApp():
         column_display_pk = True
         column_searchable_list = ['BlendID']
     admin.add_view(BlendCalcAdminView(PowderBlendCalc, db.session, category=powder_category.name))
+    
+    # Location
+    class LocationAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['LocationID','LocationName']
+    admin.add_view(LocationAdminView(Location, db.session, category=extra_category.name))
+    
+    # Machine
+    class MachinesAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['MachineID','MachineName']
+    admin.add_view(MachinesAdminView(Machines, db.session, category=extra_category.name))
+    
+    # TaskType
+    class TaskTypeAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['TaskTypeID']
+    admin.add_view(TaskTypeAdminView(TaskTypes, db.session, category=extra_category.name))
 
     # Build
     class BuildsAdminView(ModelView):
