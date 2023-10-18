@@ -213,3 +213,15 @@ class BuildsTable(db.Model):
             column.name: getattr(self, column.name, None)
             for column in self.__table__.columns
         }
+class Machines(db.Model):
+    MachineID = db.Column(db.Integer, primary_key=True)
+    MachineSerial = db.Column(db.Integer)
+    LocationID =  db.Column(db.Integer)
+    MachineName = db.Column(db.String(50))
+    MachineAlias = db.Column(db.String(50))
+    MachineType = db.Column(db.String(50))
+    
+class Location(db.Model):
+    LocationID = db.Column(db.Integer, primary_key=True)
+    LocationName = db.Column(db.String(50))
+    LocationAlias = db.Column(db.String(50))

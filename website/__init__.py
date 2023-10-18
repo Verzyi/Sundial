@@ -13,7 +13,7 @@ import datetime as dt
 from apscheduler.schedulers.background import BackgroundScheduler
 from .machine_dashboard import machine_dashboard
 from .machine_dashboard import dashboard  # Import the dashboard function
-
+from flask_migrate import Migrate
 from .mpd_dash import mpd_dash
 
 db = SQLAlchemy()
@@ -65,6 +65,8 @@ def CreateApp():
     from .builds import builds
     from .quote import quote
     from .dashboards import dashboards_bp
+    from .migrate import migrate_bp
+
 
     bp_list = [auth, views, machine_dashboard, quote]
     
@@ -74,10 +76,12 @@ def CreateApp():
     app.register_blueprint(builds, url_prefix='/builds')
     app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
+    app.register_blueprint(migrate_bp, url_prefix='/migrate')
 
 
     from .models_status import StatusTable
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable
+    from .models import Machines, Location
     # Create the main database
     CreateStatusDatabase(app)
     CreateDatabase(app)
@@ -192,6 +196,18 @@ def CreateApp():
     
     admin.add_view(ModelView(MaterialAlloys, db.session, category=powder_category.name))
     admin.add_view(ModelView(MaterialProducts, db.session, category=powder_category.name))
+    
+    # Location
+    class LocationAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['LocationID','LocationName']
+    admin.add_view(LocationAdminView(Location, db.session, category=builds_category.name))
+    
+    # Machine
+    class MachinesAdminView(ModelView):
+        column_display_pk = True
+        column_searchable_list = ['MachineID','MachineName']
+    admin.add_view(MachinesAdminView(Machines, db.session, category=builds_category.name))
     
     class FixToolView(AdminIndexView):
         # column_display_pk = True
