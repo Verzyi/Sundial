@@ -54,6 +54,8 @@ def CreateApp():
     }
     db.init_app(app)
     
+    migrate = Migrate(app, db)
+    
     # Debug Toolbar Configuration
     app.config['DEBUG_TB_ENABLED'] = False
     app.config['DEBUG_TB_INTERCEPT_REDIRECTS'] = False

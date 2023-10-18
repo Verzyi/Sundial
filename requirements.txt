@@ -50,3 +50,4 @@ Werkzeug==2.2.3
 WTForms==3.0.1
 xmltodict==0.13.0
 apscheduler==3.10.4
+Flask_Migrate==4.0.5

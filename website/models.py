@@ -54,7 +54,7 @@ class PowderBlendParts(db.Model):
 
 class PowderBlendCalc(db.Model):
     __table_args__ = (
-        PrimaryKeyConstraint('BlendID', 'PartID', name='BlendPartID'),
+        PrimaryKeyConstraint('BlendID', 'PartID', name='pk_blend_part'),
         # ForeignKeyConstraint(['BlendID', 'PartID'], ['powder_blend_parts.BlendID', 'powder_blend_parts.PartID']),
     )
     BlendID = db.Column(db.Integer, primary_key=True, unique=False)	
