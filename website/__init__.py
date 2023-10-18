@@ -65,7 +65,6 @@ def CreateApp():
     from .builds import builds
     from .quote import quote
     from .dashboards import dashboards_bp
-    # from .maintenance import maintenance_bp
 
     bp_list = [auth, views, machine_dashboard, quote]
     
