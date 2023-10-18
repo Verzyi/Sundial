@@ -62,7 +62,7 @@ def upgrade_machine():
         db.session.add(machine)
 
     # Commit the changes to the database
-    # db.session.commit() turn this off so that it will not save it some one else uses it 
+    # db.session.commit() #turn this off so that it will not save it some one else uses it 
 
     # Optional: Print a message to confirm the data has been added
     print("Machine data added to the database successfully.")
