@@ -7,7 +7,7 @@ import math
 import pdfkit
 
 from . import db
-from .models import BuildsTable, Users
+from .models import BuildsTable, Users, Tasks, ScheduleTasks, MaterialAlloys
 
 builds = Blueprint('builds', __name__)
 
@@ -174,6 +174,20 @@ def new_build():
         CreatedOn=dt.datetime.now())
     db.session.add(new_build)
     db.session.commit()
+    
+    #adding task for task Schedule
+    # Get the highest taskID number from the database
+    highest_task_id = db.session.query(func.max(Tasks.TaskID)).scalar()
+    # Increment the BuildID number by 1 for the new build
+    new_task_id = highest_task_id + 1
+            
+    new_task = Tasks(
+        TaskID = new_task_id,
+        TaskName=new_build_id,
+        TaskTypeID=1,
+        TaskEstimateLength=1
+        )
+    
     # Redirect to the builds page with the new build selected
     return redirect(url_for('builds.builds_page', selectedFacility=selectedFacility, selectedBuildID=new_build_id))
 
@@ -221,6 +235,42 @@ def copy_build():
             )
             db.session.add(new_build)
             db.session.commit()
+            
+            #adding task for task Schedule
+            # Get the highest taskID number from the database
+            highest_task_id = db.session.query(func.max(Tasks.TaskID)).scalar()
+            # Increment the BuildID number by 1 for the new build
+            new_task_id = highest_task_id + 1
+            
+            new_task = Tasks(
+                TaskID = new_task_id,
+                TaskName=new_build_id,
+                TaskTypeID=1,
+                TaskEstimateLength=1
+                )
+            
+            #adding task for task Schedule
+            # Get the highest ScheduleID number from the database
+            highest_schedule_id = db.session.query(func.max(ScheduleTasks.ScheduleID)).scalar()
+            # Increment the taskID number by 1 for the new build
+            new_schedule_id = highest_schedule_id + 1
+            
+            # Get the highest OrderID where machine = existing_build.MachineID
+            highest_order_id = db.session.query(func.max(ScheduleTasks.OrderID)).filter(ScheduleTasks.machine == existing_build.MachineID).scalar()
+            # Increment the taskID number by 1 for the new build
+            new_order_id = highest_order_id + 1
+            
+            
+            new_task = Tasks(
+                ScheduleID = new_schedule_id,
+                TaskID=new_build_id,
+                TaskOrder=new_order_id,
+                MachineID=existing_build.MachineID,
+                AlloyName=existing_build.AlloyName
+            )
+                    
+                            
+            
             # Redirect to the builds page with the new build selected
             return redirect(url_for('builds.builds_page', selectedBuildID=new_build_id))
     # Handle the case when 'BuildsID' is not present in the form

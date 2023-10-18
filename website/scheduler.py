@@ -8,7 +8,7 @@ import numpy as np
 import os
 import math
 from . import db
-from .models import BuildsTable, Users
+from .models import BuildsTable, Users, Tasks, TaskTypes, Machines, Location
 
 
 
@@ -18,41 +18,21 @@ scheduler = Blueprint('scheduler', __name__)
 @scheduler.route('/scheduler', methods=['GET', 'POST'])
 @login_required
 def index():
-    # Define your machines mapping
-    machines_mapping = {
-            "M1": "1849",
-            "M2": "1848",
-            "M3": "1476",
-            "M4": "1991",
-            "M5": "2001",
-            "M6": "2006",
-            "M7": "1989",
-            "M8": "1160",
-            "M9": "1852",
-            "M10": "1810",
-            "M11": "1853",
-            "M12": "1351",
-            "M13": "2643",
-            "M14": "2642",
-            "M15": "1882",
-            "M16": "3607",
-            "M17": "2813"
-        }
     
     
-    builds = BuildsTable.query
-    AllBuilds = builds.filter(BuildsTable.MachineID.isnot(None))
-    builds = builds.filter(BuildsTable.MachineID.isnot(None))
-    builds = builds.filter(BuildsTable.BuildFinishTime==None)
-    builds = builds.order_by(desc(BuildsTable.BuildID)).all()
-    # Fetch all unique machine names and material names
-    machines = [build.MachineID for build in AllBuilds]
-    materials = [build.AlloyName for build in AllBuilds]
-    machines = list(set(machines))
-    materials = list(set(materials))
+    
+    machines_in_austin = db.session.query(Machines.MachineAlias, Machines.MachineSerial)\
+        .join(Location, Machines.LocationID == Location.LocationID)\
+        .filter(Location.LocationName == 'Austin')\
+        .all()
+        
+        
+        
+    
+    
 
 
-    return render_template('scheduler/scheduler.html',user=current_user, machine_return =machines_mapping, builds= builds, machines = sorted(machines), materials= sorted(materials))
+    return render_template('scheduler/scheduler.html',user=current_user, machine_return =machines_in_austin)
 
 
 
@@ -114,5 +94,8 @@ def get_tasks():
             'BuildTime': build.BuildTime
         })
 
+    
+    
+    
     # Return the tasks as JSON
     return jsonify(tasks)

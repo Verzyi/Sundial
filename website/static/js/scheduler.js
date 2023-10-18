@@ -25,7 +25,6 @@ document.addEventListener('DOMContentLoaded', async function() {
         console.error('Invalid tasks data:', allTasks);
         return;
     }
-    
 
     class Task {
         constructor(buildID, alloyName, machineID, buildStart, buildTime) {
