@@ -55,7 +55,7 @@ def CreateApp():
     }
     db.init_app(app)
     
-    migrate = Migrate(app, db)
+    migrate = Migrate(app,db,render_as_batch=True)
     
     # Debug Toolbar Configuration
     app.config['DEBUG_TB_ENABLED'] = False
@@ -177,6 +177,31 @@ def CreateApp():
     class BatchAdminView(ModelView):
         column_display_pk = True
         column_searchable_list = ['BatchID', 'ProductID', 'BatchCreatedBy']
+        @action('download_csv', 'Download CSV', 'Download all records as CSV')
+        def download_csv(self, ids):
+            # Get all records from the database
+            records = self.model.query.all()
+            
+            # Create a CSV file
+            output = io.StringIO()
+            csv_writer = csv.writer(output)
+            
+            # Write header row
+            header = ['BatchID', 'BatchCreatedBy', 'BatchFacilityID', 'ProductID', 'VirginPO', 'VirginLot', 'VirginWeight', 'CurrentWeight']  # Replace with your actual column names
+            csv_writer.writerow(header)
+            
+            # Write data rows
+            for record in records:
+                data_row = [record.BatchID, record.BatchCreatedBy, record.BatchFacilityID, record.ProductID, record.VirginPO, record.VirginLot, record.VirginWeight, record.CurrentWeight]
+                csv_writer.writerow(data_row)
+            
+            # Prepare the response with CSV content
+            response = Response(output.getvalue(), content_type='text/csv')
+            timestamp = str(dt.datetime.now())[:10].replace(' ', '_').replace(':', '-').replace('-', '')
+            response.headers['Content-Disposition'] = f'attachment; filename=Batches_{timestamp}.csv'
+            return response
+
+
     admin.add_view(BatchAdminView(InventoryVirginBatch, db.session, category=powder_category.name))
     
     # PowderBlendParts
