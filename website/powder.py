@@ -25,8 +25,8 @@ def Powder():
 def PowderHome():
     return redirect(url_for('powder.Powder'))
 
-def print_sticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty):
-    if (qty == '') | (qty == None):
+def print_sticker(printer_ip, batch_or_blend, batch_blend_id, material, date, weight, qty=1):
+    if (qty == None) | (qty == '') | (qty == 'None'):
         qty = 1
     try:
         # Create a TCP/IP socket
@@ -137,24 +137,26 @@ def SearchBlends():
         elif 'print' in request.form:
             printer_name = request.form.get('printer')
             if printer_name == 'Shop Floor Printer':
-                printer_ip = '10.101.102.21'
+                printer_ip = '192.168.15.137' # '10.101.102.21'
             elif printer_name == 'Office Printer':
                 printer_ip = '10.101.102.65'
             qty = request.form.get('qty')
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')
             if blend_id:
-                blend_sticker_query = db.session.query(
-                    PowderBlends, 
-                    MaterialAlloys.AlloyName
-                    ).join(
-                        MaterialAlloys, 
-                        PowderBlends.AlloyID == MaterialAlloys.AlloyID
-                        ).filter(
-                            PowderBlends.BlendID == blend_id
-                            ).all()
-                if blend_sticker_query:
-                    for blend, alloy_name in blend_sticker_query:
+                blend_query = db.session.query(
+                            PowderBlends, 
+                            MaterialAlloys.AlloyName, 
+                            Users.first_name, Users.last_name
+                            ).join(
+                                MaterialAlloys, 
+                                PowderBlends.AlloyID == MaterialAlloys.AlloyID
+                                ).join(
+                                    Users, 
+                                    PowderBlends.BlendCreatedBy == Users.id
+                                    ).filter(PowderBlends.BlendID == blend_id).all()
+                if blend_query:
+                    for blend, alloy_name, first_name, last_name in blend_query:
                         weight = blend.TotalWeight
                         date = blend.BlendDate.split(' ')[0]
                         # Print the sticker

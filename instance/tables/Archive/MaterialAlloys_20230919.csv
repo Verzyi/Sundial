@@ -1,0 +1,29 @@
+﻿AlloyID,Alloy,MaterialName,MaterialID,AlloyName
+130,A6061,Aluminum,100,Aluminum 6061
+140,A7050,Aluminum,100,Aluminum 7050
+110,AlSi,Aluminum,100,Aluminum AlSi10Mg
+150,F357,Aluminum,100,Aluminum F357
+160,Scalmalloy,Aluminum,100,Scalmalloy
+510,CoCr,Cobalt,500,Cobalt CoCrMo
+520,L605,Cobalt,500,Cobalt L605
+610,C18150,Copper,600,Copper C18150
+630,GRC42,Copper,600,Copper GRCop-42
+620,GRC84,Copper,600,Copper GRCop-84
+360,C64,Iron,300,Ferrium C64
+330,Inv36,Iron,300,Invar 36
+370,Inv49,Iron,300,Invar 49
+340,Kovar,Iron,300,Kovar
+310,SS17-4,Iron,300,Stainless Steel 17-4
+320,SS316,Iron,300,Stainless Steel 316L
+350,S4140,Iron,300,Steel 4140
+390,S2507,Iron,300,Super Duplex 2507
+380,S25104,Iron,300,Super Duplex 25104
+210,NA625,Nickel,200,Nickel Alloy 625
+220,NA718,Nickel,200,Nickel Alloy 718
+260,NA939,Nickel,200,Nickel Alloy 939
+270,H282,Nickel,200,Nickel Alloy H282
+250,HastX,Nickel,200,Nickel Alloy HX
+240,K500,Nickel,200,Nickel Alloy K500
+420,Ti64ELI,Titanium,400,Titanium Ti64 G23
+410,Ti64,Titanium,400,Titanium Ti64 G5
+1000,Other,Other,1000,Other

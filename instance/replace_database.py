@@ -46,8 +46,8 @@ class DatabaseAppender:
             existing_df = pd.read_sql(self.table_name, self.conn)
             self.CloseConnection()
             # # Find column mismatches and create a series for each DataFrame
-            schema_mismatches = pd.Series(name='Schema DType')
-            file_mismatches = pd.Series(name='File DType')
+            schema_mismatches = pd.Series(name='Schema DType', dtype='object')
+            file_mismatches = pd.Series(name='File DType', dtype='object')
             for col in df.columns:
                 if col not in existing_df.columns or df[col].dtype != existing_df[col].dtype:
                     schema_mismatches[col] = existing_df[col].dtype
