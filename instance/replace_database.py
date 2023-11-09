@@ -106,6 +106,8 @@ def FindTables(prefix_dict):
     return table_dict
 
 def main():
+    print('Would you like to replace the database?')
+    os.system('pause')
     # for loop to append all tables in `table_dict`
     for table, file in FindTables(prefix_dict).items():
         appender = DatabaseAppender(file, table)
@@ -115,6 +117,7 @@ def main():
     os.system('pause')
 
 if __name__ == "__main__":
+    # main()
     try: main()
     except Exception as e:
         print('Error:')
