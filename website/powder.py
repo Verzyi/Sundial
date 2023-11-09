@@ -137,7 +137,7 @@ def SearchBlends():
         elif 'print' in request.form:
             printer_name = request.form.get('printer')
             if printer_name == 'Shop Floor Printer':
-                printer_ip = '10.101.102.21'
+                printer_ip = '192.168.015.137' # '10.101.102.21'
             elif printer_name == 'Office Printer':
                 printer_ip = '10.101.102.65'
             qty = request.form.get('qty')
