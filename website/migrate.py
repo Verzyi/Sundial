@@ -1,8 +1,11 @@
-from flask import Blueprint, render_template, current_app
+from flask import Blueprint, render_template, current_app, request
 from flask_login import current_user, login_required
 from flask_bcrypt import Bcrypt
 from flask_migrate import Migrate
 from flask_migrate import upgrade as alembic_upgrade  # Import the upgrade function from flask_migrate
+import csv
+
+
 
 migrate_bp = Blueprint('migrate', __name__)
 migrate = Migrate()
@@ -67,3 +70,48 @@ def upgrade_machine():
     # Optional: Print a message to confirm the data has been added
     print("Machine data added to the database successfully.")
     return 'Database upgraded all machines successfully!'
+
+
+from sqlalchemy import inspect
+
+@login_required
+@migrate_bp.route('/upload-csv', methods=['GET', 'POST'])
+def upload_csv():
+    from . import db
+    if request.method == 'POST':
+        # Get the table name from the form data
+        table_name = request.form['table_name']
+
+        # Get the uploaded file from the form data
+        file = request.files['file']
+
+        # Read the CSV file
+        csv_data = csv.DictReader(file)
+
+        # Skip the first row (headers) of the CSV data
+        next(csv_data)
+
+        # Loop through the remaining CSV data and add each row to the database session
+        for row in csv_data:
+            table = getattr(db, table_name)
+            table_row = table(**row)
+            db.session.add(table_row)
+
+        # Commit the changes to the database
+        # db.session.commit() !!!!!!!!this is the one that will save it to the database
+
+        # Optional: Print a message to confirm the data has been added
+        print("CSV data added to the database successfully.")
+        return 'CSV data added to the database successfully.'
+    else:
+        # Get a list of all the tables in the database
+        inspector = inspect(db.engine)
+        tables = inspector.get_table_names()
+
+        # Pass the current user to the template
+        return render_template('upload_csv.html', tables=tables, user=current_user)
+
+
+
+
+

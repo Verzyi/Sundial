@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    button,
+    input,
+    select {
+        display: block;
+        margin: 0 auto;
+    }
+</style>
+
+  <h1>Upload CSV</h1>
+
+  {% if tables %}
+    <form method="POST" enctype="multipart/form-data">
+      <div>
+        <label for="table_name">Table Name:</label>
+        <select name="table_name" id="table_name">
+          {% for table in tables %}
+            <option value="{{ table }}">{{ table }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div>
+        <label for="file">CSV File:</label>
+        <input type="file" name="file" id="file">
+      </div>
+      <button type="submit">Upload</button>
+    </form>
+  {% else %}
+    <p>No tables found in the database.</p>
+  {% endif %}
+{% endblock %}

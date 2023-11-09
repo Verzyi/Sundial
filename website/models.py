@@ -178,20 +178,20 @@ class Location(db.Model):
     machines = relationship('Machines', back_populates='location')
     
     
-class Scale(db.Model):
-    ScaleID = db.column(db.Integer, primary_key = True)
-    FileName = db.column(db.String(50))
-    UserID = db.column(db.Integer,ForeignKey('users.id'))
-    DateCreated = db.Column(db.String, nullable=True)
-    AlloyID = db.column(db.Integer, ForeignKey('materialAlloys.AlloyID'))  # Foreign key relationship
-    MachineID = db.Column(db.Integer, ForeignKey('machines.MachineID'))  # Foreign key relationship
-    CaliperAssetNo = db.column(db.String(50))
-    InputX = db.column(db.Float)
-    InputY = db.column(db.Float)
-    InputOffset = db.column(db.Float)
-    NewX = db.column(db.Float)
-    NewY = db.column(db.Float)
-    NewOffset = db.column(db.Float)
+# class Scale(db.Model):
+#     ScaleID = db.column(db.Integer, primary_key = True)
+#     FileName = db.column(db.String(50))
+#     UserID = db.column(db.Integer,ForeignKey('users.id'))
+#     DateCreated = db.Column(db.String, nullable=True)
+#     AlloyID = db.column(db.Integer, ForeignKey('materialAlloys.AlloyID'))  # Foreign key relationship
+#     MachineID = db.Column(db.Integer, ForeignKey('machines.MachineID'))  # Foreign key relationship
+#     CaliperAssetNo = db.column(db.String(50))
+#     InputX = db.column(db.Float)
+#     InputY = db.column(db.Float)
+#     InputOffset = db.column(db.Float)
+#     NewX = db.column(db.Float)
+#     NewY = db.column(db.Float)
+#     NewOffset = db.column(db.Float)
     
     
     
