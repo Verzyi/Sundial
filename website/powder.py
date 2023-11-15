@@ -139,7 +139,7 @@ def SearchBlends():
             if printer_name == 'Shop Floor Printer':
                 printer_ip = '192.168.15.137' # '10.101.102.21'
             elif printer_name == 'Office Printer':
-                printer_ip = '10.101.102.65'
+                printer_ip = '192.168.15.167' # '10.101.102.65'
             qty = request.form.get('qty')
             # Retrieve the blend number from session
             blend_id = session.get('last_blend_id')

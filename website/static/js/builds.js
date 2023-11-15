@@ -535,18 +535,37 @@ buildRows.forEach((row) => {
     });
 });
 
+// function formatPlateSerial(input) {
+//     // Remove all non-numeric characters
+//     let rawInput = input.value.replace(/[^0-9]/g, '');
+
+//     // Insert hyphens at appropriate positions
+//     let formattedInput = '';
+//     for (let i = 0; i < rawInput.length; i++) {
+//         if (i === 2 || i === 4) {
+//             formattedInput += '-';
+//         }
+//         formattedInput += rawInput.charAt(i);
+//     }
+
+//     input.value = formattedInput;
+// }
+
 function formatPlateSerial(input) {
     // Remove all non-numeric characters
     let rawInput = input.value.replace(/[^0-9]/g, '');
 
-    // Insert hyphens at appropriate positions
-    let formattedInput = '';
-    for (let i = 0; i < rawInput.length; i++) {
-        if (i === 2 || i === 4) {
-            formattedInput += '-';
-        }
-        formattedInput += rawInput.charAt(i);
+    // Ensure the raw input is not empty
+    if (rawInput.length === 0) {
+        input.value = '';
+        return;
     }
 
+    // Ensure raw input is at most 9 characters long
+    rawInput = rawInput.substring(0, 9);
+
+    // Insert hyphens at appropriate positions
+    let formattedInput = rawInput.substring(0, 2) + '-' + rawInput.substring(2, 4) + '-' + rawInput.substring(4);
+    
     input.value = formattedInput;
 }
