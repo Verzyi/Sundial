@@ -43,7 +43,7 @@ def Createscheduler(app):
 
     # Start the scheduler within the Flask app context
     with app.app_context():
-        print("printer dash turned off")
+        print("printer dash turned on")
         # scheduler.start()
 
 

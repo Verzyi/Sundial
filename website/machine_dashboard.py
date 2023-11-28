@@ -146,15 +146,71 @@ def dashboard(app):
             logging.error(f"Error in dashboard function: {str(e)}")        
 
         
+def offline_dashboard():
+    from . import db
+    from .models import BuildsTable, Users, Tasks, TaskTypes, Machines, Location
+    builds = BuildsTable.query
+    AllBuilds = builds.filter(BuildsTable.MachineID.isnot(None))
+    builds = builds.filter(BuildsTable.BuildFinishTime == None, BuildsTable.BuildStartTime != None)
+    builds = builds.order_by(desc(BuildsTable.BuildID)).all()
+    
+    # Create a dictionary to store the latest start time for each machine
+    latest_start_times = {}
+    
+    # Iterate over the builds and update the latest start time for each machine
+    for build in builds:
+        machine = build.MachineID
+        start_time = build.BuildStartTime
         
+        # Update the latest start time for the machine if it is newer
+        if machine not in latest_start_times or start_time > latest_start_times[machine]:
+            latest_start_times[machine] = start_time
+    
+    # Filter the builds to include only the ones with the latest start time for each machine
+    builds = [build for build in builds if build.BuildStartTime == latest_start_times[build.MachineID]]
+    
+    # Fetch all unique machine names and material names
+    machines = [build.MachineID for build in AllBuilds]
+    materials = [build.AlloyName for build in AllBuilds]
+    machines = list(set(machines))
+    materials = list(set(materials))
+    
+    austin_rows = [
+        ['Last Updated: {}'.format(datetime.now().strftime('%m/%d/%y %I:%M %p'))],
+        ['Machine', 'Status', 'Material', 'End Date & Time', 'Time Remaining (hr)', 'Current Build',
+        'Current Job(s)', 'Notes', 'Recoater Type', 'Job(s) in Queue', 'PM Due']]
+    
+    # Iterate over the builds and add the relevant information to austin_rows
+    for build in builds:
+        machine = build.MachineID
+        status = build.Status
+        material = build.AlloyName
+        end_datetime = build.BuildEndTime.strftime('%m/%d/%y %I:%M %p') if build.BuildEndTime else ''
+        time_remaining = calculate_time_remaining(build.BuildStartTime, build.EstimatedBuildTime)
+        current_build = build.CurrentBuild
+        current_jobs = build.CurrentJobs
+        notes = build.Notes
+        recoater_type = build.RecoaterType
+        pm_due = build.PMDue
         
+        austin_rows.append([machine, status, material, end_datetime, time_remaining, current_build,
+                            current_jobs, notes, recoater_type, jobs_in_queue, pm_due])
+        print(austin_rows)
+        print('test')
+    
+    return austin_rows
         
 # Define the route for the dashboard
 @machine_dashboard.route('/machine')
 @login_required
 def builds_home():
-    data = dashboard()
+    # data = dashboard()
+    data = offline_dashboard()
     return render_template('dashboards/printers.html', user=current_user, machine_return=data[2:])
+
+
+
+
 
 
 

@@ -53,6 +53,39 @@ def unscheduled():
     return render_template('scheduler/unscheduled-builds.html',user=current_user,builds= builds, machines = sorted(machines), materials= sorted(materials) )
 
 
+@scheduler.route('/build-que', methods=['GET', 'POST'])
+@login_required
+def que():
+    
+    builds = BuildsTable.query
+    AllBuilds = builds.filter(BuildsTable.MachineID.isnot(None))
+    builds = builds.filter(or_(BuildsTable.BuildStartTime==None, BuildsTable.BuildStartTime=="None" , BuildsTable.BuildStartTime=="" ))
+    builds = builds.order_by(desc(BuildsTable.BuildID)).all()
+    # Fetch all unique machine names and material names
+    machines = [build.MachineID for build in AllBuilds]
+    materials = [build.AlloyName for build in AllBuilds]
+    machines = list(set(machines))
+    materials = list(set(materials))
+
+    return render_template('scheduler/que-builds.html',user=current_user,builds= builds, machines = sorted(machines), materials= sorted(materials) )
+
+@scheduler.route('/build-running', methods=['GET', 'POST'])
+@login_required
+def running():
+    builds = BuildsTable.query
+    AllBuilds = builds.filter(BuildsTable.MachineID.isnot(None))
+    builds = builds.filter(BuildsTable.BuildFinishTime == None, BuildsTable.BuildStartTime != None)
+    builds = builds.order_by(desc(BuildsTable.BuildID)).all()
+    # Fetch all unique machine names and material names
+    machines = [build.MachineID for build in AllBuilds]
+    materials = [build.AlloyName for build in AllBuilds]
+    machines = list(set(machines))
+    materials = list(set(materials))
+
+    return render_template('scheduler/running-builds.html', user=current_user, builds=builds, machines=sorted(machines), materials=sorted(materials))
+
+
+
 @scheduler.route('/update_database', methods=['POST'])
 def update_database():
     
@@ -65,6 +98,7 @@ def update_database():
     builds.MachineID = data["machine_id"]
     builds.AlloyName = data["material_name"]
     builds.BuildTime = data['build_time']
+    builds.BuildStartTime = data['build_start_time']
     
     # Commit changes to the database
     db.session.commit()
@@ -99,3 +133,5 @@ def get_tasks():
     
     # Return the tasks as JSON
     return jsonify(tasks)
+
+
