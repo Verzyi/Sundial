@@ -19,7 +19,7 @@ from .mpd_dash import mpd_dash
 
 
 db = SQLAlchemy()
-DB_NAME = 'Proto_database.db'
+DB_NAME = 'database.db'
 DB_STATUS_NAME = 'dmls_status.db'
 
 def CreateDatabase(app):
