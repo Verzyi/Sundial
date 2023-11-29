@@ -19,7 +19,7 @@ from .mpd_dash import mpd_dash
 
 
 db = SQLAlchemy()
-DB_NAME = 'database.db'
+DB_NAME = 'Proto_database.db'
 DB_STATUS_NAME = 'dmls_status.db'
 
 def CreateDatabase(app):
@@ -75,6 +75,7 @@ def CreateApp():
     from .dashboards import dashboards_bp
     from .scheduler import scheduler
     from .migrate import migrate_bp
+    from .NCR import ncrs
     # from .maintenance import maintenance_bp
 
     bp_list = [auth, views, machine_dashboard, quote, scheduler]
@@ -83,6 +84,7 @@ def CreateApp():
         app.register_blueprint(bp, url_prefix='/')
     
     app.register_blueprint(builds, url_prefix='/builds')
+    app.register_blueprint(ncrs, url_prefix='/NCRS')
     app.register_blueprint(powder, url_prefix='/powder')
     app.register_blueprint(dashboards_bp, url_prefix='/dashboards')
     app.register_blueprint(migrate_bp, url_prefix='/migrate')

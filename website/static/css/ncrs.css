@@ -1,0 +1,143 @@
+body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.navbar {
+  width: 100%;
+  margin-left: 0;
+  margin-right: 0;
+}
+
+#NCR-container {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  margin-top: 10px;
+}
+
+#NCR-info {
+  border: 1px solid #ffffff;
+  padding: 20px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  margin-left: 10px;
+  margin-top: 5px;
+  width: 250px;
+  border-radius: 5px;
+
+}
+
+.controlButtons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+.NCR-state-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+  width: auto;
+  margin-left: 0px;
+}
+
+.btn {
+  margin: 5px;
+  height: 75px;
+  width: 100px;
+  font-size: 15px;
+  border-radius: 5px;
+}
+
+.searchNCRs {
+  width: 250px;
+  margin-right: 10px;
+  margin-bottom: 10px;
+  margin-left: 5px;
+  /* Adjust the left margin to 5px */
+  border-radius: 5px;
+}
+
+.vStick {
+  position: sticky;
+  top: 0;
+}
+
+.sticky-button {
+  position: sticky;
+  bottom: 20px;
+  /* Adjust this value as needed */
+  right: 20px;
+  /* Adjust this value as needed */
+  z-index: 1;
+}
+
+.NCRsTable {
+  border: 1px solid #ffffff;
+  height: 550px;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  padding: 0px;
+  margin-top: 5px;
+  margin-left: 0px;
+  /* Adjust the left margin to 5px */
+  border-radius: 5px;
+}
+
+.col-md-8 {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: flex-start;
+  margin-bottom: 10px;
+}
+
+.NCR-setup-form {
+  width: 80vw;
+  border: 1px solid #ffffff;
+  padding: 20px;
+  text-align: center;
+  margin-bottom: 10px;
+  margin-left: 5px;
+  border-radius: 5px;
+}
+
+.input-group .custom-file-input {
+  text-align: center;
+}
+
+
+
+@media (max-width: 767px) {
+  .controlButtons {
+    justify-content: flex-start;
+  }
+
+  .btn {
+    width: 80px;
+    height: 80px;
+    font-size: 12px;
+  }
+
+  .searchNCRs {
+    width: 100%;
+    margin-right: 0;
+    margin-bottom: 10px;
+  }
+
+  .NCR-setup-form {
+    width: 80vw;
+    border: 1px solid #ffffff;
+    padding: 20px;
+    text-align: center;
+    margin-bottom: 10px;
+    margin-left: 5px;
+  }
+}

@@ -89,7 +89,7 @@ class BuildsTable(db.Model):
     FeedPowderHeight = db.Column(db.Float)
     EndFeedPowderHeight = db.Column(db.Float)
     PotentialBuildHeight = db.Column(db.Float)
-    Location = db.Column(db.Integer)
+    # Location = db.Column(db.Integer)
     PlateThickness = db.Column(db.Float)
     PlateSerial = db.Column(db.String)
     MinChargeAmount = db.Column(db.Integer)
@@ -153,9 +153,7 @@ class BuildsTable(db.Model):
             column.name: getattr(self, column.name, None)
             for column in self.__table__.columns
         }
-
-   
-
+        
 class TaskTypes(db.Model):
     TaskTypeID = db.Column(db.Integer, primary_key=True)
     TaskTypeName = db.Column(db.String(50))
@@ -177,22 +175,46 @@ class ScheduleTasks(db.Model):
     TaskAssignmentLength = db.Column(db.Float)
     
 
-class Machines(db.Model):
-    MachineID = db.Column(db.Integer, primary_key=True)
-    MachineSerial = db.Column(db.Integer)
-    LocationID =  db.Column(db.Integer)
-    MachineName = db.Column(db.String(50))
-    MachineAlias = db.Column(db.String(50))
-    MachineType = db.Column(db.String(50))
+
     
 class Location(db.Model):
     LocationID = db.Column(db.Integer, primary_key=True)
     LocationName = db.Column(db.String(50))
     LocationAlias = db.Column(db.String(50))
     
-
-
-
-
     
     
+    
+class Machines(db.Model):
+    MachineID = db.Column(db.Integer, primary_key=True)
+    MachineSerial = db.Column(db.Integer)
+    LocationID = db.Column(db.Integer, db.ForeignKey('location.LocationID', name='fk_machine_location'))
+    MachineName = db.Column(db.String(50))
+    MachineAlias = db.Column(db.String(50))
+    MachineType = db.Column(db.String(50))    
+
+
+class NcrsTable(db.Model):
+    NCRID = db.Column(db.Integer, primary_key=True)
+    CreatedOn = db.Column(db.String)
+    CreatedBy = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_ncr_user'))
+    LocationID = db.Column(db.Integer, db.ForeignKey('location.LocationID', name='fk_ncr_location'))
+    Category = db.Column(db.String)
+    Quantity = db.Column(db.Integer)
+    WorkOrderNumber = db.Column(db.Integer)
+    Description = db.Column(db.String)
+
+    date_cols = ['CreatedOn']
+    for col in date_cols:
+        @validates(col)
+        def empty_string_to_null(self, key, value):
+            if (value == 'NaT') or (value == ''):
+                return None
+            else:
+                return value
+    
+    def to_dict(self):
+        return {
+            column.name: getattr(self, column.name, None)
+            for column in self.__table__.columns
+        }
