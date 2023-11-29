@@ -4,6 +4,7 @@ function updateFormAction(event) {
     let selectedOption = document.getElementById("facilitySelectInput").value;
 
     if (!selectedOption) {
+        console.log("No facility selected");
         return; // Don't submit the form if no facility is selected
     }
 
@@ -18,6 +19,7 @@ function updateFormAction(event) {
     facilityInput.name = "Facility";
     facilityInput.value = selectedOption;
     form.appendChild(facilityInput);
+    
 
     let searchInputField = document.createElement("input");
     searchInputField.type = "hidden";
@@ -26,9 +28,10 @@ function updateFormAction(event) {
     form.appendChild(searchInputField);
 
     localStorage.setItem("selectedFacility", selectedOption);
-
+    
     form.submit();
 }
+
 
 function populateSearchTable(data) {
     const tableBody = document.getElementById("searchTableBody");
@@ -84,44 +87,80 @@ function showNCRInfo(event) {
         return;
     }
 
-    // Get the BuildIDInput from the first column (index 0) of the row
-    const NCRInput = row.getElementsByTagName("td")[0].textContent.trim();
+    // Get the NcrIDInput from the first column (index 0) of the row
+    const NCRIDInput = row.getElementsByTagName("td")[0].textContent.trim();
 
 
     // Fetch additional NCR information and display it
-    fetchBuildInfo(NCRIDInput);
+    fetchNCRInfo(NCRIDInput);
 
-    // Show the appropriate form based on the selected build state
-    const NCRState = event.target.name;
-    // Add event listeners for the build state checkboxes to show/hide the appropriate forms
-    // const buildSetupCheckbox = document.getElementById("buildSetupCheckbox");
     NCRCheckbox.addEventListener("change", function (event) {
-        // Toggle the visibility of the buildSetupForm based on the checkbox state
-        const buildSetupForm = document.getElementById("NCRSetupForm");
-        buildSetupForm.style.display = event.target.checked ? "block" : "none";
+        // Toggle the visibility of the ncrForm based on the checkbox state
+        const ncrForm = document.getElementById("NCRForm");
+        ncrForm.style.display = event.target.checked ? "block" : "none";
     });
 }
+// Function to show NCR information
+function showNCRInfo(event) {
+    const row = event.currentTarget;
+    const ncrId = row.dataset.ncrId; // Retrieve the NCR ID from the clicked row's data attribute
+
+    fetchNCRInfo(ncrId); // Call the function to fetch NCR information based on the ID
+    // Additional operations you want to perform after fetching the info...
+}
+
+// Function to fetch NCR information
+function fetchNCRInfo(ncrId) {
+    fetch(`/get_NCR_info/${ncrId}`, {
+        method: 'GET',
+    })
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Network response was not OK!');
+        }
+        return response.json();
+    })
+    .then(data => {
+        console.log('Retrieved NCR data:', data);
+        // Handle the retrieved NCR data as needed
+        
+        // Example: Update the UI with the retrieved data
+        const NCRIDDisplay = document.getElementById('NCRIdDisplay');
+        NCRIDDisplay.textContent = data.NCRID;
+
+        const createdByInput = document.getElementById('createdByInput');
+        createdByInput.textContent = data.CreatedBy;
+
+        // ... Update other elements with the fetched data
+    })
+    .catch(error => {
+        console.error('Error fetching NCR info:', error);
+        // Handle errors, show error messages, etc.
+    });
+}
+
+
 // Function to filter builds based on the search input
 function filterNCRs() {
     const searchInput = document.getElementById("searchInput").value.toUpperCase();
-    const ncrsTable = document.querySelector(".ncrsTable table");
+    const ncrsTable = document.querySelector(".NCRsTable table");
     const ncrRows = ncrsTable.getElementsByTagName("tr");
 
-    for (let i = 0; i < buildRows.length; i++) {
-        const LocationInput = ncrRows[i].getElementsByTagName("td")[1];
+    for (let i = 0; i < ncrRows.length; i++) {
+        const ncrWorkOrder = ncrRows[i].getElementsByTagName("td")[1];
         const NcrIDInput = ncrRows[i].getElementsByTagName("td")[0];
 
-        if (LocationInput && NcrIDInput) {
-            const LocationText = LocationText.textContent || LocationText.innerText;
-            const NcrIdText = NcrIDInput.textContent || NcrIDInput.innerText;
+        if (ncrWorkOrder && NcrIDInput) {
+            const ncrWorkOrderText = ncrWorkOrder.textContent || ncrWorkOrder.innerText;
+            const ncrIdText = NcrIDInput.textContent || NcrIDInput.innerText;
 
             if (
-                LocationText.toUpperCase().indexOf(searchInput) > -1 ||
-                NcrIdText.toUpperCase().indexOf(searchInput) > -1
+                ncrWorkOrderText.toUpperCase().indexOf(searchInput) > -1 ||
+                ncrIdText.toUpperCase().indexOf(searchInput) > -1
             ) {
-                NcrRows[i].style.display = "";
+                ncrRows[i].style.display = "";
             } else {
-                NcrRows[i].style.display = "none";
+                ncrRows[i].style.display = "none";
             }
         }
     }
@@ -147,22 +186,17 @@ function filterNCRs() {
 
                     // Function to show NCR information
                     function showNCRInfo(event) {
-                        // Get the selected NCR row
                         const selectedRow = event.currentTarget;
-
-                        // Get the NCR ID, created by, and created on
                         const ncrId = selectedRow.getElementsByTagName("td")[0].textContent;
                         const createdBy = selectedRow.getElementsByTagName("td")[1].textContent;
-                        const createdOn = selectedRow.getElementsByTagName("td")[2].textContent;
-
-                        // Update the NCR form fields with the selected NCR information
+                        // const createdOn = selectedRow.getElementsByTagName("td")[2].textContent;
+                    
                         const ncrIdDisplay = document.getElementById("NCRIdDisplay");
                         const createdByInput = document.getElementById("createdByInput");
-                        const createdOnInput = document.getElementById("createdOnInput");
-
+                        // const createdOnInput = document.getElementById("createdOnInput");
+                    
                         ncrIdDisplay.textContent = ncrId;
                         createdByInput.textContent = createdBy;
-                        createdOnInput.textContent = createdOn;
+                        // createdOnInput.textContent = createdOn;
                     }
-
-          
+                    

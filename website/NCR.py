@@ -7,7 +7,7 @@ import math
 import pdfkit
 
 from . import db
-from .models import NcrsTable, Users
+from .models import NcrsTable, Users, Location
 
 ncrs = Blueprint('ncrs', __name__)
 
@@ -27,15 +27,17 @@ def ncrs_page():
     if selectedFacility:
         session['last_selected_facility'] = selectedFacility
     else: 
-        selectedFacility=session.get('last_selected_facility')
+        selectedFacility = session.get('last_selected_facility')
     # Retrieve NCRs based on selected facility and search input
     ncrs = NcrsTable.query
     if selectedFacility:
-        ncrs = ncrs.filter_by(LocationID=selectedFacility)
+        location = Location.query.filter_by(LocationID=selectedFacility).first()
+        if location:
+            ncrs = ncrs.filter_by(LocationID=selectedFacility)
     if searchInput:
         ncrs = ncrs.filter(or_(
             NcrsTable.NCRID.contains(searchInput),
-            NcrsTable.NCRName.contains(searchInput)
+            NcrsTable.WorkOrderNumber.contains(searchInput)
         ))
     ncrs = ncrs.order_by(desc(NcrsTable.NCRID)).all()
     selectedNCRID = request.form.get('NCRIDInput')
@@ -46,25 +48,18 @@ def ncrs_page():
         if 'data_viewer' in request.form:
             flash('Load Data Viewer', category='success')
             return redirect(url_for('ncrs.data_viewer'))
-        elif 'traveler' in request.form:
-            flash('Make Traveler', category='success')
-            return redirect(url_for('ncrs.generate_traveler_report'))
-        elif 'ncrformSetup' in request.form:
-            session['ncrformSetup'] = request.form.to_dict()
-            return redirect(url_for('ncrs.setup_form'))
-        elif 'ncrformStart' in request.form:
-            session['ncrformStart'] = request.form.to_dict()
-            return redirect(url_for('ncrs.start_form'))
-        elif 'ncrformFinish' in request.form:
-            session['ncrformFinish'] = request.form.to_dict()
-            return redirect(url_for('ncrs.finish_form'))
+        elif 'NCRForm' in request.form:
+            session['NCRForm'] = request.form.to_dict()
+            return redirect(url_for('ncrs.NCRForm'))
+
         
     return render_template(
         'NCRS/NCRS.html', 
         user=current_user, 
         current_ncr=selectedNCR, 
         ncrsInfo=ncrs,
-        selectedFacility=selectedFacility
+        selectedFacility=selectedFacility,
+        LocationTable=Location.query.all()
         )
 
 
@@ -72,19 +67,24 @@ def ncrs_page():
 def get_ncr_info(ncr_id):
     # Assuming you have a database table named 'NcrsTable' with a column named 'NCRID'
     # ncr = NcrsTable.query.get(ncr_id)
-    ncr, first_name, last_name = db.session.query(
-                NcrsTable,
-                Users.first_name,
-                Users.last_name
-                ).join(
-                    Users,
-                    NcrsTable.CreatedBy == Users.id
-                    ).filter(
-                        NcrsTable.NCRID == ncr_id
-                        ).first()
+    ncr, first_name, last_name, location_name = db.session.query(
+        NcrsTable,
+        Users.first_name,
+        Users.last_name,
+        Location.LocationName
+    ).join(
+        Users,
+        NcrsTable.CreatedBy == Users.id
+    ).join(
+        Location,
+        NcrsTable.LocationID == Location.LocationID
+    ).filter(
+        NcrsTable.NCRID == ncr_id
+    ).first()
     if ncr:
         # Return the filtered NCR information as JSON
         ncr.CreatedBy = f'{first_name} {last_name}'
+        ncr.LocationName = location_name
         ncr_data = ncr.to_dict()
         session['NCRIDInput'] = ncr_id
         return jsonify(ncr_data)
@@ -140,31 +140,24 @@ def new_ncr():
     selectedFacility = request.form.get('facilitySelectInput')
     if not selectedFacility:
         selectedFacility = session.get('last_selected_facility')
+        print(selectedFacility)
     # Create a new record with the NCRID number and FacilityName
-    new_ncr = NcrsTable(
-        NCRID=new_ncr_id, 
-        FacilityName=selectedFacility, 
-        CreatedBy=current_user.id, 
-        CreatedOn=dt.datetime.now())
-    db.session.add(new_ncr)
-    db.session.commit()
-    
-    #adding task for task Schedule
-    # Get the highest taskID number from the database
-    highest_task_id = db.session.query(func.max(Tasks.TaskID)).scalar()
-    # Increment the NCRID number by 1 for the new NCR
-    new_task_id = highest_task_id + 1
-            
-    new_task = Tasks(
-        TaskID = new_task_id,
-        TaskName=new_ncr_id,
-        TaskTypeID=1,
-        TaskEstimateLength=1
-        )
-    
-    # Redirect to the NCRs page with the new NCR selected
-    return redirect(url_for('ncrs.ncrs_page', selectedFacility=selectedFacility, selectedNCRID=new_ncr_id))
-
+    location = Location.query.filter_by(LocationID=selectedFacility).first()
+    if location:
+        new_ncr = NcrsTable(
+            NCRID=new_ncr_id, 
+            LocationID=location.LocationID,
+            CreatedBy=current_user.id, 
+            CreatedOn=dt.datetime.now())
+        db.session.add(new_ncr)
+        db.session.commit()
+        
+        
+        # Redirect to the NCRs page with the new NCR selected
+        return redirect(url_for('ncrs.ncrs_page', selectedFacility=selectedFacility, selectedNCRID=new_ncr_id))
+    else:
+        flash(f'Location {selectedFacility} not found.', category='error')
+        return redirect(url_for('ncrs.ncrs_page'))
 
 
 def set_attributes(existing_ncr, attributes, dtype, ncrform_data):
@@ -198,26 +191,41 @@ def set_attributes(existing_ncr, attributes, dtype, ncrform_data):
             # Save the changes to the database
             db.session.commit()
 
-@ncrs.route('/setup_form', methods=['GET', 'POST'])
+@ncrs.route('/NCRForm', methods=['GET', 'POST'])
 @login_required
-def setup_form():
+def NCRForm():
     # Get the NCR form data from the session
-    ncrform_data = session.get('ncrformSetup')
+    ncrform_data = session.get('NCRForm')
     # Get the selected NCR id
     selected_ncr_id = session.get('NCRIDInput')
     # Retrieve the existing NCR record from the database
     existing_ncr = NcrsTable.query.filter_by(NCRID=selected_ncr_id).first()
-    # Update the attributes of the existing NCR with the new values
-    if existing_ncr:
-        # Iterate through the attributes that have string values
-        str_attributes = ['CategoryInput', 'DescriptionInput']
-        set_attributes(existing_ncr, str_attributes, 'str', ncrform_data)
-        # Iterate through the attributes that have integer values
-        int_attributes = ['QuantityInput', 'WorkOrderNumberInput']
-        set_attributes(existing_ncr, int_attributes, 'int', ncrform_data)
-        flash(f'NCR Setup information updated successfully for NCRID {selected_ncr_id}.', category='success')
-        # Redirect to the NCRs page or any other page as needed
+
+    if existing_ncr and ncrform_data:
+        # Define attribute mappings with their respective data types
+        attribute_mappings = {
+            'CategoryInput': 'str',
+            'DescriptionInput': 'str',
+            'QuantityInput': 'int',
+            'WorkOrderInput': 'int',
+        }
+        for attr, dtype in attribute_mappings.items():
+            value = ncrform_data.get(attr)
+            # Check if the attribute exists in the NCR model
+            if hasattr(existing_ncr, attr):
+                try:
+                    # Convert the value to the specified data type
+                    if dtype == 'str':
+                        setattr(existing_ncr, attr, str(value))
+                    elif dtype == 'int':
+                        setattr(existing_ncr, attr, int(value))
+                    # Save the changes to the database
+                    db.session.commit()
+                except (ValueError, TypeError) as e:
+                    flash(f'Error updating {attr}: {e}', category='error')
+        flash(f'NCRForm information updated successfully for NCRID {selected_ncr_id}.', category='success')
         return redirect(url_for('ncrs.ncrs_page'))
-    # Handle the case when the existing NCR is not found
-    flash(f'NCRID {selected_ncr_id} not found.', category='error')
+    
+    # Handle cases when the existing NCR or form data is not found
+    flash(f'NCRID {selected_ncr_id} not found or form data missing.', category='error')
     return redirect(url_for('ncrs.ncrs_page', selectedNCRID=selected_ncr_id))

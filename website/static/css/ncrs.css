@@ -35,13 +35,6 @@ body {
   margin-bottom: 10px;
 }
 
-.NCR-state-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  margin-bottom: 10px;
-  width: auto;
-  margin-left: 0px;
-}
 
 .btn {
   margin: 5px;
@@ -99,7 +92,7 @@ body {
   margin-bottom: 10px;
 }
 
-.NCR-setup-form {
+.NCR-form {
   width: 80vw;
   border: 1px solid #ffffff;
   padding: 20px;
@@ -132,7 +125,7 @@ body {
     margin-bottom: 10px;
   }
 
-  .NCR-setup-form {
+  .NCR-form {
     width: 80vw;
     border: 1px solid #ffffff;
     padding: 20px;

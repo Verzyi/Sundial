@@ -13,92 +13,91 @@
       <tbody style="font-size: 14px;"> 
         <tr>
           <td><b>NCR ID</b></td>
-          <td><span id="NCRIdDisplay"></span></td>
-        </tr>
-        <tr>
-          <td><b>Created By</b></td>
-          <td><span id="createdByInput"></span></td>
-        </tr>
-        <tr>
-          <td><b>Created On</b></td>
-          <td><span id="createdOnInput"></span></td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <div>
-    <div class="row">
-      <div id="button-container" class="controlButtons">
-        <div id="btn-group" role="group" class="d-flex">
-          <!-- New NCR Form -->
-          <form method="POST" action="{{ url_for('ncrs.new_ncr') }}">
-            <button class="btn btn-primary" type="submit">
-              New NCR
-            </button>
-          </form>
-
-          <!-- Data Viewer Form -->
-          <form method="POST" action="{{ url_for('ncrs.data_viewer') }}" target="_blank">
-            <button type="submit" name="data_viewer" class="btn btn-primary">
-              Data Viewer
-            </button>
-          </form>
-        </div>
-      </div>
-    </div>
-
-    <!-- Button Status -->
-    <div class="column">
-      <div class="NCR-state-buttons">
-        <div>
-          <input class="btn-check" type="checkbox" name="NCRState" id="NCRSetupCheckbox" data-toggle="collapse"
-                 data-target="#NCRSetupForm" />
-          <label class="btn btn-outline-primary" for="NCRSetupCheckbox" style="display: none">NCR INFO</label>
-        </div>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- NCR Search Table + Setup/Start/Finish Forms -->
-<div class="container" style="margin:0 ; padding:0;">
-  <!-- NCR Search Table -->
-  <div class="row">
-    <div class="col-md-6">
-      <div class="searchNCRs">
-        <form id="facilityForm">
-          <div class="dropdown-content">
-            <select style="padding: 5px; margin-bottom: 5px; width: 250px" class="form-select text-center"
-                    id="facilitySelectInput" name="facilitySelectInput">
-              <option value="" disabled selected>Select Facility</option>
-              <option value="Austin">Austin</option>
-              <option value="Belton">Belton</option>
-              <option value="Helios">Helios</option>
-              <option value="N91">N91</option>
-            </select>
+            <td><span id="NCRIdDisplay"></span></td>
+                </tr>
+                <tr>
+                  <td><b>Created By</b></td>
+                  <td><span id="createdByInput"></span></td>
+                </tr>
+                <tr>
+                  <td><b>Created On</b></td>
+                  <td><span id="createdOnInput"></span></td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </form>
+          <div>
+            <div class="row">
+              <div id="button-container" class="controlButtons">
+                <div id="btn-group" role="group" class="d-flex">
+                  <!-- New NCR Form -->
+                  <form method="POST" action="{{ url_for('ncrs.new_ncr') }}">
+                    <button class="btn btn-primary" type="submit">
+                      New NCR
+                    </button>
+                  </form>
 
-        <input style="width: 250px; padding: 5px" type="text" id="searchInput" oninput="filterNCRs()"
-               placeholder="Search NCRs..." />
-        <div class="NCRsTable">
-          <table style="font-size: 12px" class="table table-hover">
-            <thead>
-              <tr class="table-active">
-                <th style="border: 1px solid #ffffff">NCRID</th>
-                <th style="border: 1px solid #ffffff">NCR Name</th>
-              </tr>
-            </thead>
-            {% if selectedFacility %}
-            <tbody>
-              {% for NCR in NCRsInfo %}
-              <tr class="table-active" data-NCRid="{{ NCR.NCRID }}" data-layer="{{ NCR.Layer }}"
-                  onclick="showNCRInfo(event)">
-                <td style="border: 1px solid #ffffff">
-                  {{ NCR.NCRID }}
-                </td>
-                <td style="border: 1px solid #ffffff">
-                  {{ NCR.NCRName }}
+                  <!-- Data Viewer Form -->
+                  <form method="POST" action="{{ url_for('ncrs.data_viewer') }}" target="_blank">
+                    <button type="submit" name="data_viewer" class="btn btn-primary">
+                      Data Viewer
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+
+            <!-- Button Status -->
+            <div class="column">
+              <div class="NCR-state-buttons">
+                <div>
+                  <input class="btn-check" type="checkbox" name="NCRState" id="NCRSetupCheckbox" data-toggle="collapse"
+                         data-target="#NCRSetupForm" />
+                  <label class="btn btn-outline-primary" for="NCRSetupCheckbox" style="display: none">NCR INFO</label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- NCR Search Table + Setup/Start/Finish Forms -->
+        <div class="container" style="margin:0 ; padding:0;">
+          <!-- NCR Search Table -->
+          <div class="row">
+            <div class="col-md-6">
+              <div class="searchNCRs">
+                <form id="facilityForm">
+                  <div class="dropdown-content">
+                    <select style="padding: 5px; margin-bottom: 5px; width: 250px" class="form-select text-center"
+                            id="facilitySelectInput" name="facilitySelectInput">
+                      <option value="" disabled selected>Select Facility</option>
+                      {% for location in LocationTable %}
+                      <option value="{{ location.LocationID }}">{{ location.LocationName }}</option>
+                      {% endfor %}
+                    </select>
+                  </div>
+                </form>
+
+                <input style="width: 250px; padding: 5px" type="text" id="searchInput" oninput="filterNCRs()"
+                       placeholder="Search NCRs..." />
+                <div class="NCRsTable">
+                  <table style="font-size: 12px" class="table table-hover">
+                    <thead>
+                      <tr class="table-active">
+                        <th style="border: 1px solid #ffffff">NCRID</th>
+                        <th style="border: 1px solid #ffffff">NCR Work Order#</th>
+                      </tr>
+                    </thead>
+                    {% if selectedFacility %}
+                    <tbody>
+                      {% for NCR in ncrsInfo %}
+                      <tr class="table-active" data-NCRid="{{ NCR.NCRID }}" data-layer="{{ NCR.Layer }}"
+                          onclick="showNCRInfo(event)">
+                        <td style="border: 1px solid #ffffff">
+                          {{ NCR.NCRID }}
+                        </td>
+                        <td style="border: 1px solid #ffffff">
+                  {{ NCR.WorkOrderNumber }}
                 </td>
               </tr>
               {% endfor %}
@@ -112,16 +111,9 @@
 
   <!-- NCR Forms -->
   <div class="col-md-6">
-    <div id="NCRSetupForm" class="collapse">
       <form id="NCRForm" method="POST">
-        <div class="NCR-setup-form">
-          <h5 class="text-center mb-4">NCR Setup</h5>
+        <div class="NCR-form">
           <div class="row" class="container">
-            <div class="col-md-6">
-              <div class="mb-3 form-label2 text-center">
-                <label for="NCRIDInput" class="form-label2">NCR ID</label>
-                <input type="text" class="form-control text-center" id="NCRIDInput" name="NCRIDInput" />
-              </div>
               <div class="mb-3 form-label2 text-center">
                 <label for="MaterialInput" class="form-label2">Material</label>
                 <select class="form-select text-center" id="MaterialInput" name="MaterialInput">
@@ -135,36 +127,46 @@
                 <select class="form-select text-center" id="CategoryInput" name="CategoryInput">
                   <option value="" disabled selected>Select Category</option>
                   <!-- Add category options dynamically -->
-                  {% for category in categories %}
-                  <option value="{{ category }}">{{ category }}</option>
-                  {% endfor %}
+                  <option value="Build Failure - Machine Malfunction">Build Failure - Machine Malfunction</option>
+                  <option value="Build Failure - Build File Issue">Build Failure - Build File Issue</option>
+                  <option value="Build Failure - Operator Error">Build Failure - Operator Error</option>
+                  <option value="Build Failure - Power/Gas/Air">Build Failure - Power/Gas/Air</option>
+                  <option value="General Operator Error">General Operator Error</option>
+                  <option value="General Machine Error">General Machine Error</option>
+                  <option value="Missed Requirement - Machine malfunction">Missed Requirement - Machine malfunction</option>
+                  <option value="Missed Requirement - Incomplete Documentation/Requirements">Missed Requirement - Incomplete Documentation/Requirements</option>
+                  <option value="Missed Requirement - Incomplete Documentation/Requirements">Missed Requirement - Incomplete Documentation/Requirements</option>
+                  <option value="Missed Requirement - Operator Error">Missed Requirement - Operator Error</option>
+                  <option value="Process/Document Violation">Process/Document Violation</option>
+                  <option value="Part Identification">Part Identification</option>
+                  <option value="OSP Error">OSP Error</option>
+                  <option value="Setup Piece(s)">Setup Piece(s)</option>
                 </select>
               </div>
               <div class="mb-3 form-label2 text-center">
                 <label for="QuantityInput" class="form-label2">Quantity</label>
-                <input type="number" class="form-control text-center" id="QuantityInput" name="QuantityInput" />
+                <input type="number" class="form-control text-center" id="QuantityInput" name="QuantityInput" min="1" required />
               </div>
               <div class="mb-3 form-label2 text-center">
                 <label for="WorkOrderInput" class="form-label2">Work Order #</label>
-                <input type="number" class="form-control text-center" id="WorkOrderInput" name="WorkOrderInput" />
+                <input type="number" class="form-control text-center" id="WorkOrderInput" name="WorkOrderInput" min="1" required />
               </div>
               <div class="mb-3 form-label2 text-center">
                 <label for="DescriptionInput" class="form-label2">Description Issue</label>
                 <textarea class="form-control" id="DescriptionInput" name="DescriptionInput" rows="3"></textarea>
               </div>
-              <div class="mb-3 form-label2 text-center">
+              <div class="mb-3 form-label2 text-center form-group">
                 <label for="AttachmentInput" class="form-label2">Attachment (PDF or photos)</label>
-                <input type="file" class="form-control" id="AttachmentInput" name="AttachmentInput" />
-              </div>
+                <input type="file" class="" id="AttachmentInput" name="AttachmentInput" />
             </div>
-          </div>
-          <button class="btn-primary" name="NCRformSetup" style="height: 30px; width: 100%">
+            
+            </div>
+          <button class="btn-primary" name="NCRform" style="height: 30px; width: 100%">
             Submit
           </button>
         </div>
       </form>
     </div>
   </div>
-</div>
 <script src="{{ url_for('static', filename='js/NCR.js') }}"></script>
 {% endblock content %}

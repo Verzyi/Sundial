@@ -92,7 +92,7 @@ def CreateApp():
 
     from .models_status import StatusTable
     from .models import Users, PowderBlends, MaterialAlloys, MaterialProducts, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, BuildsTable 
-    from .models import TaskTypes, Tasks, ScheduleTasks, Machines, Location
+    from .models import TaskTypes, Tasks, ScheduleTasks, Machines, Location, NcrsTable
     # Create the main database
     CreateStatusDatabase(app)
     CreateDatabase(app)
@@ -211,6 +211,13 @@ def CreateApp():
         column_display_pk = True
         column_searchable_list = ['LocationID','LocationName']
     admin.add_view(LocationAdminView(Location, db.session, category=extra_category.name))
+    
+    # NCR
+    class NCRAdminView(ModelView):
+        column_display_pk = True
+        column_display_fk = True  # Enable display of foreign keys
+        column_searchable_list = ['NCRID', 'WorkOrderNumber']
+    admin.add_view(NCRAdminView(NcrsTable, db.session, category=extra_category.name))
     
     # Machine
     class MachinesAdminView(ModelView):
