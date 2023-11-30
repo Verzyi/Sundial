@@ -198,11 +198,13 @@ class NcrsTable(db.Model):
     NCRID = db.Column(db.Integer, primary_key=True)
     CreatedOn = db.Column(db.String)
     CreatedBy = db.Column(db.Integer, db.ForeignKey('users.id', name='fk_ncr_user'))
+    Material = db.Column(db.String)
     LocationID = db.Column(db.Integer, db.ForeignKey('location.LocationID', name='fk_ncr_location'))
     Category = db.Column(db.String)
     Quantity = db.Column(db.Integer)
     WorkOrderNumber = db.Column(db.Integer)
     Description = db.Column(db.String)
+    Attachment = db.Column(db.String)
 
     date_cols = ['CreatedOn']
     for col in date_cols:

@@ -4,7 +4,6 @@ function updateFormAction(event) {
     let selectedOption = document.getElementById("facilitySelectInput").value;
 
     if (!selectedOption) {
-        console.log("No facility selected");
         return; // Don't submit the form if no facility is selected
     }
 
@@ -19,7 +18,6 @@ function updateFormAction(event) {
     facilityInput.name = "Facility";
     facilityInput.value = selectedOption;
     form.appendChild(facilityInput);
-    
 
     let searchInputField = document.createElement("input");
     searchInputField.type = "hidden";
@@ -28,10 +26,9 @@ function updateFormAction(event) {
     form.appendChild(searchInputField);
 
     localStorage.setItem("selectedFacility", selectedOption);
-    
+
     form.submit();
 }
-
 
 function populateSearchTable(data) {
     const tableBody = document.getElementById("searchTableBody");
@@ -76,68 +73,74 @@ window.addEventListener("load", function () {
     const selectedFacility = localStorage.getItem("selectedFacility");
     if (selectedFacility) {
         facilitySelectInput.value = selectedFacility;
+        console.log("selectedFacility: ", selectedFacility);
+        // Manually trigger the change event after setting the value
+        // facilitySelectInput.dispatchEvent(new Event('change'));
+        // populateSearchTable(); // Call the function to populate the table
     }
 });
 
-
 function showNCRInfo(event) {
-    // Check if the clicked element is inside a table row
     const row = event.target.closest("tr");
-    if (!row) {
-        return;
-    }
-
-    // Get the NcrIDInput from the first column (index 0) of the row
-    const NCRIDInput = row.getElementsByTagName("td")[0].textContent.trim();
-
-
-    // Fetch additional NCR information and display it
-    fetchNCRInfo(NCRIDInput);
-
-    NCRCheckbox.addEventListener("change", function (event) {
-        // Toggle the visibility of the ncrForm based on the checkbox state
-        const ncrForm = document.getElementById("NCRForm");
-        ncrForm.style.display = event.target.checked ? "block" : "none";
-    });
-}
-// Function to show NCR information
-function showNCRInfo(event) {
-    const row = event.currentTarget;
-    const ncrId = row.dataset.ncrId; // Retrieve the NCR ID from the clicked row's data attribute
-
-    fetchNCRInfo(ncrId); // Call the function to fetch NCR information based on the ID
-    // Additional operations you want to perform after fetching the info...
+    const NcrIDInput = row.getElementsByTagName("td")[0].textContent.trim();
+    fetchNcrInfo(NcrIDInput);
 }
 
-// Function to fetch NCR information
-function fetchNCRInfo(ncrId) {
-    fetch(`/get_NCR_info/${ncrId}`, {
-        method: 'GET',
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error('Network response was not OK!');
-        }
-        return response.json();
-    })
-    .then(data => {
-        console.log('Retrieved NCR data:', data);
-        // Handle the retrieved NCR data as needed
-        
-        // Example: Update the UI with the retrieved data
-        const NCRIDDisplay = document.getElementById('NCRIdDisplay');
-        NCRIDDisplay.textContent = data.NCRID;
 
-        const createdByInput = document.getElementById('createdByInput');
-        createdByInput.textContent = data.CreatedBy;
-
-        // ... Update other elements with the fetched data
+function fetchNcrInfo(NcrIDInput) {
+    fetch(`get_NCR_info/${NcrIDInput}`, {
+        method: "GET",
     })
-    .catch(error => {
-        console.error('Error fetching NCR info:', error);
-        // Handle errors, show error messages, etc.
-    });
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error("Network response was not OK!");
+                const NCRForm = document.getElementById("NCRForm");
+                NCRForm.classList.add("hidden");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            console.log("Retrieved build data:", data);
+            // Populate the rest of the form fields with the retrieved data
+
+            // Show the NCRForm
+            const NCRForm = document.getElementById("NCRForm");
+            NCRForm.classList.remove("hidden");
+
+            // Current Build Info
+            const NCRIDDisplay = document.getElementById("NCRIdDisplay")
+            NCRIDDisplay.textContent = data.NCRID
+
+            const createdByInput = document.getElementById("createdByInput");
+            createdByInput.textContent = data.CreatedBy;
+
+            const createdOnInput = document.getElementById("createdOnInput");
+            const datetimeString = data.CreatedOn;
+            // Parse the datetime string into a Date object
+            const datetime = new Date(datetimeString);
+            // Format the date as "M D Y"
+            const options = { year: 'numeric', month: 'short', day: 'numeric' };
+            const formattedDate = datetime.toLocaleDateString('en-US', options);
+            createdOnInput.textContent = formattedDate;
+
+            const categoryInput = document.getElementById('CategoryInput');
+            categoryInput.value = data.Category; // Assuming Category is retrieved from backend
+
+            const descriptionInput = document.getElementById("DescriptionInput");
+            descriptionInput.value = data.Description;
+
+            const QuantityInput = document.getElementById("QuantityInput");
+            QuantityInput.value = data.Quantity;
+
+            // const attachmentInput = document.getElementById("AttachmentInput");
+            // attachmentInput.value = data.Attachment;
+        })
+        .catch((error) => {
+            console.error("Error fetching NCR info:", error);
+        });
 }
+
+
 
 
 // Function to filter builds based on the search input
@@ -166,37 +169,19 @@ function filterNCRs() {
     }
 }
 
+// Debounce function to limit the frequency of filter operations
+function debounce(func, delay) {
+    let timer;
+    return function () {
+        clearTimeout(timer);
+        timer = setTimeout(func, delay);
+    };
+}
 
+// Retrieve the searchInput element
+const searchInput = document.getElementById("searchInput");
 
-                    // Debounce function to limit the frequency of filter operations
-                    function debounce(func, delay) {
-                        let timer;
-                        return function () {
-                            clearTimeout(timer);
-                            timer = setTimeout(func, delay);
-                        };
-                    }
+// Event listener for input changes
+const debouncedfilterNCRs = debounce(filterNCRs, 300);
+searchInput.addEventListener("input", debouncedfilterNCRs);
 
-                    // Retrieve the searchInput element
-                    const searchInput = document.getElementById("searchInput");
-
-                    // Event listener for input changes
-                    const debouncedFilterNCRs = debounce(filterNCRs, 300);
-                    searchInput.addEventListener("input", debouncedFilterNCRs);
-
-                    // Function to show NCR information
-                    function showNCRInfo(event) {
-                        const selectedRow = event.currentTarget;
-                        const ncrId = selectedRow.getElementsByTagName("td")[0].textContent;
-                        const createdBy = selectedRow.getElementsByTagName("td")[1].textContent;
-                        // const createdOn = selectedRow.getElementsByTagName("td")[2].textContent;
-                    
-                        const ncrIdDisplay = document.getElementById("NCRIdDisplay");
-                        const createdByInput = document.getElementById("createdByInput");
-                        // const createdOnInput = document.getElementById("createdOnInput");
-                    
-                        ncrIdDisplay.textContent = ncrId;
-                        createdByInput.textContent = createdBy;
-                        // createdOnInput.textContent = createdOn;
-                    }
-                    

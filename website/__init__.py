@@ -58,7 +58,7 @@ def CreateApp():
     # Initialize SQLAlchemy with the app
     db.init_app(app)
     
-    migrate = Migrate(app, db)
+    migrate = Migrate(app, db, render_as_batch=True)
     
     
     

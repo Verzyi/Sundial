@@ -1,4 +1,4 @@
-{% extends "builds/base_builds.html" %}
+{% extends "NCRS/base_NCR.html" %}
 {% block title %}Data Viewer{% endblock %}
 {% block content %}
 <!DOCTYPE html>
@@ -13,7 +13,7 @@
     <h1>Data Viewer</h1>
     <br>
     <div>
-      <form method="POST" action="/export_csv">
+      <form method="POST" action="/NCRS/export_csv">
         <button type="submit" class="btn-primary sticky-button">
           Export data to CSV
         </button>
@@ -23,16 +23,16 @@
         <table class="table table-hover">
           <thead>
             <tr class="table-active">
-              {% for column in builds[0].__table__.columns %}
+              {% for column in ncrs[0].__table__.columns %}
               <th class="vStick">{{ column.name }}</th>
               {% endfor %}
             </tr>
           </thead>
           <tbody>
-            {% for build in builds %}
+            {% for ncr in ncrs %}
             <tr>
-              {% for column in build.__table__.columns %}
-              <td>{{ build[column.name] }}</td>
+              {% for column in ncr.__table__.columns %}
+              <td>{{ ncr[column.name] }}</td>
               {% endfor %}
             </tr>
             {% endfor %}
@@ -42,7 +42,7 @@
           <ul class="pagination">
             {% if current_page > 1 %}
             <li class="page-item">
-              <a class="page-link" href="{{ url_for('builds.data_viewer', page=current_page-1) }}"
+              <a class="page-link" href="{{ url_for('ncrs.data_viewer', page=current_page-1) }}"
                 aria-label="Previous">
                 <span aria-hidden="true">&laquo;</span>
               </a>
@@ -54,10 +54,10 @@
             </li>
             {% else %}
             <li class="page-item">
-              <a class="page-link" href="{{ url_for('builds.data_viewer', page=page) }}">{{ page }}</a>
+              <a class="page-link" href="{{ url_for('ncrs.data_viewer', page=page) }}">{{ page }}</a>
             </li>
             {% endif %} {% endfor %} {% if current_page < num_pages %} <li class="page-item">
-              <a class="page-link" href="{{ url_for('builds.data_viewer', page=current_page+1) }}" aria-label="Next">
+              <a class="page-link" href="{{ url_for('ncrs.data_viewer', page=current_page+1) }}" aria-label="Next">
                 <span aria-hidden="true">&raquo;</span>
               </a>
               </li>

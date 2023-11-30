@@ -102,6 +102,10 @@ body {
   border-radius: 5px;
 }
 
+.hidden {
+  display: none;
+}
+
 .input-group .custom-file-input {
   text-align: center;
 }

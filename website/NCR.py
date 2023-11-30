@@ -207,7 +207,7 @@ def NCRForm():
             'CategoryInput': 'str',
             'DescriptionInput': 'str',
             'QuantityInput': 'int',
-            'WorkOrderInput': 'int',
+            'WorkOrderInput': 'int'
         }
         for attr, dtype in attribute_mappings.items():
             value = ncrform_data.get(attr)
