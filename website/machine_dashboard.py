@@ -1,4 +1,4 @@
-import EOS_DB2_Wrapper
+# import EOS_DB2_Wrapper turning off for aws
 import logging
 import os
 from datetime import datetime
