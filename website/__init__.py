@@ -11,8 +11,8 @@ from flask_admin.menu import MenuCategory
 from flask_admin.actions import action 
 import datetime as dt
 from apscheduler.schedulers.background import BackgroundScheduler
-from .machine_dashboard import machine_dashboard
-from .machine_dashboard import dashboard  # Import the dashboard function
+# from .machine_dashboard import machine_dashboard
+# from .machine_dashboard import dashboard  # Import the dashboard function
 from flask_migrate import Migrate
 from .mpd_dash import mpd_dash
 
@@ -78,7 +78,8 @@ def CreateApp():
     from .NCR import ncrs
     # from .maintenance import maintenance_bp
 
-    bp_list = [auth, views, machine_dashboard, quote, scheduler]
+    # bp_list = [auth, views, machine_dashboard, quote, scheduler] removing for aws
+    bp_list = [auth, views, quote, scheduler]
     
     for bp in bp_list:
         app.register_blueprint(bp, url_prefix='/')
