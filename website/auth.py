@@ -27,6 +27,44 @@ def login():
 
     return render_template('login.html', user=current_user)
 
+
+@auth.route('/guest-login', methods=['GET'])
+def guest_login():
+    # Create a guest user with a unique email
+    email = 'guest_' + str(hash(request.remote_addr))
+    password = 'guest_password'
+
+    # Check if the guest user already exists
+    guest_user = Users.query.filter_by(email=email).first()
+    if guest_user:
+        login_user(guest_user, remember=True)
+        flash('Logged in as guest.', category='success')
+        return redirect(url_for('views.Home'))
+
+    # Create a new guest user
+    last_user = Users.query.order_by(Users.id.desc()).first()
+    last_id = last_user.id if last_user else 0
+    new_id = last_id + 1
+
+    hashed_password = bcrypt.generate_password_hash(password).decode('utf-8')
+    new_user = Users(
+        id=new_id,
+        email=email,
+        first_name='Guest',
+        last_name='',
+        password=hashed_password,
+        role='Guest'
+    )
+    db.session.add(new_user)
+    db.session.commit()
+    login_user(new_user, remember=True)
+    flash('Logged in as guest.', category='success')
+    return redirect(url_for('views.Home'))
+
+    # If the guest user exists and has been deleted or any other case, render login.html
+    return render_template('login.html', user=current_user)
+
+
 @auth.route('/logout')
 @login_required
 def logout():

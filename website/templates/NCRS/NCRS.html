@@ -69,7 +69,7 @@
                 <form id="facilityForm">
                   <div class="dropdown-content">
                     <select style="padding: 5px; margin-bottom: 5px; width: 250px" class="form-select text-center"
-                            id="facilitySelectInput" name="facilitySelectInput">
+                            id="facilitySelectInput" name="facilitySelectInput" onchange="updateFormAction(event)">
                       <option value="" disabled selected>Select Facility</option>
                       {% for location in LocationTable %}
                       <option value="{{ location.LocationID }}">{{ location.LocationName }}</option>

@@ -10,7 +10,7 @@ function updateFormAction(event) {
     let form = document.getElementById("facilityForm");
     let searchInput = document.getElementById("searchInput").value;
 
-    form.action = "/NCRS";
+    form.action = "/NCRS/";
     form.method = "POST";
 
     let facilityInput = document.createElement("input");

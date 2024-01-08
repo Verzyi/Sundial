@@ -1,5 +1,8 @@
-{% extends "base.html" %} {% block title %} Login {% endblock %}
+{% extends "base.html" %} 
+{% block title %} Login {% endblock %}
+
 <h1>This is the login page</h1>
+
 {% block content %}
 <form method="POST" class="mt-4">
     <h3 class="text-center">Log In</h3>
@@ -16,6 +19,14 @@
         <div class="d-grid">
             <button type="submit" class="btn btn-primary" id="loginButton">Login</button>
         </div>
+        <div class="d-grid">
+            <a href="/guest-login" class="btn mt-2">Continue as Guest</a>
+        </div>
+        <script>
+          function redirectToGuestLogin() {
+            window.location.href = '/guest-login'; // Redirects to the /guest-login route
+          }
+        </script>
     </div>
 </form>
 {% endblock %}
