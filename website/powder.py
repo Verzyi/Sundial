@@ -10,7 +10,7 @@ from . import db
 from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, Users
 
 # by using configuration you can add path value.
-# wkhtml_path = pdfkit.configuration(
+# wkhtml_path = pdfkit.configuration( 
     # wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
 
 powder = Blueprint('powder', __name__)
