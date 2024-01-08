@@ -52,3 +52,4 @@ xmltodict==0.13.0
 apscheduler==3.10.4
 Flask_Migrate==4.0.5
 Flask-WTF==1.2.1
+WeasyPrint==52.6
