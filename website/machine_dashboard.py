@@ -12,7 +12,7 @@ from flask_admin.menu import MenuCategory
 from flask_admin.contrib.sqla import ModelView
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_bcrypt import Bcrypt, check_password_hash 
-import ibm_db
+# import ibm_db
 from apscheduler.schedulers.background import BackgroundScheduler
 from sqlalchemy import text
 from flask import current_app
