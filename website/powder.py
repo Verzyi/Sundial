@@ -1,17 +1,24 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response, send_file
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, make_response
 from flask_login import login_required, current_user
 from sqlalchemy import func, text
 import pandas as pd
 import datetime as dt
 import socket
-# import pdfkit
-from weasyprint import HTML
+import pdfkit
+import os 
+import subprocess
 from . import db
 from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, Users
 
 # by using configuration you can add path value.
-# wkhtml_path = pdfkit.configuration( 
-    # wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+try:
+    import pdfkit
+    wkhtml_path = pdfkit.configuration(
+        wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+except Exception as e:
+    print(e)
+    # Set the Lambda Layer path for wkhtmltopdf executable
+    WKHTMLTOPDF_PATH = '/opt/bin/wkhtmltopdf'  # Update the path accordingly
 
 powder = Blueprint('powder', __name__)
 
@@ -285,13 +292,11 @@ def BlendReport():
         majority_batch=majority_batch,
         blend_breakdown=blend_breakdown,
         footer=footer)
+    pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
 
-    # Convert HTML string to PDF using WeasyPrint
-    pdf_file = 'blend_report.pdf'
-    HTML(string=rendered).write_pdf(pdf_file)
-
-    # Create a Flask Response object with the PDF data
-    response = make_response(send_file(pdf_file, as_attachment=True, attachment_filename=pdf_file))
+    response = make_response(pdf)
+    response.headers['Content-type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
     return response
 
 

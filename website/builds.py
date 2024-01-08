@@ -1,12 +1,10 @@
-from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify, Response, make_response, send_file
+from flask import Blueprint, render_template, request, flash, redirect, url_for, session, jsonify, Response, make_response
 from flask_login import login_required, current_user
 import datetime as dt
 from sqlalchemy import func, desc, or_
 import pandas as pd
 import math
-# import pdfkit
-from weasyprint import HTML
-
+import pdfkit
 
 from . import db
 from .models import BuildsTable, Users, Tasks, ScheduleTasks, MaterialAlloys
@@ -14,9 +12,14 @@ from .models import BuildsTable, Users, Tasks, ScheduleTasks, MaterialAlloys
 builds = Blueprint('builds', __name__)
 
 # by using configuration you can add path value.
-# wkhtml_path = pdfkit.configuration(
-    # wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
-
+try:
+    import pdfkit
+    wkhtml_path = pdfkit.configuration(
+        wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+except Exception as e:
+    print(e)
+    # Set the Lambda Layer path for wkhtmltopdf executable
+    wkhtml_path = '/opt/bin/wkhtmltopdf'  # Update the path accordingly
 
 @builds.route('/home', methods=['GET', 'POST'])
 @login_required
@@ -148,16 +151,14 @@ def generate_traveler_report():
     # Get the data from the forms or database and populate the fields
     field1_value = 'Value 1'  # Replace with your actual data
     field2_value = 'Value 2'  # Replace with your actual data
-    
     # Render the HTML template with the data
     rendered = render_template('traveler_report.html', field1_value=field1_value, field2_value=field2_value)
-    
-    # Convert HTML string to PDF using WeasyPrint
-    pdf_file = 'traveler_report.pdf'
-    HTML(string=rendered).write_pdf(pdf_file)
-    
+    # Generate the PDF
+    pdf = pdfkit.from_string(rendered, False,configuration=wkhtml_path)
     # Create a Flask Response object with the PDF data
-    response = make_response(send_file(pdf_file, as_attachment=True, attachment_filename=pdf_file))
+    response = make_response(pdf)
+    response.headers['Content-type'] = 'application/pdf'
+    response.headers['Content-Disposition'] = 'inline; filename=traveler_report.pdf'
     return response
 
 @builds.route('/new_build', methods=['POST'])
