@@ -18,7 +18,7 @@ try:
 except Exception as e:
     print(e)
     # Set the Lambda Layer path for wkhtmltopdf executable
-    wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')
+    # wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')
 
 
 powder = Blueprint('powder', __name__)
