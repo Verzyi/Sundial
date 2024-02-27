@@ -4,20 +4,18 @@ import datetime as dt
 from sqlalchemy import func, desc, or_
 import pandas as pd
 import math
-import pdfkit
-
 from . import db
 from .models import BuildsTable, Users, Tasks, ScheduleTasks, MaterialAlloys
 
 builds = Blueprint('builds', __name__)
 
 # by using configuration you can add path value.
-try:
-    import pdfkit
-    wkhtml_path = pdfkit.configuration(
-        wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
-except Exception as e:
-    print(e)
+# try:
+#     import pdfkit
+#     wkhtml_path = pdfkit.configuration(
+#         wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+# except Exception as e:
+#     print(e)
     # Set the Lambda Layer path for wkhtmltopdf executable
     # wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')  # Update the path accordingly
 
@@ -154,12 +152,12 @@ def generate_traveler_report():
     # Render the HTML template with the data
     rendered = render_template('traveler_report.html', field1_value=field1_value, field2_value=field2_value)
     # Generate the PDF
-    pdf = pdfkit.from_string(rendered, False,configuration=wkhtml_path)
-    # Create a Flask Response object with the PDF data
-    response = make_response(pdf)
-    response.headers['Content-type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = 'inline; filename=traveler_report.pdf'
-    return response
+    # pdf = pdfkit.from_string(rendered, False,configuration=wkhtml_path)
+    # # Create a Flask Response object with the PDF data
+    # response = make_response(pdf)
+    # response.headers['Content-type'] = 'application/pdf'
+    # response.headers['Content-Disposition'] = 'inline; filename=traveler_report.pdf'
+    return rendered
 
 @builds.route('/new_build', methods=['POST'])
 @login_required
