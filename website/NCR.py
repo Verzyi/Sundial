@@ -4,8 +4,6 @@ import datetime as dt
 from sqlalchemy import func, desc, or_
 import pandas as pd
 import math
-import pdfkit
-
 from . import db
 from .models import NcrsTable, Users, Location
 
