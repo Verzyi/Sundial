@@ -11,12 +11,12 @@ from . import db
 from .models import PowderBlends, MaterialProducts, MaterialAlloys, InventoryVirginBatch, PowderBlendParts, PowderBlendCalc, Users
 
 # by using configuration you can add path value.
-try:
-    import pdfkit
-    wkhtml_path = pdfkit.configuration(
-        wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
-except Exception as e:
-    print(e)
+# try:
+#     import pdfkit
+#     wkhtml_path = pdfkit.configuration(
+#         wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
+# except Exception as e:
+#     print(e)
     
     # Set the Lambda Layer path for wkhtmltopdf executable
     # wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')  # Adjust the path based on where it's installed in your Lambda Layer
