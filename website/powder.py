@@ -17,6 +17,7 @@ try:
         wkhtmltopdf='C:\\Program Files\\wkhtmltopdf\\bin\\wkhtmltopdf.exe')
 except Exception as e:
     print(e)
+    
     # Set the Lambda Layer path for wkhtmltopdf executable
     # wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')  # Adjust the path based on where it's installed in your Lambda Layer
 
