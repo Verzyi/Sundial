@@ -4,7 +4,7 @@ from sqlalchemy import func, text
 import pandas as pd
 import datetime as dt
 import socket
-import pdfkit
+
 import os 
 import subprocess
 from . import db
@@ -18,10 +18,10 @@ try:
 except Exception as e:
     print(e)
     # Set the Lambda Layer path for wkhtmltopdf executable
-    wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')  # Adjust the path based on where it's installed in your Lambda Layer
+    # wkhtml_path = pdfkit.configuration(wkhtmltopdf='/opt/bin/wkhtmltopdf')  # Adjust the path based on where it's installed in your Lambda Layer
 
     # Then use this configuration when creating PDFs
-    config = pdfkit.configuration(wkhtmltopdf=wkhtml_path)
+    # config = pdfkit.configuration(wkhtmltopdf=wkhtml_path)
 
 
 powder = Blueprint('powder', __name__)
@@ -296,12 +296,8 @@ def BlendReport():
         majority_batch=majority_batch,
         blend_breakdown=blend_breakdown,
         footer=footer)
-    pdf = pdfkit.from_string(rendered, False, configuration=wkhtml_path)
-
-    response = make_response(pdf)
-    response.headers['Content-type'] = 'application/pdf'
-    response.headers['Content-Disposition'] = f'inline; filename=Blend_{blend}_Report.pdf'
-    return response
+   
+    return rendered
 
 
 @powder.route('/search/trace/<int:blend_id>/<int:lvl>/<int:limit>', methods=['GET', 'POST'])
